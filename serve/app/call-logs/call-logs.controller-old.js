@@ -8,100 +8,19 @@ const moment = require("moment");
 // Upload call log from the Avaya system to this Backend platform database
 exports.uploadCallLog = async (req, res) => {
   try {
-    let reqBranchName = req.body.branch;
-    let reqOrgName = req.user.organization;
     let callLogs = req.body;
-
-    // delete branch req name from api
-    // delete callLogs.branch;
-
-    let userDetailsFind;
-    let branchNameFindedNew;
-
-    let userDetailsFindDept;
-    let deptFindNew;
-
-    // fetch branch name based on extension
-    if (callLogs.Direction == "O") {
-      userDetailsFind = await USER.find(
-        {
-          softDelete: false,
-          extension: callLogs.Callernumber,
-          organization: reqOrgName,
-        },
-        "branch"
-      ).lean();
-
-      //find dept
-      userDetailsFindDept = await USER.find(
-        {
-          softDelete: false,
-          extension: callLogs.Callernumber,
-          organization: reqOrgName,
-        },
-        "department"
-      ).lean();
-    } else if (callLogs.Direction == "I") {
-      userDetailsFind = await USER.find(
-        {
-          softDelete: false,
-          extension: callLogs.Callednumber,
-          organization: reqOrgName,
-        },
-        "branch"
-      ).lean();
-
-      //find dept
-      userDetailsFindDept = await USER.find(
-        {
-          softDelete: false,
-          extension: callLogs.Callednumber,
-          organization: reqOrgName,
-        },
-        "department"
-      ).lean();
-    }
-
-    if (userDetailsFind) {
-      let branchArr = []; //initializing array
-      userDetailsFind.forEach((element) => {
-        //using array function for call back
-        for (var k in element) {
-          //looping through each element of array
-          branchArr.push(element[k]); //pushing each value of object present inside the branch
-        }
-      });
-      branchNameFindedNew = branchArr[1];
-    }
-
-    console.log("branch finded");
-
-    if (userDetailsFindDept) {
-      let deptArr = []; //initializing array
-      userDetailsFindDept.forEach((elements) => {
-        //using array function for call back
-        for (var kk in elements) {
-          //looping through each element of array
-          deptArr.push(elements[kk]); //pushing each value of object present inside the branch
-        }
-      });
-      deptFindNew = deptArr[1];
-      console.log(deptFindNew);
-    }
-
-    console.log("dept findedddddd");
-
     let dataToAppend = {
+      // organization: req.user.organization,
       organizationCalculated: false,
       softDelete: false,
       callCostCalculated: false,
       callTypeCalculated: false,
       callerNameCalculated: false,
       calledNameCalculated: false,
-      branch: branchNameFindedNew,
-      branchCalculated: true,
-      department: deptFindNew,
-      departmentCalculated: true,
+      // branch: req.user.branch,
+      // branchCalculated: true,
+      branchCalculated: false,
+      departmentCalculated: false,
       transferCallCalculated: false,
       parentTransferCallLog: false,
       creationDate: new Date(),
@@ -141,13 +60,8 @@ exports.uploadCallLog = async (req, res) => {
       }
     }
 
-    return res.json({
-      success: true,
-      data: "Call log captured",
-      message: "Data saved",
-    });
+    return res.json({ success: true, data: "", message: "Data saved" });
   } catch (err) {
-    // console.log("hi testing" + err);
     return res.json({ success: false, message: err, data: "" });
   }
 };
