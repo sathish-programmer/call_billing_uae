@@ -1,0 +1,58 @@
+<div class="container-fluid">
+    <h4 *ngIf="providerAction == 'add'" class="text-uppercase header">PROVIDER | CREATE</h4>
+    <h4 *ngIf="providerAction == 'edit'" class="text-uppercase header">PROVIDER | EDIT</h4>
+
+    <div class="rel-action">
+        <a class="add-btn" href="admin/inaipi/setup" title="Back to the List">
+            <img src="assets/images/list.svg">
+        </a>
+    </div>
+    <div>
+        <form [formGroup]="providerForm" (ngSubmit)="createUpdateProvider(providerForm.value)">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="required">Name</label>
+                    <input class="input-field" placeholder="Enter provider pame" formControlName="name" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="required">Street</label>
+                    <input class="input-field" placeholder="Enter Street" formControlName="street" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="required">City</label>
+                    <input class="input-field" placeholder="Enter City" formControlName="city" required>
+                </div>
+            </div>
+            
+            <div class="row" style="margin-top: 15px">
+                <div class="col-md-4">
+                    <label class="required">State / PO Box</label>
+                    <input class="input-field" placeholder="Enter state or Po box" formControlName="stateOrPOBox" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="required">Country</label>
+                    <select class="dropdown" formControlName="country" required>
+                        <option value="" disabled selected> Select Country</option>
+                        <option *ngFor="let item of countryList" value={{item._id}} [selected]="country">
+                            {{item.nameCommon}}</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label>Bldg Block</label>
+                    <input class="input-field" placeholder="Enter building block" formControlName="bldgBlock">
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px">
+                <div class="col-md-12">
+                    <label>Description</label>
+                    <textarea rows="2" cols="60" placeholder="Enter description" class="input-field" formControlName="description"></textarea>
+                </div>
+            </div>
+            <hr>
+            <button type="submit" *ngIf="providerAction == 'add' && (permissions.indexOf('canAddProvider') >= 0)"
+            class="btn btn-sm btn-primary" [disabled]="!providerForm.valid">Add Provider</button>
+            <button type="submit" *ngIf="providerAction == 'edit' && (permissions.indexOf('canEditProvider') >= 0)"
+            class="btn btn-sm btn-primary" [disabled]="!providerForm.valid">Edit Provider</button>
+        </form>
+    </div>
+</div>

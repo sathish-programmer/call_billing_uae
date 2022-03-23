@@ -1,0 +1,71 @@
+.dropbtn {
+  background-color: whitesmoke;
+  background-image: url("../../../assets/images/caret-down-fill.svg");
+  // background-position: 125px 15px;
+  background-repeat: no-repeat;
+  padding-right: 30px !important;
+  background-position: calc(100% - 8px);
+  color: black;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  min-width: 150px;
+  text-align: left;
+  border: #e0dada solid 1px;
+  border-radius: 5px;
+}
+
+.dropbtn:focus {
+  outline: none;
+}
+
+#myInput {
+  box-sizing: border-box;
+  background-image: url("../../../assets/images/search.svg");
+  background-position: 14px 12px;
+  background-repeat: no-repeat;
+  font-size: 16px;
+  padding: 7px 20px 10px 45px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  width: 198px;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f6f6f6;
+  min-width: 200px;
+  overflow: auto;
+  border: 1px solid grey;
+  z-index: 1;
+  right: 0;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 10px 10px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown a:hover {
+  background-color: lightgrey;
+}
+.custom-height {
+  min-height: 100px;
+  max-height: 300px;
+  max-height: 300px;
+}
+.showContent {
+  display: block;
+}
+.selected-org {
+  background-color: lightgrey;
+}

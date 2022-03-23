@@ -1,0 +1,26 @@
+// .footerMain {
+//   background-color: #007bff !important;
+//   color: #fff;
+//   font-size: 12px;
+//   position: fixed;
+//   left: 0;
+//   bottom: 0;
+//   width: 100%;
+//   text-align: center;
+// }
+
+.footerMain {
+  position: absolute;
+  // display: none;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  background-color: #007bff !important;
+  color: #fff;
+  font-size: 12px;
+}
+
+.footerMain a {
+  color: #fff !important;
+}

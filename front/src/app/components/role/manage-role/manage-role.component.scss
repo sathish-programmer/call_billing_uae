@@ -1,0 +1,33 @@
+.rel-action{
+    position: absolute;
+    right: 20px;
+    top: 80px;
+    a{
+        font-size: 25px;
+        line-height: 2.8;
+        text-decoration: none;
+        background: #2f96f3;
+        border-radius: 50%;
+        padding: 3px 8px 3px 8px;
+        &:hover{
+            text-decoration: none;
+            cursor: pointer;
+        }
+        img{
+            margin-bottom: 5px;
+        }
+    }
+
+}
+
+.add-btn {margin-top: 15px;}
+.add-btn:focus {box-shadow: none !important;}
+label {font-size: 14px; font-weight: 600; padding-left: 5px;}
+
+.input-field:focus {outline: none;}
+.input-field{padding: 10px 15px 10px 10px !important;}
+.input-field::placeholder{font-weight: 400;}
+.form{ box-shadow: 0px 10px 20px 5px lightgrey; padding: 15px;}
+.box-height-105 {max-height: 105px; height: 105px; overflow: auto; background-color:#f1f1f1; padding: 1% 1% 1% 2%;margin: 0 0 5% 0;}
+.permissions-label{margin-bottom: 0rem !important;}
+.role-head { font-weight: 700; margin-top: 10px;}

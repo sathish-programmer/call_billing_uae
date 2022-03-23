@@ -1,0 +1,61 @@
+<div class="container-fluid" *ngIf="permissions && permissions.length">
+    <h4 class="text-uppercase header">ROLE | MANAGE</h4>
+    <div class="rel-action">
+        <button class="btn add-btn" (click)="setRoleAction('add')" *ngIf="permissions.indexOf('canAddRole') >= 0" 
+            title="Add Role">
+            <img src="assets/images/plus-icon.svg" height="35px;"></button>
+    </div>
+    <div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 20%">Name</th>
+                    <th scope="col" style="width: 22%">Organization</th>
+                    <th scope="col">Created At</th>
+                    <th scope="col" class="text-right pull-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of roleList | paginate: { itemsPerPage: rolesPaginator.limit, 
+                    currentPage: rolesPaginator.skip, totalItems: rolesPaginator.total}">
+                    <th scope="row">{{data.name}}</th>
+                    <td>{{data.organization.name || 'ROOT'}}</td>
+                    <td>{{(data.creationDate | date)  || '-'}}</td>
+                    <td class="text-right pull-right">
+                        <button class="btn btn-sm btn-warning mar-5-left" title="Edit Role"
+                            *ngIf="(permissions.indexOf('canEditRole') >= 0)" (click)="setRoleAction('edit', data)">
+                            <img src="assets/images/edit-icon.svg">
+                        </button>
+                        <button class="btn btn-sm btn-danger mar-5-left" title="Delete Role"
+                            *ngIf="(permissions.indexOf('canDeleteRole') >= 0)" (click)="delete(data)">
+                            <img src="assets/images/trash.svg">
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <pagination-controls (pageChange)="getRolesList($event)"></pagination-controls>
+    </div>
+    <br>
+</div>
+
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="container">
+            <h6 class="heading">ROLE | DELETE</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <hr>
+            <label>Do you want to delete this role- {{roleName}}?</label>
+            <br>
+            <button type="button" class="btn-sm btn delete-btn btn-light" data-dismiss="modal">No</button>
+            <button type="button" class="btn-sm btn delete-btn btn-primary" (click)="deleteRole()">Yes</button>
+            <br><br>
+        </div>
+      </div>
+    </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="container-fluid">
+    <div>
+        <h4 class="text-uppercase header">raise support </h4>
+        <div class="viewAllTick" [routerLink]="['/admin/inaipi/dashboard/tickets']">View All Support</div>
+        <form #userPost=ngForm (ngSubmit)="createTicket(userPost.value)" id="supportTicket">
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="required lab">Request Type</label>
+                    <select [(ngModel)]="selectedValue" class="form-control" name="request_type" id="reqType">
+                        <option value="" [disabled]="true">Select Requset Type</option>
+                        <option value="Subscription">Subscription</option>
+                        <option value="Bug">Bug</option>
+                        <option value="New Feature">New Feature</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- <div class="row">
+                <div class="col-md-12">
+                    <label class="required lab">Full Name</label>
+                    <input class="input-field" placeholder="Enter full name" ngModel name="username" required>
+                </div>
+            </div> -->
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="required lab">Contact Number</label>
+                    <input rows="1" cols="60" class="input-field" required placeholder="Enter contact number" ngModel name="mobile_number">
+                </div>
+                <div class="col-md-6">
+                    <label class="required lab">Title</label>
+                    <input class="input-field" placeholder="Enter title" ngModel name="title" required>
+                </div>
+            </div>
+            
+
+            <div class="row" *ngIf="selectedValue == 'Bug'">
+                <div class="col-md-12">
+                    <label class="required lab">Problem Category</label> 
+                    <select ngModel class="form-control" name="problem_category" id="probCat">
+                        <option value="" [disabled]="true">Select Problem Category</option>
+                        <option value="Computer">Computer</option>
+                        <option value="Email">Email</option>
+                        <option value="Network">Network</option>
+                        <option value="Phone">Phone</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            
+            
+            <div class="row" *ngIf="selectedValue == 'Bug'">
+                <div class="col-md-12">
+                    <label class="lab">Date Issue Began</label> 
+                    <dp-date-picker theme="dp-material" name="issue_date" id="dateBegin" placeholder="Select issue date" [config]="config" (onSelect)="dateChange($event)"></dp-date-picker>
+                </div>
+            </div>
+
+            <div class="row" *ngIf="selectedValue == 'Bug'">
+                <div class="col-md-12 issuePreventDiv">
+                    <label class="lab issuePrevLab" >Is The Issue Preventing You From Doing Anything?</label>
+                    <input type="radio" class="issueYes" ngModel name="issue_prevent" value="Yes"/>Yes
+                    <input type="radio" class="issueNo" ngModel name="issue_prevent" value="No"/>No
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="required lab" *ngIf="selectedValue == ''">Please describe something (with as much detail as possible):</label>
+                    <label class="required lab" *ngIf="selectedValue == 'Subscription'">Please describe what changes you want in your subscription (with as much detail as possible):</label>
+                    <label class="required lab" *ngIf="selectedValue == 'Bug'">Please explain the issue you're experiencing (with as much detail as possible):</label>
+                    <label class="required lab" *ngIf="selectedValue == 'New Feature'">Please tell us what type of feature you want (with as much detail as possible):</label>
+                    <textarea rows="1" cols="60" class="input-field supDesc" required placeholder="Enter description" ngModel name="description"></textarea>
+                </div>
+            </div>
+           
+            <!--<div class="row">
+                <div class="col-md-12">
+                    <label class="jontitleLab">Job Title <span class="optionalField">(optional)</span></label>
+                    <input rows="1" cols="60" class="input-field" placeholder="Enter job title" ngModel name="jobtitle">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="required">Description</label>
+                    <textarea rows="1" cols="60" class="input-field supDesc" required placeholder="Enter description" ngModel name="description"></textarea>
+                </div>
+            </div> -->
+            
+            <hr class="supportFormHr">
+            <button type="submit" class="btn btn-sm btn-primary mb-3" [disabled]="userPost.form.invalid">Submit</button>
+        </form>
+    </div>
+</div>

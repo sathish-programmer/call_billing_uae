@@ -1,0 +1,73 @@
+.rel-action{
+    position: absolute;
+    right: 20px;
+    top: 80px;
+    a{
+        font-size: 25px;
+        line-height: 2.8;
+        text-decoration: none;
+        background: #2f96f3;
+        border-radius: 50%;
+        padding: 3px 8px 3px 8px;
+        &:hover{
+            text-decoration: none;
+            cursor: pointer;
+        }
+        img{
+            margin-bottom: 5px;
+        }
+    }
+
+}
+
+
+.nav-tabs { margin-bottom: 0px !important;}
+.nav-tabs .nav-link{ border: none;}
+.nav-tabs > li > a{color: #a5a5a5; font-size: 14px;}
+.nav-tabs > li.active > a { background: transparent; border-radius: 0; color: black; font-weight: 700;
+    border: none; border-bottom: 2px solid #2f74f1;}
+.nav-tabs>li >a:focus, .nav-tabs>li>a:hover {background: transparent; border-radius: 0; color: black;
+    border: none; border-bottom: 2px solid #2f74f1; font-weight: 700;}
+
+.add-btn {margin-top: 15px;}
+.add-btn:focus {box-shadow: none !important;}
+label {font-size: 14px; font-weight: 600; padding-left: 5px;}
+.input-field:focus {outline: none;}
+.input-field{padding: 8px 10px 8px 10px;}
+.input-field::placeholder{font-weight: 400;}
+.dropdown{width: 100%; border: 1px solid lightgrey; 
+    border-radius: 3px;padding-left: 7px; font-size: 13px; color: grey;}
+.dropdown:focus{outline: none;}
+
+.btn-warning{background-color: #ffd75f; border-color: #ffd75f;}
+.btn-warning:hover{background-color: #ffc516; border-color: #ffc516;}
+.btn-warning:focus{box-shadow: none !important;}
+.btn-primary:focus {box-shadow: none !important;}
+
+.margin-left-5{margin-left: 5px;}
+.box-shadow{box-shadow: 0px 10px 12px 0px #b8b7b7;}
+.h-40{height: 40px;}
+
+.report-btn{ padding: 5px 20px;}
+.form-control{padding: .35rem .75rem; font-size: 0.8rem;}
+.form-control:focus{box-shadow: none; outline: none;}
+
+.container{padding-right: 25px; padding-left: 25px;box-shadow: 0px 4px 5px 0px grey;padding-top: 20px;margin-top: 1%;}
+.heading{font-weight: 700;}
+.page-heading{font-weight: 700; padding-left: 20px; font-size: 17px;}
+
+.note{ position: relative; left: 35%; bottom: 78px;width: 50%;}
+.m-30{margin-top: -40px;}
+.m-15{margin-top: 15px;}
+.p-0{padding: 0 !important;}
+.f-right{float: right;}
+
+.close{ position: relative; bottom: 32px;}
+label{ font-size: 14px; font-weight: 600; padding-left: 5px;}
+.input-field:focus{outline: none;}
+.cursor-pointer{cursor: pointer;}
+.delete-btn{ margin-left: 5px; padding: 5px 20px 5px 20px;margin-top: 10px;}
+.btn-light{background-color: #e4e5e5; border-color: #e4e5e5;}
+
+.reports-datepicker{ border: 1px solid lightgrey; color: grey; border-radius: 3px;}
+.box-shadow{box-shadow: 0px 2px 20px 2px #b8b7b7; padding-top: 20px;}

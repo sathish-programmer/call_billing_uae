@@ -1,0 +1,113 @@
+<div class="container-fluid">
+    <h4 *ngIf="userAction == 'add'" class="text-uppercase header">USER | CREATE</h4>
+    <h4 *ngIf="userAction == 'edit'" class="text-uppercase header">USER | EDIT</h4>
+
+    <div class="rel-action">
+        <a class="add-btn" href="admin/user" title="Back to the List">
+            <img src="assets/images/list.svg">
+        </a>
+    </div>
+    <div>
+        <form [formGroup]="userForm" (ngSubmit)="createUpdateUser(userForm.value)">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="required">First Name</label>
+                    <input class="input-field" placeholder="Enter First Name" formControlName="firstName" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="required">Last Name</label>
+                    <input class="input-field" placeholder="Enter Last Name" formControlName="lastName" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="required">Email</label>
+                    <input class="input-field" placeholder="Enter Email" formControlName="email" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Enable Login</label>
+                    <label class="switch">
+                        <input type="checkbox" checked="enableLogin" formControlName="enableLogin">
+                        <span class="slider round"></span>
+                    </label><br>
+                </div>
+            </div>
+            
+            <div class="row" style="margin-top: 15px">
+                <div [ngClass]="(userAction =='add')?'col-md-3':'display-none'">
+                    <label class="required">Password</label>
+                    <input type="password" class="input-field" placeholder="Enter Password" formControlName="password">
+                </div>
+                <div [ngClass]="(userAction =='add')?'col-md-3':'col-md-4'">
+                    <label>Country</label>
+                    <select class="dropdown" formControlName="country">
+                        <option value="" disabled selected> Select Country</option>
+                        <option *ngFor="let item of countryList" value={{item._id}} [selected]="country">
+                            {{item.nameCommon}}</option>
+                    </select>
+                </div>
+                <div [ngClass]="(userAction =='add')?'col-md-3':'col-md-4'">
+                    <label>Timezone</label>
+                    <select class="dropdown" formControlName="timeZone">
+                        <option value="" disabled selected> Select Time Zone</option>
+                        <option *ngFor="let item of timezoneList" value={{item._id}}>{{item.completeName}}
+                        </option>
+                    </select>
+                </div>
+                <div [ngClass]="(userAction =='add')?'col-md-3':'col-md-4'">
+                    <label>Extension</label>
+                    <input class="input-field" placeholder="Enter Extension" formControlName="extension"
+                    (keypress)="numberOnly($event)" maxlength="6">
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px">
+                <!-- <div class="col-md-3">
+                    <label class="required">Organization</label>
+                    <select class="dropdown" id="organization" formControlName="organization" disabled required>
+                        <option  value="" disabled selected>Select Organization</option>
+                        <option *ngFor="let item of orgList" value={{item._id}}>
+                            {{item.name}}</option>
+                    </select>
+                </div> -->
+                <div class="col-md-3">
+                    <label class="required">Role</label>
+                    <select class="dropdown" id="role" formControlName="role" required>
+                        <option  value="" disabled selected>Select Role</option>
+                        <option *ngFor="let item of rolesList" value={{item._id}}>
+                            {{item.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="required">Branch</label>
+                    <select class="dropdown" id="branch" formControlName="branch"
+                    required (change)="changeBranch($event.target.value)">
+                        <option value="" disabled selected>Select Branch</option>
+                        <!-- <option value="all">All</option> -->
+                        <option *ngFor="let item of branchList" value={{item._id}}>
+                            {{item.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="required">Department</label>
+                    <select class="dropdown" id="department" formControlName="department" required>
+                        <option  value="" disabled selected>Select Department</option>
+                        <!-- <option value="all">All</option> -->
+                        <option *ngFor="let item of deptList" value={{item._id}}>
+                            {{item.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Sub-Department</label>
+                    <select class="dropdown" id="subDepartment" formControlName="subdepartment">
+                        <option value="" disabled selected>Select Sub-department</option>
+                        <option *ngFor="let item of subDeptList" value={{item._id}}>
+                            {{item.name}}</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <button type="submit" *ngIf="userAction == 'add' && (permissions.indexOf('canAddUser') >= 0)"
+            class="btn btn-sm btn-primary" [disabled]="!userForm.valid">Add User</button>
+            <button type="submit" *ngIf="userAction == 'edit' && (permissions.indexOf('canEditUser') >= 0)"
+            class="btn btn-sm btn-primary" [disabled]="!userForm.valid">Edit User</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,174 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+.mar-5-left {
+  margin-left: 5px;
+}
+
+.mar-10-top {
+  margin-top: 10px;
+}
+
+.header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+  position: relative;
+  // z-index: 1;
+  font-weight: bold;
+  font-family: "Open Sans", "Segoe UI", Roboto, Ubuntu, "Helvetica Neue",
+    sans-serif;
+}
+
+.header::after {
+  content: "";
+  background-color: #2f96f3;
+  width: 18px;
+  height: 6px;
+  border-radius: 2px;
+  display: block;
+  position: absolute;
+  bottom: -3px;
+  left: 0px;
+}
+
+.noHover {
+  pointer-events: none;
+}
+
+.toast-container.toast-top-center .ngx-toastr,
+.toast-container.toast-bottom-center .ngx-toastr {
+  width: 500px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.img-width-height {
+  width: 2.5em;
+  height: 2.5em;
+}
+
+.padding-20 {
+  padding: 1em !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-transform-none {
+  text-transform: none !important;
+}
+
+.add-btn {
+  margin-top: 1rem;
+}
+
+.input-field {
+  border: 1px solid lightgrey;
+  border-radius: 3px;
+  padding: 5px 10px 5px 10px;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  color: darkslategrey;
+}
+.input-field::placeholder {
+  font-weight: 400;
+}
+select {
+  color: darkslategrey;
+}
+
+.required:after {
+  color: red;
+  content: " *";
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 55px;
+  height: 30px;
+  top: 35px;
+  right: 85px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 23px;
+  width: 23px;
+  left: 3px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+dp-date-picker.dp-material .dp-picker-input {
+  box-sizing: border-box;
+  font-size: 13px;
+  height: 40px !important;
+  outline: none;
+  width: 260% !important;
+  padding-left: 10px;
+  border: none;
+  color: grey;
+  border-radius: 3px;
+}
+
+.dashboard dp-date-picker.dp-material .dp-picker-input {
+  // border: 1px solid lightgrey !important;
+  height: 35px !important;
+  width: 134% !important;
+}
+
+.reports-datepicker dp-date-picker.dp-material .dp-picker-input {
+  width: 153% !important;
+  border: none !important;
+}

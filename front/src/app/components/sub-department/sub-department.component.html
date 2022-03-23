@@ -1,0 +1,132 @@
+<div class="container-fluid" *ngIf="permissions && permissions.length">
+    <h4 class="text-uppercase header">SUB-DEPARTMENT | MANAGE</h4>
+    <div class="rel-action" (click)="openSubDepartmentPopUp()">
+        <button class="btn add-btn" *ngIf="permissions.indexOf('canAddSubDepartment') >= 0" 
+            title="Add Sub-Department">
+            <img src="assets/images/plus-icon.svg" height="35px;"></button>
+    </div>
+    <div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 20%">Name</th>
+                    <th scope="col" style="width: 22%">Organization</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Created At</th>
+                    <th scope="col" class="text-right pull-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of subDeptList | paginate: { itemsPerPage: subDeptPaginator.limit, 
+                    currentPage: subDeptPaginator.skip, totalItems: subDeptPaginator.total}">
+                    <th scope="row">{{data.name}}</th>
+                    <td>{{data.organization.name || 'ROOT'}}</td>
+                    <td>{{data.department.name}}</td>
+                    <td>{{(data.creationDate | date)  || '-'}}</td>
+                    <td class="text-right pull-right">
+                        <button class="btn btn-sm btn-warning mar-5-left" title="Edit Sub-Department"
+                            *ngIf="(permissions.indexOf('canUpdateSubDepartment') >= 0)" (click)="editSubDept(data)">
+                            <img src="assets/images/edit-icon.svg">
+                        </button>
+                        <button class="btn btn-sm btn-danger mar-5-left" title="Delete Sub-Department"
+                            *ngIf="(permissions.indexOf('canDeleteSubDepartment') >= 0)" (click)="delete(data)">
+                            <img src="assets/images/trash.svg">
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <pagination-controls (pageChange)="getSubDeptList($event)"></pagination-controls>
+    </div>
+    <br>
+</div>
+
+
+<!--Add Modal -->
+<div class="modal fade" id="addSubDeptModal" tabindex="-1" role="dialog" aria-labelledby="addSubDeptModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <h6 class="heading">SUB-DEPARTMENT | NEW</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr>
+                <form [formGroup]="subDeptForm" (ngSubmit)="addSubDept(subDeptForm.value)">
+                    <div style="margin-top: 5px;">
+                        <label class="required">Department</label>
+                        <select class="dropdown" formControlName="department" required>
+                            <option  value="" disabled selected>Select Department</option>
+                            <option *ngFor="let item of deptList" value={{item._id}}>
+                                {{item.name}}</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <label class="required">Name</label>
+                        <input class="input-field" placeholder="Enter department name" formControlName="name" required>
+                    </div>
+                    <hr>
+                    <button type="submit" class="btn btn-sm btn-primary" [disabled]="!subDeptForm.valid"
+                    *ngIf="permissions.indexOf('canAddSubDepartment') >= 0">Create Sub-Department</button>
+                </form>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Edit Modal -->
+<div class="modal fade" id="editSubDeptModal" tabindex="-1" role="dialog" aria-labelledby="editSubDeptModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <h6 class="heading">SUB-DEPARTMENT | EDIT</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr>
+                <form [formGroup]="subDeptForm" (ngSubmit)="updateSubDept(subDeptForm.value)">
+                    <div style="margin-top: 5px;">
+                        <label class="required">Department</label>
+                        <select class="dropdown" formControlName="department" required>
+                            <option  value="" disabled selected>Select Department</option>
+                            <option *ngFor="let item of deptList" value={{item._id}}>
+                                {{item.name}}</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <label class="required">Name</label>
+                        <input class="input-field" placeholder="Enter sub-department name" formControlName="name" required>
+                    </div>
+                    <hr>
+                    <button type="submit" class="btn btn-sm btn-primary" *ngIf="(permissions.indexOf('canUpdateSubDepartment') >= 0)">
+                        Edit Sub-Department</button>
+                </form>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="container">
+            <h6 class="heading">SUB-DEPARTMENT | DELETE</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <hr>
+            <label>Do you want to delete this sub-department- {{subDeptName}}?</label>
+            <br>
+            <button type="button" class="btn-sm btn delete-btn btn-light" data-dismiss="modal">No</button>
+            <button type="button" class="btn-sm btn delete-btn btn-primary" (click)="deleteSubDepartment()">Yes</button>
+            <br><br>
+        </div>
+      </div>
+    </div>
+</div>

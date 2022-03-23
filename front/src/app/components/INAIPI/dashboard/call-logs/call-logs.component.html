@@ -1,0 +1,52 @@
+<div class="container-fluid" *ngIf="permissions && permissions.length">
+    <h4 class="text-uppercase header">CALL LOGS</h4>
+    <div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Branch/Department</th>
+                    <th scope="col" style="width: 21%;">Numbers</th>
+                    <th scope="col" style="width: 21%;">Cost/Cycles</th>
+                    <th scope="col">Call Duration/Direction</th>
+                    <th scope="col">Call Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of callLogsList | paginate: { itemsPerPage: callLogsPaginator.limit, 
+                    currentPage: callLogsPaginator.skip, totalItems: callLogsPaginator.total}">
+                    <td>
+                        <p class="small-heading">Branch: <span class="small-text">
+                                {{data.branch?.name || '-'}}</span></p>
+                        <p class="small-heading">Department: <span class="small-text">
+                                {{data.department?.name || '-'}}</span></p>
+                    </td>
+                    <td>
+                        <p class="small-heading">Caller Number: <span class="small-text">
+                                {{data.Callernumber || '-'}}</span></p>
+                        <p class="small-heading">Called Number: <span class="small-text">
+                                {{data.Callednumber || '-'}}</span></p>
+                        <p class="small-heading">Dialed Number: <span class="small-text">
+                                {{data.DialedNumber || '-'}}</span></p>
+                    </td>
+                    <td>
+                        <p class="small-heading">Calculated Cost: <span class="small-text">
+                                {{data.callCostCalculated || '-'}}</span></p>
+                        <p class="small-heading">Total Cycles: <span class="small-text">-</span></p>
+                        <p class="small-heading">Cost Per Cycle: <span class="small-text">
+                                {{data.CostPerUnit || '-'}}</span></p>
+                    </td>
+                    <td>
+                        <p class="small-heading">Call Duration: <span class="small-text">
+                                {{data.CallDuration}}</span></p>
+                        <p class="small-heading">Call Direction: <span class="small-text">
+                                {{data.Direction}}
+                            </span></p>
+                    </td>
+                    <td>{{data.CallType[0]}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <pagination-controls (pageChange)="getcallLogsList($event)"></pagination-controls>
+    </div>
+    <br>
+</div>

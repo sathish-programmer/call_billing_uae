@@ -1,0 +1,52 @@
+<div class="container-fluid">
+    <h4 class="text-uppercase header">Manage Subscription</h4>
+    <div class="rel-action">
+        <button class="btn add-btn" (click)="addSubs('add')"
+            title="Add Subscription">
+            <img src="assets/images/plus-icon.svg" height="35px;"></button>
+    </div>
+    <div>
+        <!-- <p class="shoeSubsDet">
+            Your {{getSubsData}}
+        </p>
+        <span class="days_remain">Days remaining {{calculateDiff(getSubsData)}} days</span>
+        
+        <span class="plan_info">FREE PLAN</span>
+
+        <p class="text_subsDet">
+            <span>Note:</span>
+            For renewal or cancel subscription you need to raise support 
+            <button class="rise_subsReq" (click)="support()">Raise support</button>
+        </p> -->
+        <table class="table table-bordered">
+            <thead>
+                <tr >
+                    <th scope="col">Your subscription type</th>
+                    <th scope="col">Ending date</th>
+                    <th scope="col">Days remaining</th> 
+                    <th scope="col" class="">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>      
+                    <td>One year free plan</td>
+                    <td>{{getSubsData.toString().split(" ")[3]}}</td>
+                    <td>{{calculateDiff(getSubsData).toString().replace('-', '')}} days</td>               
+                    <td >
+                        <button class="rise_subsReq" (click)="support()">Raise request</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="text_subsDet">
+            <span>Note:</span>
+            For renewal or cancel subscription you need to raise request 
+            <!-- <button class="rise_subsReq" (click)="support()">Raise support</button> -->
+        </p>
+    </div>
+    <br>
+</div>
+
+
+
+

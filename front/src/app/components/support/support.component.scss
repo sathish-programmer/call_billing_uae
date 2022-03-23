@@ -1,0 +1,88 @@
+.viewAllTick{
+    position: absolute;
+    right: 22px;
+    background: #007bff;
+    color: #fff;
+    font-size: 14px;
+    top: 110px;
+    padding: 5px 10px;
+    font-size: .875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    cursor: pointer;
+}
+
+#supportTicket{
+    width: 50%;
+}
+.supportFormHr{
+    margin-top: 1.5rem!important;
+}
+
+input, textarea, select, .issuePreventDiv{
+    margin-bottom: 10px;
+    outline: none !important;
+}
+
+.supDesc{
+    height: 70px;
+}
+
+.jontitleLab{
+    position: relative;
+}
+
+.optionalField{
+    font-size: 12px;
+    opacity: .7;
+    position: absolute;
+    top: 4px;
+    left: 62px;
+}
+
+#reqType{
+    height: 33px !important;
+    font-size: 14px !important;
+}
+
+.lab{
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#probCat{
+    font-size: 14px;
+}
+
+#dateBegin{
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+    // padding: 5px 10px 5px 10px;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    color: darkslategrey;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+.dp-date-picker.dp-material .dp-picker-input{
+    height: 33px !important;
+}
+
+.issuePrevLab, .issuePrevClass{
+    display: flex;
+}
+
+.issueYes{
+    margin: 0 5px 0 0px;
+}
+
+.issueNo{
+    margin:0 5px 0 10px;
+}
+
+select{
+    padding: 0 10px;
+}

@@ -1,0 +1,373 @@
+<div class="container-fluid" *ngIf="permissions && permissions.length">
+    <h4 class="text-uppercase header">INAIPI | SETUP</h4>
+    <div class="rel-action" *ngIf="showHideAddBtn != 'hidebutton'">
+        <button class="btn add-btn" title="Add" (click)="openNewPageASPerTab('add')" *ngIf="(permissions.indexOf('canAddAssignTariff') >= 0) ||
+               (permissions.indexOf('canAddProvider') >= 0) ||
+               (permissions.indexOf('canAddTariff') >= 0) ||
+               (permissions.indexOf('canAddTariffFile') >= 0)">
+            <img src="assets/images/plus-icon.svg" height="35px;"></button>
+    </div>
+
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li [ngClass]="{'nav-item': true, 'active': tabValue == 1}"
+                *ngIf="(permissions.indexOf('canRetrieveAssignTariff') >= 0)">
+                <a class="nav-link active" data-toggle="tab" aria-controls="assignTariffList" href="#assignTariffList"
+                    role="tab" (click)="getAssignTariffListByLimit(1, 1)">Assigned Tariffs
+                    ({{assignTariffPaginator.total}})</a>
+            </li>
+            <li [ngClass]="{'nav-item': true, 'active': tabValue == 2}"
+                *ngIf="(permissions.indexOf('canRetrieveProvider') >= 0)">
+                <a class="nav-link" data-toggle="tab" aria-controls="providerList" href="#providerList" role="tab"
+                    (click)="getProviderListByLimit(1, 2)">Providers ({{providerPaginator.total}})</a>
+            </li>
+            <li [ngClass]="{'nav-item': true, 'active': tabValue == 3}"
+                *ngIf="(permissions.indexOf('canRetrieveTariff') >= 0)">
+                <a class="nav-link" data-toggle="tab" aria-controls="tariffList" href="#tariffList" role="tab"
+                    (click)="getTariffList(1, 3)">Tariffs ({{tariffPaginator.total}})</a>
+            </li>
+            <li [ngClass]="{'nav-item': true, 'active': tabValue == 4}"
+                *ngIf="(permissions.indexOf('canRetrieveTariff') >= 0)">
+                <a class="nav-link" data-toggle="tab" aria-controls="tariffFileList" href="#tariffFileList" role="tab"
+                    (click)="getTariffFileList(1, 4)">Tariff Files ({{tariffFilePaginator.total}})</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="col-md-12">
+        <div class="tab-content">
+            <div class="tab-content">
+                <div class="tab-panel" id="assignedTariffList" role="tabpanel" *ngIf="tabValue==1">
+                    <table class="table table-bordered">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th style="width: 11%;">Branch</th>
+                                <th style="text-align: center;">Provider</th>
+                                <th style="text-align: center;">Creation Date</th>
+                                <th class="text-right pull-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of assignedTariffList | paginate: { itemsPerPage: assignTariffPaginator.limit, 
+                                currentPage: assignTariffPaginator.skip, totalItems: assignTariffPaginator.total }">
+                                <td>{{data.branch.name}}</td>
+                                <td style="text-align: center;">{{data.provider.name}}</td>
+                                <td style="text-align: center;">{{(data.creationDate | date) || '-'}}</td>
+                                <td class="text-right pull-right">
+                                    <button class="btn btn-sm btn-warning mar-5-left" title="Edit"
+                                        (click)="openNewPageASPerTab('edit', data)"
+                                        *ngIf="(permissions.indexOf('canEditAssignTariff') >= 0)">
+                                        <img src="assets/images/edit-icon.svg">
+                                    </button>
+                                    <button class="btn btn-sm btn-danger mar-5-left" (click)="delete(data, 'assingTariff')" title="Delete"
+                                        *ngIf="(permissions.indexOf('canDeleteAssignTariff') >= 0)">
+                                        <img src="assets/images/trash.svg">
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <pagination-controls (pageChange)="getAssignTariffListByLimit($event,1)"></pagination-controls>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="providerList" role="tabpanel" *ngIf="tabValue==2">
+                <table class="table table-bordered">
+                    <thead class="thead-inverse">
+                        <tr>
+                            <th>Name</th>
+                            <th>City</th>
+                            <th>Street</th>
+                            <th>State</th>
+                            <th>Country</th>
+                            <th>Creation Date</th>
+                            <th class="text-right pull-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of providerList | paginate: { itemsPerPage: providerPaginator.limit, 
+                            currentPage: providerPaginator.skip, totalItems: providerPaginator.total }">
+                            <td>{{data.name}}</td>
+                            <td>{{data.city}}</td>
+                            <td>{{data.street}}</td>
+                            <td>{{data.stateOrPOBox}}</td>
+                            <td>{{data.country.nameCommon}}</td>
+                            <td>{{(data.creationDate | date) || '-'}}</td>
+                            <td class="text-right pull-right">
+                                <button class="btn btn-sm btn-warning mar-5-left" title="Edit Provider"
+                                    (click)="openNewPageASPerTab('edit', data)"
+                                    *ngIf="(permissions.indexOf('canEditProvider') >= 0)">
+                                    <img src="assets/images/edit-icon.svg">
+                                </button>
+                                <button class="btn btn-sm btn-danger mar-5-left" title="Delete Provider"
+                                    *ngIf="(permissions.indexOf('canDeleteProvider') >= 0)"
+                                    (click)="delete(data, 'provider')">
+                                    <img src="assets/images/trash.svg">
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <pagination-controls (pageChange)="getProviderListByLimit($event,2)"></pagination-controls>
+            </div>
+
+            <div class="tab-pane" id="tariffList" role="tabpanel" *ngIf="tabValue==3">
+                <table class="table table-bordered">
+                    <thead class="thead-inverse">
+                        <tr>
+                            <th style="width: 13%;">Name/External Id</th>
+                            <th style="width: 13%;">Provider</th>
+                            <th style="width: 12%;">Type</th>
+                            <th style="width: 12%;">Call Type</th>
+                            <th style="width: 12%;">Units</th>
+                            <th style="width: 13%;">Units Measurement</th>
+                            <th class="text-right pull-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of tariffList | paginate: { itemsPerPage: tariffPaginator.limit, 
+                            currentPage: tariffPaginator.skip, totalItems: tariffPaginator.total }">
+                            <td>
+                                <p class="small-heading">Name: <span class="small-text">{{data.name}}</span></p>
+                                <p class="small-heading">External Id:
+                                    <span class="small-text">{{data.externalId || '-'}}</span>
+                                </p>
+                            </td>
+                            <td>{{data.provider.name}}</td>
+                            <td>{{data.type}}</td>
+                            <td>{{data.callType || '-'}}</td>
+                            <td>{{data.units}}</td>
+                            <td>{{data.unitsMeasurementName}}</td>
+                            <td class="text-right pull-right">
+                                <button class="btn btn-sm btn-warning mar-5-left" title="Edit"
+                                    *ngIf="(permissions.indexOf('canEditTariff') >= 0)"
+                                    (click)="goToManageTariffPage('edit', data._id)">
+                                    <img src="assets/images/edit-icon.svg">
+                                </button>
+                                <button class="btn btn-sm btn-danger mar-5-left" title="Delete"
+                                    *ngIf="(permissions.indexOf('canDeleteTariff') >= 0)"
+                                    (click)="delete(data, 'tariff')">
+                                    <img src="assets/images/trash.svg">
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <pagination-controls (pageChange)="getTariffList($event, 3)"></pagination-controls>
+            </div>
+
+            <div class="tab-pane" id="tariffFileList" role="tabpanel" *ngIf="tabValue==4">
+                <table class="table table-bordered">
+                    <thead class="thead-inverse">
+                        <tr>
+                            <th>Name</th>
+                            <th>Extension</th>
+                            <th>Type</th>
+                            <th>Creation Date</th>
+                            <th class="text-right pull-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of tariffFiles| paginate: { itemsPerPage: tariffFilePaginator.limit, 
+                            currentPage: tariffFilePaginator.skip, totalItems: tariffFilePaginator.total }">
+                            <td>{{data.name}}</td>
+                            <td>{{data.extension}}</td>
+                            <td>{{data.type}}</td>
+                            <td>{{data.creationDate | date}}</td>
+                            <td class="text-right pull-right">
+                                <button class="btn btn-sm btn-warning mar-5-left" title="Download">
+                                    <a href="{{baseUrl}}{{data.nameSaved}}" download>
+                                        <img src="assets/images/download.svg">
+                                    </a>
+                                </button>
+                                <button class="btn btn-sm btn-danger mar-5-left" title="Delete"
+                                    (click)="delete(data, 'tariffFile')"
+                                    *ngIf="(permissions.indexOf('canDeleteTariff') >= 0)">
+                                    <img src="assets/images/trash.svg">
+                                </button>
+                                <!-- <button class="btn btn-sm btn-primary mar-5-left" title="Info"
+                                    (click)="errorsFile(data)">
+                                    <img src="../../../../assets/images/info.svg">
+                                </button> -->
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <pagination-controls (pageChange)="getTariffFileList($event,4)"></pagination-controls>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Tariff Modal -->
+<div class="modal fade" id="addAssignTariff" tabindex="-1" role="dialog" aria-labelledby="addAssignTariffLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <h6 class="heading">ASSIGNED TARIFF | NEW</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr>
+                <form [formGroup]="assignTariffForm" (ngSubmit)="addEditAssignedTariff()">
+                    <div style="margin-top: 5px;">
+                        <label class="required">Location/Branch</label>
+                        <select class="dropdown" id="branch" formControlName="branch" required
+                            (change)="changeBranch($event)">
+                            <option value="" disabled selected>Select Branch</option>
+                            <option *ngFor="let item of branchList" value={{item._id}}>
+                                {{item.name}}</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <label class="required">Provider</label>
+                        <select class="dropdown" id="provider" formControlName="provider" required>
+                            <option value="" disabled selected>Select Provider</option>
+                            <option *ngFor="let item of providerList" value={{item._id}}>
+                                {{item.name}}</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <label>Description</label>
+                        <textarea rows="1" cols="60" placeholder="Enter description" class="input-field"
+                            formControlName="description"></textarea>
+                    </div>
+                    <hr>
+                    <button type="submit" class="btn btn-sm btn-primary"
+                        [disabled]="!assignTariffForm.valid">Submit</button>
+                </form>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Add Tariff Modal -->
+<div class="modal fade" id="addTariff" tabindex="-1" role="dialog" aria-labelledby="addTariffLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <h6 class="heading">TARIFF | NEW</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12" style="padding: 0 !important;">
+                        <div class="row">
+                            <div class="col-md-6"
+                                *ngIf="(permissions.indexOf('canAddTariffFile') >= 0) && (permissions.indexOf('canAddTariff') >= 0)">
+                                <div class="col-md-12">
+                                    <file-uploader (uploadedImageUrl)="getTariffFile($event)"></file-uploader>
+                                </div>
+                            </div>
+                            <div class="col-md-1" style="padding-left: 0 !important;"
+                                *ngIf="(permissions.indexOf('canAddTariffFile') >= 0) && (permissions.indexOf('canAddTariff') >= 0)">
+                                <label>|</label>
+                            </div>
+                            <div class="col-md-5 col-md-offset-1">
+                                <a (click)="goToManageTariffPage('add')" class="btn btn-primary btn-sm add-manually-btn"
+                                    *ngIf="(permissions.indexOf('canAddTariff') >= 0)">Add Manually</a>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="text-muted border-left-3">
+                            <b class="bold">Note:</b>Please upload a file under 20MB.
+                        </div>
+                    </div>
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteProviderModal" tabindex="-1" role="dialog" aria-labelledby="deleteProviderModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <h6 class="heading">PROVIDER | DELETE</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr>
+                <label>Do you want to delete this provider- {{providerName}}?</label>
+                <br>
+                <button type="button" class="btn-sm btn delete-btn btn-light" data-dismiss="modal">No</button>
+                <button type="button" class="btn-sm btn delete-btn btn-primary" (click)="deleteData()">Yes</button>
+                <br><br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteTariffModal" tabindex="-1" role="dialog" aria-labelledby="deleteTariffModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <h6 class="heading">TARIFF | DELETE</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr>
+                <label>Do you want to delete this tariff- {{tariffName}}?</label>
+                <br>
+                <button type="button" class="btn-sm btn delete-btn btn-light" data-dismiss="modal">No</button>
+                <button type="button" class="btn-sm btn delete-btn btn-primary" (click)="deleteData()">Yes</button>
+                <br><br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteTariffFileModal" tabindex="-1" role="dialog" aria-labelledby="deleteTariffFileModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <h6 class="heading">TARIFF FILE | DELETE</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr>
+                <label>Do you want to delete this tariff file - {{tariffFileName}}?</label>
+                <br>
+                <button type="button" class="btn-sm btn delete-btn btn-light" data-dismiss="modal">No</button>
+                <button type="button" class="btn-sm btn delete-btn btn-primary" (click)="deleteData()">Yes</button>
+                <br><br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="modal fade" id="errorsFile" tabindex="-1" role="dialog"
+    aria-labelledby="errorsFileLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Errors</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="error">
+                            <li *ngFor="let singleErrorFile of errorFile">
+                                <div *ngFor="let key of singleErrorFile | keys">
+                                    <b>{{key | uppercase}}</b> : {{singleErrorFile[key]}}
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->

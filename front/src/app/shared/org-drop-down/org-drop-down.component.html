@@ -1,0 +1,19 @@
+<div class="dropdown">
+
+  <button class="dropbtn" [value]="selectedOrg._id" id="org-dropdown-navbar" (click)="toggleClass()">{{selectedOrg.name || 'Select Org'}}</button>
+  <div id="myDropdown" class="dropdown-content ">
+  	<div style="position:fixed;">
+    	<input type="text" placeholder="Search.." id="myInput" [(ngModel)]="searchOrg">
+    </div>
+    <div class="custom-height">
+      <a></a>
+      <a></a>
+      <a id="org-dropdown" *ngFor="let org of orgList | search: searchOrg" 
+        [ngClass]="{'selected-org': (org._id == selectedOrg._id)}" 
+        (click)="selectOrg(org)"
+        [value]="selectedOrg._id">
+        {{org.name}}
+      </a>
+    </div>
+  </div>
+</div>

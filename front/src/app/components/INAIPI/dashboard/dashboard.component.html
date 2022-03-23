@@ -1,0 +1,304 @@
+<div class="container-fluid">
+    <h4 class="text-uppercase header">Dashboard</h4>
+
+        <div class="row" style="padding-bottom: 20px;">
+            <div class="col-md-2">
+                <div class="dashboard">
+                    <dp-date-picker theme="dp-material" placeholder="Select date" (onSelect)="dateChange($event)"
+                        [config]="config"></dp-date-picker>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-primary btn-sm date-button" (click)="callDateChangeEvent();">Go</button>
+            </div>
+            
+            <div class="col-md-3 offset-md-6 text-right">
+                <button class="btn btn-primary btn-sm mar-r-5" *ngIf="(permissions.indexOf('canSeeReports') >= 0)"
+                    [routerLink]="['/admin/inaipi/dashboard/reports']">Reports</button>
+                <!-- <button class="btn btn-primary btn-sm">Error Reports</button> -->
+            </div>
+            <br>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr class="info">
+                            <th>Call Summary</th>
+                            <th class="text-center">Today <br/>({{todayDateToShow}})</th>
+                            <th class="text-center">Previous Day <br/>({{previousDateToShow}})</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Calls</td>
+                            <td class="text-center">{{todayJson.totalCalls}}</td>
+                            <td class="text-center">{{previousJson.totalCalls}}</td>
+                        </tr>
+                        <tr>
+                            <td>Incoming Calls / Duration(sec)</td>
+                            <td class="text-center">{{todayJson.incomingCalls}} / {{todayJson.incomingCallsDuration}}
+                            </td>
+                            <td class="text-center">{{previousJson.incomingCalls}} /
+                                {{previousJson.incomingCallsDuration}}</td>
+                        </tr>
+                        <tr>
+                            <td>Outgoing Calls / Duration(sec)</td>
+                            <td class="text-center">{{todayJson.outgoingCalls}} / {{todayJson.outgoingCallsDuration}}
+                            </td>
+                            <td class="text-center">{{previousJson.outgoingCalls}} /
+                                {{previousJson.outgoingCallsDuration}}</td>
+                        </tr>
+                        <tr>
+                            <td>Missed Calls</td>
+                            <td class="text-center">{{todayJson.missedCalls}}</td>
+                            <td class="text-center">{{previousJson.missedCalls}}</td>
+                        </tr>
+                        <tr>
+                            <td>International Outgoing Calls</td>
+                            <td class="text-center">{{todayJson.internationalOutgoingCalls}}</td>
+                            <td class="text-center">{{previousJson.internationalOutgoingCalls}}</td>
+                        </tr>
+                        <tr>
+                            <td>Average Talk Time(sec)</td>
+                            <td class="text-center">{{todayJson.averageTalkTime}}</td>
+                            <td class="text-center">{{previousJson.averageTalkTime}}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Chargable Calls / Cost</td>
+                            <td class="text-center">{{todayJson.totalChargableCalls}} /
+                                {{todayJson.totalChargableCallsCost}}</td>
+                            <td class="text-center">{{previousJson.totalChargableCalls}} /
+                                {{previousJson.totalChargableCallsCost}}</td>
+                        </tr>
+                        <tr>
+                            <td>Last Call Time</td>
+                            <td class="text-center">{{todayJson.lastCallTime || '-'}}</td>
+                            <td class="text-center">{{previousJson.lastCallTime || '-'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <!-- CHART PORTION STARTS HERE -->
+                <div class="col-md-12">
+                    <ul class="nav nav-tabs">
+                        <li [ngClass]="{'nav-item': true, 'active': tabValueChartTop == 1}">
+                            <a class="nav-link active" data-toggle="tab" aria-controls="outGoingCallSummary"
+                                href="#outGoingCallSummary" role="tab" (click)="tabValueChartTop=1;">1</a>
+                        </li>
+                        <li [ngClass]="{'nav-item': true, 'active': tabValueChartTop == 2}">
+                            <a class="nav-link" data-toggle="tab" aria-controls="outgoingCallUsage"
+                                href="#outgoingCallUsage" role="tab" (click)="tabValueChartTop=2;">2</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-12">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="
+                        outGoingCallSummary" role="tabpanel" *ngIf="tabValueChartTop == 1">
+                            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels"
+                                [options]="barChartOptions" [legend]="chartLegend" [chartType]="barChartType">
+                            </canvas>
+                        </div>
+                        <div class="tab-pane" id="outgoingCallUsage" role="tabpanel" *ngIf="tabValueChartTop == 2">
+                            <canvas baseChart [datasets]="lineChartData" [labels]="lineChartLabels"
+                                [options]="lineChartOptions" [legend]="chartLegend" [chartType]="lineChartType">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- CHART PORTION ENDS HERE -->
+            </div>
+        </div>
+        <br>
+        <br>
+        <!-- LOWER ROW STARTS -->
+        <div class="row">   
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="nav nav-tabs">
+                            <li [ngClass]="{'nav-item': true, 'active': tabValue == 1}">
+                                <a class="nav-link active" data-toggle="tab" aria-controls="topDuration"
+                                    href="#topDuration" role="tab" (click)="tabValue=1;">Duration
+                                    ({{durationTotal}})</a>
+                            </li>
+                            <li [ngClass]="{'nav-item': true, 'active': tabValue == 2}">
+                                <a class="nav-link" data-toggle="tab" aria-controls="topCost" href="#topCost" role="tab"
+                                    (click)="tabValue=2;">Cost ({{costTotal}})</a>
+                            </li>
+                            <li [ngClass]="{'nav-item': true, 'active': tabValue == 3}">
+                                <a class="nav-link" data-toggle="tab" aria-controls="recentCalls" href="#recentCalls"
+                                    role="tab" (click)="tabValue=3;">Recent ({{recentTotal}})</a>
+                            </li>
+                            <li [ngClass]="{'nav-item': true, 'active': tabValue == 4}">
+                                <a class="nav-link" data-toggle="tab" aria-controls="missedCalls" href="#missedCalls"
+                                    role="tab" (click)="tabValue=4;">Missed ({{missedTotal}})</a>
+                            </li>
+                            <li [ngClass]="{'nav-item': true, 'active': tabValue == 5}">
+                                <a class="nav-link" data-toggle="tab" aria-controls="trunkCalls" href="#trunkCalls"
+                                    role="tab" (click)="tabValue=5;">Trunk ({{trunkTotal}})</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="topDuration" role="tabpanel" *ngIf="tabValue==1">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr class="info">
+                                            <th>Caller</th>
+                                            <th>Direction</th>
+                                            <th>Called</th>
+                                            <th>Dur (Secs)</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="let data of durationList | paginate: { itemsPerPage: durationLimit, currentPage: durationSkipPage, totalItems: durationTotal }">
+                                            <td>{{data.Callernumber}}</td>
+                                            <td>{{data.Direction == 'O' ? "Outgoing" : "Incoming"}}</td>
+                                            <td>{{data.Callednumber}}</td>
+                                            <td>{{data.CallDuration}}</td>
+                                            <td>{{data.CallTime}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <pagination-controls (pageChange)="getCallListDurationWise(orgId, $event)">
+                                </pagination-controls>
+                            </div>
+                            <div class="tab-pane" id="topCost" role="tabpanel" *ngIf="tabValue==2">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr class="info">
+                                            <th>Caller</th>
+                                            <th>Direction</th>
+                                            <th>Called</th>
+                                            <th>Cost</th>
+                                            <th>Date & Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="let data of costList | paginate: { itemsPerPage: costLimit, currentPage: costSkipPage, totalItems: costTotal }">
+                                            <td>{{data.Callernumber}}</td>
+                                            <td>{{data.Direction == 'O' ? "Outgoing" : "Incoming"}}</td>
+                                            <td>{{data.Callednumber}}</td>
+                                            <td>{{data.CalculatedCost}}</td>
+                                            <td>{{data.CallTime}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <pagination-controls (pageChange)="getCallListCostWise(orgId, $event)">
+                                </pagination-controls>
+                            </div>
+                            <div class="tab-pane" id="recentCalls" role="tabpanel" *ngIf="tabValue==3">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr class="info">
+                                            <th>Caller</th>
+                                            <th>Direction</th>
+                                            <th>Called</th>
+                                            <th>Date & Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="let data of recentList | paginate: { itemsPerPage: recentLimit, currentPage: recentSkipPage, totalItems: recentTotal }">
+                                            <td>{{data.Callernumber}}</td>
+                                            <td>{{data.Direction == 'O' ? "Outgoing" : "Incoming"}}</td>
+                                            <td>{{data.Callednumber}}</td>
+                                            <td>{{data.CallTime}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <pagination-controls (pageChange)="getCallListRecentWise(orgId, $event)">
+                                </pagination-controls>
+                            </div>
+                            <div class="tab-pane" id="missedCalls" role="tabpanel" *ngIf="tabValue==4">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr class="info">
+                                            <th>Caller</th>
+                                            <th>Direction</th>
+                                            <th>Called</th>
+                                            <th>Date & Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="let data of missedList | paginate: { itemsPerPage: missedLimit, currentPage: missedSkipPage, totalItems: missedTotal }">
+                                            <td>{{data.Callernumber}}</td>
+                                            <td>{{data.Direction == 'O' ? "Outgoing" : "Incoming"}}</td>
+                                            <td>{{data.Callednumber}}</td>
+                                            <td>{{data.CallTime}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <pagination-controls (pageChange)="getCallListMissedWise(orgId, $event)">
+                                </pagination-controls>
+                            </div>
+                            <div class="tab-pane" id="trunkCalls" role="tabpanel" *ngIf="tabValue==5">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr class="info">
+                                            <th>Trunk</th>
+                                            <th>Caller</th>
+                                            <th>Direction</th>
+                                            <th>Called</th>
+                                            <th>Date & Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="let data of trunkList | paginate: { itemsPerPage: trunkLimit, currentPage: trunkSkipPage, totalItems: trunkTotal }">
+                                            <td>{{data.Party2Name}}</td>
+                                            <td>{{data.Callernumber}}</td>
+                                            <td>{{data.Direction == 'O' ? "Outgoing" : "Incoming"}}</td>
+                                            <td>{{data.Callednumber}}</td>
+                                            <td>{{data.CallTime}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <pagination-controls (pageChange)="getCallListTrunkWise(orgId, $event)">
+                                </pagination-controls>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>            
+
+            <div class="col-md-6">
+                <div class="col-md-12">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item active">
+                            <a class="nav-link active" data-toggle="tab" aria-controls="incomingCallUsage"
+                                href="#incomingCallUsage" role="tab" (click)="tabValueChartBtm=1;">1</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-12">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="incomingCallUsage" role="tabpanel"
+                            *ngIf="tabValueChartBtm == 1">
+                            <canvas baseChart [datasets]="lineChartDataIncoming" [labels]="lineChartLabelsIncoming"
+                                [options]="lineChartOptions" [legend]="chartLegend"
+                                [chartType]="lineChartType"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- LOWER ROW ENDS-->
+    <br>
+</div>
+<!-- support contant div -->
+<!-- <div id="support" title="Support" [routerLink]="['/admin/inaipi/dashboard/support']" class="support"><img src="assets/images/headphones.png" alt="support_image" class="img-width-height"></div> -->

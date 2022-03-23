@@ -1,0 +1,39 @@
+<div class="container-fluid">
+    <h4 *ngIf="roleAction == 'add'" class="text-uppercase header">ROLE | CREATE</h4>
+    <h4 *ngIf="roleAction == 'edit'" class="text-uppercase header">ROLE | EDIT</h4>
+
+    <div class="rel-action">
+        <a class="add-btn" [routerLink]="['/admin/role']" title="Back to the List">
+            <img src="assets/images/list.svg">
+        </a>
+    </div>
+    <div>
+        <form [formGroup]="roleForm" (ngSubmit)="createUpdateRole(roleForm.value)">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="required">Name</label>
+                    <input class="input-field" placeholder="Enter name" formControlName="name" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Description</label>
+                    <textarea rows="1" cols="60" class="input-field" placeholder="Enter description" formControlName="description"></textarea>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 10px">
+                <div class="col-md-3" *ngFor="let data of masterRoleList">
+                    <label>{{data.name}}</label>
+                    <div class="box-height-105">
+                        <div class="permissions" *ngFor="let item of data.permissions">
+                            <input type="checkbox" id="{{item.name}}" [(ngModel)]="item.selected"
+                                [ngModelOptions]="{standalone: true}" (change)="item.selected">
+                            <label class="permissions-label" [attr.for]="item.name">{{item.name}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <button type="submit" *ngIf="(permissions.indexOf('canAddRole') >= 0) || (permissions.indexOf('canEditRole') >= 0)"
+                 class="btn btn-sm btn-primary">Submit Role</button>
+        </form>
+    </div>
+</div>

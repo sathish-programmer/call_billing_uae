@@ -1,0 +1,136 @@
+<div class="container-fluid">
+    <h4 class="text-uppercase header">All Raised Supports</h4>
+    <div class="rel-action">
+        <button class="btn add-btn" (click)="setSupportAction('add')"
+            title="Raise Support">
+            <img src="assets/images/plus-icon.svg" height="35px;"></button>
+    </div>
+    <div>
+        <table class="table table-bordered">
+            <thead>
+                <tr >
+                    <th scope="col" class="styleTableHeadTick">Ticket Id</th>
+                    <th scope="col" class="styleTableName">Name</th>
+                    <th scope="col" class="styleTableCon-no">Contact Number</th>
+                    <th scope="col" class="styleTableSub">Title</th>
+                    <th scope="col" class="styleTableDesc">Description</th>
+                    <th scope="col" class="styleTableHeadJob">Problem Category</th> 
+                    <th scope="col">Support Type</th>
+                    <th scope="col" class="styleTableStatus">Status</th>
+                    <th scope="col" class="text-right pull-right styleAction">Actions</th>
+                </tr>
+            </thead>
+            <tbody *ngFor="let data of ticketList | paginate: {id: 'list_page', itemsPerPage: 10,
+                                                    currentPage: page, totalItems: totalRecords}">
+                <!-- <tr>
+                    <td>test</td> <td>test</td> <td>test</td>
+                </tr> -->
+                <tr *ngIf="!!data.ticket_id">
+                    <th scope="row">{{data.ticket_id.toString().split("-")[0]}}{{data.ticket_id.toString().split("-")[2]}}
+                    </th>
+                    <td>{{data.username}}</td>
+                    <td>{{data.mobile_number}}</td>
+                    <td>{{data.jobtitle}}</td>
+                    <td>{{data.description}}</td>
+                    <td>{{data.problem_category}}</td>
+                    <td>{{data.request_type}}</td>
+                    <td><span [ngStyle]="{'color': (data.status=='Open' || data.status=='Onhold') ? '#6ccca5' : '#bd2130'}">{{data.status}}</span></td>
+                    <!-- <td>{{data.jobtitle}}</td> -->
+                    <!-- <td>{{data.created_at}}</td> -->
+                    <td class="text-right pull-right text-center" *ngIf="data.status=='Open' || data.status=='Onhold'">
+                        <!-- <button class="btn btn-sm btn-warning mar-5-left" title="Edit Support" (click)="editSupport(data)">
+                            <img src="assets/images/edit-icon.svg">
+                        </button> -->
+                        <button class="btn btn-sm btn-info mar-5-left revokeButton" title="Revoke Support" (click)="revokeModel(data)">
+                            <img src="assets/images/cancel.png">
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <pagination-controls id="list_page" maxSize="5" directionLinks="true" (pageChange)="page = $event"></pagination-controls>
+    </div>
+    <br>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="container">
+            <h6 class="heading">SUPPORT  | REVOKE</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <hr>
+            <div>
+                <label for="statusRevoke" class="statusRevokeLabel required">Reason</label>
+                <textarea id="statusRevoke" class="statusRevokeDesc" [(ngModel)]="revokeDesc"></textarea>
+            </div>
+
+            <label>Do you want to revoke this support ?</label>
+            <br>
+            <button type="button" class="btn-sm btn delete-btn btn-light" data-dismiss="modal">No</button>
+            <button type="button" class="btn-sm btn delete-btn btn-primary" [disabled]="!revokeDesc" (click)="revokeSupport()">Yes</button>
+            <br><br>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!--Edit Modal -->
+<div class="modal fade" id="editSupportModal" tabindex="-1" role="dialog" aria-labelledby="editSupportModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <h6 class="heading">SUPPORT | EDIT</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <hr>
+                <form [formGroup]="supportForm" (ngSubmit)="updateSupport(supportForm.value)">
+                    <div class="row" style="margin-top: 5px;">
+                        <div class="col-md-12">
+                            <label >Name</label>
+                            <input class="input-field" formControlName="username" required>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 5px;">
+                        <div class="col-md-12">
+                            <label >Contact Number</label>
+                            <input class="input-field" formControlName="mobile_number" required>
+                        </div>
+                        
+                    </div>
+
+                    <div class="row" style="margin-top: 5px;">
+                        <div class="col-md-12">
+                            <label class="required">Subject</label>
+                            <input class="input-field subjectSup" formControlName="subject" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row" style="margin-top: 5px;">
+                        <div class="col-md-12">
+                            <label class="required">Description</label>
+                            <textarea class="input-field" formControlName="description" required></textarea>
+                        </div>
+                    </div>
+                   
+                    <!-- <div class="row" style="margin-top: 5px;">
+                        <div class="col-md-12">
+                            <label >Job Title</label>
+                            <input class="input-field" formControlName="jobtitle">
+                        </div>
+                    </div> -->
+                    <hr>
+                    <button type="submit" class="btn btn-sm btn-primary" [disabled]="!supportForm.valid">Edit
+                        Support</button>
+                </form>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
