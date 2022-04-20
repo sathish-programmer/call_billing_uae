@@ -16,6 +16,7 @@ import { ViewSupportComponent } from './components/view-support/view-support.com
 import { NgxPaginationModule, PaginatePipe } from 'ngx-pagination';
 import { DpDatePickerModule } from 'ng2-date-picker';
 import { SubscriptionComponent } from './components/subscription/subscription.component';
+import { PaymentComponent } from './components/payment/payment.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,6 +24,7 @@ import { SubscriptionComponent } from './components/subscription/subscription.co
     SupportComponent,
     ViewSupportComponent,
     SubscriptionComponent,
+    PaymentComponent,
   ],
   imports: [
     BrowserModule,

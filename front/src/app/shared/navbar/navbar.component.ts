@@ -1,4 +1,10 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { PRODUCT_ROUTES } from './menu.routes';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
@@ -9,41 +15,50 @@ declare var $: any;
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss', '../scss/common.scss']
+  styleUrls: ['./navbar.component.scss', '../scss/common.scss'],
 })
-
 export class NavbarComponent implements OnInit, OnDestroy {
-  @Output() sendOrgIdToParent = new EventEmitter<string>()
+  @Output() sendOrgIdToParent = new EventEmitter<string>();
   menuItems: any;
   orgList: any;
   userInfo: User;
   getSubsData: String;
-  
 
-  constructor(private router: Router, 
-              private authService: AuthService,
-              private toastrService: ToastrService) { }
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private toastrService: ToastrService
+  ) {}
 
   ngOnInit() {
-    this.getRoleList();    
-    this.userInfo = { firstName: localStorage.getItem('firstName'),
-                      lastName: localStorage.getItem('lastName'),
-                      email: localStorage.getItem('email')}
+    this.getRoleList();
+    this.userInfo = {
+      firstName: localStorage.getItem('firstName'),
+      lastName: localStorage.getItem('lastName'),
+      email: localStorage.getItem('email'),
+      pendingAmount: localStorage.getItem('pendingAmount'),
+    };
 
     this.getSubsData = localStorage.getItem('subs_ends');
-
-    console.log('sathish'+this.getSubsData)
   }
 
   ngOnDestroy() {}
 
   getRoleList() {
-    this.authService.getRoles().subscribe( res => {
+    this.authService.getRoles().subscribe((res) => {
       if (res['success']) {
+        // add manange payment role for admin
+        if (localStorage.getItem('email') == 'admin@inaipi.com') {
+          res['data']['list'].push('canManagePayment');
+        }
         this.menuItems = PRODUCT_ROUTES.paths(res['data']['list']);
-        localStorage.setItem("permissions", JSON.stringify(res['data']['list']));
+        console.log(res['data']['list']);
+        localStorage.setItem(
+          'permissions',
+          JSON.stringify(res['data']['list'])
+        );
       } else {
-        this.toastrService.error(res['message'], "Error!")
+        this.toastrService.error(res['message'], 'Error!');
       }
     });
   }
@@ -53,18 +68,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    this.authService.logout().subscribe( res => {
+    this.authService.logout().subscribe((res) => {
       if (res['success']) {
         localStorage.clear();
-        this.router.navigate(["/login"]);
+        this.router.navigate(['/login']);
       } else {
-        this.toastrService.error(res['message'], "Error!")
+        this.toastrService.error(res['message'], 'Error!');
       }
     });
   }
 
   // navigate to support page
-  support(){
+  support() {
     this.router.navigate(['/admin/inaipi/dashboard/support']);
   }
 }

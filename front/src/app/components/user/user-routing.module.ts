@@ -5,11 +5,11 @@ import { ManageUserComponent } from '../user/manage-user/manager-user.component'
 
 const routes: Routes = [
   { path: '', component: UserComponent },
-  { path: 'manage', component: ManageUserComponent }
+  { path: 'manage', component: ManageUserComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class UserRoutingModule { }
+export class UserRoutingModule {}

@@ -1,93 +1,190 @@
 <header>
-    <div>
-        <nav id="mainNav" class="navbar navbar-expand-md fixed-top bg-logo-color shadow-down">
-            <div class="container-fluid">
-                <a class="navbar-brand active-link" routerlinkactive="active-link" href="/">
-                    <img class="img-fluid" id="main_inaipi_logo" height="37" src="assets/images/Inaipi_Logo.png" width="110">
-                </a>
-                <button aria-controls="navbarCollapse" aria-expanded="true" aria-label="Toggle navigation"
-                    class="navbar-toggler" data-target="#navbarCollapse" data-toggle="collapse" type="button">
-                    <span class="fa fa-bars"></span>
-                </button>
+  <div>
+    <nav
+      id="mainNav"
+      class="navbar navbar-expand-md fixed-top bg-logo-color shadow-down"
+    >
+      <div class="container-fluid">
+        <a
+          class="navbar-brand active-link"
+          routerlinkactive="active-link"
+          href="/"
+        >
+          <img
+            class="img-fluid"
+            id="main_inaipi_logo"
+            height="37"
+            src="assets/images/Inaipi_Logo.png"
+            width="110"
+          />
+        </a>
+        <button
+          aria-controls="navbarCollapse"
+          aria-expanded="true"
+          aria-label="Toggle navigation"
+          class="navbar-toggler"
+          data-target="#navbarCollapse"
+          data-toggle="collapse"
+          type="button"
+        >
+          <span class="fa fa-bars"></span>
+        </button>
 
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav main-menu" id="main" menutoggledirective="">
-                        <li class="nav-item"
-                            menutogglelink="" routerlinkactive="open">
-                            <a class="nav-link hideOldMenu" href="javascript:void(0)" menutoggle=""
-                                routerlinkactive="active-link">PRODUCTS&nbsp;
-                                <i class="fa fa-caret-down"></i>
-                            </a>
-                            <div class="main_menubar">
-                                <div class="bar1 menu_new"></div>
-                                <div class="bar2 menu_new"></div>
-                                <div class="bar3 menu_new"></div>
-                            </div>
-                            <ul class="sub-menu arrow-up list-unstyled">
-                                <li class="nav-item" routerlinkactive="open" *ngFor="let menu of menuItems">
-                                    <ul class="list-unstyled" *ngIf="menu.checkpermission">
-                                        <li disabled>
-                                            <span class="font-bold">{{menu.product}}</span>
-                                        </li>
-                                        <hr>
-                                        <li *ngFor="let action of menu.actions">
-                                            <a class="nav-link font-normal display-block" routerlinkactive="active-link" [routerLink]="[action.routerLink]" *ngIf="action.checkpermission">{{action.title}}</a>                                            
-                                        </li>  
-                                        <li *ngIf="menu.product !== 'INAIPI' && getSubsData !== null || getSubsData === ''">
-                                            <a class="nav-link font-normal display-block" routerlinkactive="active-link" [routerLink]="['/admin/inaipi/dashboard/subscription']">Manage Subscription</a>
-                                        </li>                                      
-                                    </ul>                                    
-                                </li>
-                            </ul>
-                        </li>                       
-                    </ul>
-                </div>
-                
-                <button aria-controls="navbarCollapse" aria-expanded="true" aria-label="Toggle navigation"
-                        class="navbar-toggler" data-target="#navbarCollapse" data-toggle="collapse" type="button"> 
-                </button>                
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav main-menu" id="main" menutoggledirective="">
+            <li class="nav-item" menutogglelink="" routerlinkactive="open">
+              <a
+                class="nav-link hideOldMenu"
+                href="javascript:void(0)"
+                menutoggle=""
+                routerlinkactive="active-link"
+                >PRODUCTS&nbsp;
+                <i class="fa fa-caret-down"></i>
+              </a>
+              <div class="main_menubar">
+                <div class="bar1 menu_new"></div>
+                <div class="bar2 menu_new"></div>
+                <div class="bar3 menu_new"></div>
+              </div>
+              <ul class="sub-menu arrow-up list-unstyled">
+                <li
+                  class="nav-item"
+                  routerlinkactive="open"
+                  *ngFor="let menu of menuItems"
+                >
+                  <ul class="list-unstyled" *ngIf="menu.checkpermission">
+                    <li disabled>
+                      <span class="font-bold">{{ menu.product }}</span>
+                    </li>
+                    <hr />
+                    <li *ngFor="let action of menu.actions">
+                      <a
+                        class="nav-link font-normal display-block"
+                        routerlinkactive="active-link"
+                        [routerLink]="[action.routerLink]"
+                        *ngIf="action.checkpermission"
+                        >{{ action.title }}</a
+                      >
+                    </li>
+                    <li
+                      *ngIf="
+                        (menu.product !== 'INAIPI' && getSubsData !== null) ||
+                        getSubsData === ''
+                      "
+                    >
+                      <a
+                        class="nav-link font-normal display-block"
+                        routerlinkactive="active-link"
+                        [routerLink]="['/admin/inaipi/dashboard/subscription']"
+                        >Manage Subscription</a
+                      >
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
 
-                <div class="collapse navbar-collapse pull-right text-right" id="navbarCollapse">
-                    <ul class="navbar-nav ml-auto main-menu supportUl d-flex" id="main" menutoggledirective="">
-                        <li class="needSupport" routerlinkactive="open">
-                            <a class="navbar-brand active-link" routerlinkactive="active-link" (click)="support()">
-                                <img class="img-fluid" id="need_help_logo" height="37" src="assets/images/support-new.png" width="110">
-                            </a>
-                             <!--<button _ngcontent-msm-c52="" title="Need Support"  class="btn btn-sm  text-center col-md-12 supportButton"> 
+        <button
+          aria-controls="navbarCollapse"
+          aria-expanded="true"
+          aria-label="Toggle navigation"
+          class="navbar-toggler"
+          data-target="#navbarCollapse"
+          data-toggle="collapse"
+          type="button"
+        ></button>
+
+        <div
+          class="collapse navbar-collapse pull-right text-right"
+          id="navbarCollapse"
+        >
+          <ul
+            class="navbar-nav ml-auto main-menu supportUl d-flex"
+            id="main"
+            menutoggledirective=""
+          >
+            <li class="needSupport" routerlinkactive="open">
+              <a
+                class="navbar-brand active-link"
+                routerlinkactive="active-link"
+                (click)="support()"
+              >
+                <img
+                  class="img-fluid"
+                  id="need_help_logo"
+                  height="37"
+                  src="assets/images/support-new.png"
+                  width="110"
+                />
+              </a>
+              <!--<button _ngcontent-msm-c52="" title="Need Support"  class="btn btn-sm  text-center col-md-12 supportButton"> 
                                 <i _ngcontent-msm-c52="" class="far fa-question-circle"></i>
                             </button> -->
-                        </li>
+            </li>
 
+            <li class="nav-item" menutogglelink="" routerlinkactive="open">
+              <a
+                class="nav-link"
+                href="javascript:void(0)"
+                menutoggle=""
+                routerlinkactive="active-link"
+              >
+                <img src="assets/images/user.png_" class="img-width-height" />
+              </a>
+              <ul class="sub-menu arrow-up">
+                <li
+                  class="nav-item padding-20 text-center text-transform-none"
+                  routerlinkactive="open"
+                >
+                  <span class="font-bold"
+                    >Name: {{ userInfo.firstName }}
+                    {{ userInfo.lastName }}</span
+                  >
+                </li>
+                <li
+                  class="nav-item padding-20 text-center text-transform-none"
+                  routerlinkactive="open"
+                >
+                  <span class="font-bold">Email: {{ userInfo.email }}</span>
+                </li>
+                <li
+                  class="nav-item text-center text-transform-none"
+                  id="showPendingAmt"
+                  routerlinkactive="open"
+                >
+                  <span class="font-bold"
+                    >Pending Amount: ${{ userInfo.pendingAmount }}</span
+                  >
+                </li>
+                <li
+                  class="nav-item padding-20 text-center text-transform-none"
+                  routerlinkactive="open"
+                >
+                  <button
+                    class="btn btn-sm btn-primary text-center col-md-12"
+                    title="Logout"
+                    (click)="logout()"
+                  >
+                    Sign Out
+                  </button>
+                </li>
 
-                        <li class="nav-item" menutogglelink="" routerlinkactive="open">    
-                            <a class="nav-link" href="javascript:void(0)" menutoggle="" routerlinkactive="active-link">
-                                <img src="assets/images/user.png_" class="img-width-height">
-                            </a>                       
-                            <ul class="sub-menu arrow-up">
-                                <li class="nav-item padding-20 text-center text-transform-none" routerlinkactive="open">
-                                    <span class="font-bold">Name: {{userInfo.firstName}} {{userInfo.lastName}}</span>
-                                </li>
-                                <li class="nav-item padding-20 text-center text-transform-none" routerlinkactive="open">
-                                    <span class="font-bold">Email: {{userInfo.email}}</span>                                                        
-                                </li>
-                                <li class="nav-item padding-20 text-center text-transform-none" routerlinkactive="open">
-                                    <button class="btn btn-sm btn-primary text-center col-md-12" title="Logout" (click)="logout()">
-                                        Sign Out
-                                    </button>                                                  
-                                </li>
-
-                                <!-- <li class="nav-item text-center text-transform-none support" routerlinkactive="open">
+                <!-- <li class="nav-item text-center text-transform-none support" routerlinkactive="open">
                                     <button class="btn btn-sm btn-primary text-center col-md-12" (click)="support()" title="Need Support">
                                         Need Support <i class="far fa-question-circle"></i>
                                     </button>                                                  
                                 </li> -->
-                            </ul>
-                        </li>                       
-                    </ul>
-                </div>
+              </ul>
+            </li>
+          </ul>
+        </div>
 
-                <app-org-drop-down (sendOrgId)="sendOrgIdToParentComponent($event)"></app-org-drop-down>
-            </div>
-        </nav>
-    </div>
+        <app-org-drop-down
+          (sendOrgId)="sendOrgIdToParentComponent($event)"
+        ></app-org-drop-down>
+      </div>
+    </nav>
+  </div>
 </header>

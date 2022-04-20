@@ -5,17 +5,18 @@ const TARIFF_DETAILS = require("../tariff/tariff.model");
 const USER = require("../user/user.model");
 
 // Calculate Call Type for the Call log
-var calculateCallType = new CronJob("*/1 * * * *", async function () {
+var calculateCallType = new CronJob("*/2 * * * *", async function () {
   console.log("Job triggered for calcualting call type");
   var callLogs = await CALL_LOGS.find({ callTypeCalculated: false }, "", {
     limit: 5000,
     sort: { creationDate: -1 },
   }).lean();
+
   if (callLogs && callLogs.length) {
-    // console.log('loading started')
     let organizations = _.pluck(callLogs, "organization");
     let shallFetchTariffDetails = true;
     let tariffDetails = [];
+
     for (var callLogIndex in callLogs) {
       let singleCallLog = callLogs[callLogIndex] || {};
       let type = [];
@@ -40,29 +41,19 @@ var calculateCallType = new CronJob("*/1 * * * *", async function () {
         type.push("conference");
       }
 
-      if (
-        (singleCallLog["ExternalTargetingCause"] &&
-          singleCallLog["ExternalTargetingCause"].indexOf("CfP") > 0) ||
-        (singleCallLog["ExternalTargetingCause"] &&
-          singleCallLog["ExternalTargetingCause"].indexOf("Cfd") > 0) ||
-        (singleCallLog["Direction"] && singleCallLog["Direction"] == "C")
-      ) {
-        type.push("conference");
-      }
+      // if ((singleCallLog['ExternalTargetingCause'] && singleCallLog['ExternalTargetingCause'].indexOf('CfP') > 0)
+      //   || (singleCallLog['ExternalTargetingCause'] && singleCallLog['ExternalTargetingCause'].indexOf('Cfd') > 0)
+      //   || (singleCallLog['Direction'] && singleCallLog['Direction'] == 'C')) {
+      //   type.push('conference');
+      // }
 
       // TRANSFER CALL
-      if (
-        (singleCallLog["ExternalTargetName"] &&
-          singleCallLog["ExternalTargetName"].indexOf("U") !== -1) ||
-        (singleCallLog["ExternalTargetName"] &&
-          singleCallLog["ExternalTargetName"].indexOf("U Xfd") !== -1) ||
-        (singleCallLog["ExternalTargetName"] &&
-          singleCallLog["ExternalTargetName"].indexOf("Xfd") !== -1)
-      ) {
-        type.push("transfer");
-      }
+      // if ((singleCallLog['ExternalTargetingCause'] && singleCallLog['ExternalTargetingCause'].indexOf('XfP') > 0)
+      //   || (singleCallLog['ExternalTargetingCause'] && singleCallLog['ExternalTargetingCause'].indexOf('Xfd') > 0)) {
+      //   type.push('transfer');
+      // }
 
-      // MISSED call incomming
+      // MISSED call
       if (
         singleCallLog["Direction"] &&
         singleCallLog["Direction"] == "I" &&
@@ -71,74 +62,157 @@ var calculateCallType = new CronJob("*/1 * * * *", async function () {
         type.push("missed");
       }
 
-      // MISSED call outgoing
-      if (
-        singleCallLog["Direction"] &&
-        singleCallLog["Direction"] == "O" &&
-        singleCallLog["CallDuration"] == 0
-      ) {
-        type.push("missed");
-      }
-
       //Internal call
       if (
-        singleCallLog["IsInternal"] &&
-        singleCallLog["IsInternal"] == "1" &&
-        singleCallLog["Direction"] &&
-        singleCallLog["Direction"] == "O" &&
-        singleCallLog["Callernumber"] &&
-        String(singleCallLog["Callernumber"]).length >= 3 &&
-        String(singleCallLog["Callernumber"]).length <= 6 &&
-        singleCallLog["Callednumber"] &&
-        singleCallLog["Callednumber"].length >= 3 &&
-        singleCallLog["Callednumber"].length <= 6
+        (singleCallLog["IsInternal"] &&
+          singleCallLog["IsInternal"] == "1" &&
+          singleCallLog["Direction"] &&
+          singleCallLog["Direction"] == "O" &&
+          singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).length >= 3 &&
+          String(singleCallLog["Callernumber"]).length <= 5 &&
+          singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].length >= 3 &&
+          singleCallLog["Callednumber"].length <= 5) ||
+        (singleCallLog["Direction"] && singleCallLog["Direction"] == "0")
       ) {
         type.push("internal");
       }
 
-      // service
-      let code_service = singleCallLog["Callednumber"].substring(0, 6);
+      //Service call
       if (
-        (code_service + "").indexOf("1800") > -1 &&
-        singleCallLog["Direction"] == "O"
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("500") == 0) ||
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("600") == 0) ||
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("700") == 0) ||
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("800") == 0) ||
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("900") == 0)
       ) {
-        console.log("outgoing service");
-        type.push("service");
-      }
-      let code_service_incoming = String(
-        singleCallLog["Callernumber"]
-      ).substring(0, 6);
-      if (
-        (code_service_incoming + "").indexOf("1800") > -1 &&
-        singleCallLog["Direction"] == "I"
-      ) {
-        console.log("incoming service");
         type.push("service");
       }
 
-      // mobile bangalore call
+      //local call
+      if (
+        singleCallLog["Callednumber"] &&
+        singleCallLog["Callednumber"].indexOf("04") == 0
+      ) {
+        type.push("local");
+      }
+
+      if (
+        singleCallLog["Callernumber"] &&
+        String(singleCallLog["Callernumber"]).indexOf("04") >= 0 &&
+        singleCallLog["Callernumber"].length == 9
+      ) {
+        type.push("local");
+      }
+      if (
+        singleCallLog["Callernumber"] &&
+        String(singleCallLog["Callernumber"]).indexOf("4") == 0 &&
+        singleCallLog["Callernumber"].length == 8
+      ) {
+        type.push("local");
+      }
+      //National
+
+      if (
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("02") == 0 &&
+          singleCallLog["Callernumber"].length == 9) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("03") == 0 &&
+          singleCallLog["Callernumber"].length == 9) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("06") == 0 &&
+          singleCallLog["Callernumber"].length == 9) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("07") == 0 &&
+          singleCallLog["Callernumber"].length == 9) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("08") == 0 &&
+          singleCallLog["Callernumber"].length == 9) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("09") == 0 &&
+          singleCallLog["Callernumber"].length == 9)
+      ) {
+        type.push("national");
+      }
+
+      if (
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("2") == 0 &&
+          singleCallLog["Callernumber"].length == 8) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("3") == 0 &&
+          singleCallLog["Callernumber"].length == 8) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("6") == 0 &&
+          singleCallLog["Callernumber"].length == 8) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("7") == 0 &&
+          singleCallLog["Callernumber"].length == 8) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("8") == 0 &&
+          singleCallLog["Callernumber"].length == 8) ||
+        (singleCallLog["Callernumber"] &&
+          String(singleCallLog["Callernumber"]).indexOf("9") == 0 &&
+          singleCallLog["Callernumber"].length == 8)
+      ) {
+        type.push("national");
+      }
+
       if (
         (singleCallLog["Callednumber"] &&
-          singleCallLog["Callednumber"].indexOf("80") == 0 &&
-          singleCallLog["Direction"] == "O" &&
-          singleCallLog["Callednumber"].length == 12) ||
+          singleCallLog["Callednumber"].indexOf("02") == 0) ||
         (singleCallLog["Callednumber"] &&
-          singleCallLog["Callednumber"].indexOf("0") == 0 &&
-          singleCallLog["Direction"] == "O" &&
-          singleCallLog["Callednumber"].length == 11) ||
-        (singleCallLog["Callernumber"] &&
-          singleCallLog["Direction"] == "I" &&
-          String(singleCallLog["Callernumber"]).length == 10)
+          singleCallLog["Callednumber"].indexOf("03") == 0) ||
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("06") == 0) ||
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("07") == 0) ||
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("08") == 0) ||
+        (singleCallLog["Callednumber"] &&
+          singleCallLog["Callednumber"].indexOf("09") == 0)
+      ) {
+        type.push("national");
+      }
+
+      //Mobile call
+      if (
+        singleCallLog["Callednumber"] &&
+        singleCallLog["Callednumber"].indexOf("05") == 0
       ) {
         type.push("mobile");
       }
 
-      // Local call
-      // if((singleCallLog["Callednumber"] &&
-      // singleCallLog["Callednumber"].indexOf("800") == 0 && singleCallLog["Callednumber"].length > 12) || (singleCallLog["Callednumber"] &&
-      // singleCallLog["Callednumber"].indexOf("00") == 0 && singleCallLog["Callednumber"].length >= 12)){
-      //   type.push('local');
-      // }
+      if (
+        singleCallLog["Callernumber"] &&
+        String(singleCallLog["Callernumber"]).indexOf("5") == 0 &&
+        singleCallLog["Callernumber"].length == 9
+      ) {
+        type.push("mobile");
+      }
+
+      if (
+        singleCallLog["Callernumber"] &&
+        String(singleCallLog["Callernumber"]).indexOf("05") == 0 &&
+        singleCallLog["Callernumber"].length == 10
+      ) {
+        type.push("mobile");
+      }
+
+      //International Call
+      if (
+        singleCallLog["Callednumber"] &&
+        singleCallLog["Callednumber"].indexOf("00") == 0
+      ) {
+        type.push("international");
+      }
 
       {
         let lookInto = "";
@@ -178,55 +252,26 @@ var calculateCallType = new CronJob("*/1 * * * *", async function () {
           [undefined, null, ""]
         );
 
-        let tarrifFileCode = singleCallLog[lookInto];
-        let splitLookinto = tarrifFileCode.substring(0, 3);
-        let splitLookinto_intern = tarrifFileCode.substring(0, 2);
-        // let code_service_chk = tarrifFileCode.includes("1800");
-        let substring = "1800";
-        let code_service_chk = tarrifFileCode.indexOf(substring) !== -1;
-        if (singleCallLog["IsInternal"] != "1" && !code_service_chk) {
-          if (
-            (singleCallLog[lookInto] && splitLookinto == "800") ||
-            (singleCallLog[lookInto] &&
-              splitLookinto_intern == "00" &&
-              tarrifFileCode.length < 13)
-          ) {
-            type.push("local");
-          } else if (
-            singleCallLog[lookInto] &&
-            splitLookinto_intern == "00" &&
-            tarrifFileCode.length > 13
-          ) {
-            type.push("international");
-          } else {
-            type.push("mobile");
-          }
-        }
-
         // Filter all tariff where the country code matches with the number
-        // let retDoc = tariffsPerOrg.filter((stpo) => {
-        // if (
-        //   singleCallLog[lookInto] &&
-        //   singleCallLog[lookInto].indexOf(stpo.countryCode) == 0
-        // ) {
-        //   console.log("checkkk ccode founded " + stpo.countryCode);
-        //   console.log("return checkingg " + stpo);
-        //   return stpo;
-        // }
-        // });
+        let retDoc = tariffsPerOrg.filter((stpo) => {
+          if (
+            singleCallLog[lookInto] &&
+            singleCallLog[lookInto].indexOf(stpo.countryCode) == 0
+          ) {
+            return stpo;
+          }
+        });
 
         // put all matched record's call type and assign it as the call type for the particular log
-        // if (retDoc && retDoc.length) {
-        //   let allTypes = _.difference(_.pluck(retDoc, "callType"), [
-        //     undefined,
-        //     null,
-        //     "",
-        //   ]);
-        //   type = [...type, ...allTypes];
-        // }
+        if (retDoc && retDoc.length) {
+          let allTypes = _.difference(_.pluck(retDoc, "callType"), [
+            undefined,
+            null,
+            "",
+          ]);
+          type = [...type, ...allTypes];
+        }
       }
-
-      console.log("sathish types" + type);
 
       if (type && type.length) {
         type = type.map((sT) => {
@@ -245,7 +290,8 @@ var calculateCallType = new CronJob("*/1 * * * *", async function () {
 calculateCallType.start();
 
 // Calculate Call cost for the Call Logs
-var calculateCallCostJob = new CronJob("*/1 * * * *", async function () {
+var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
+  console.log("Job triggered for calcualting cost for call logs");
   let callLogs = await CALL_LOGS.find(
     { callCostCalculated: false, Direction: "O" },
     "Callednumber CallDuration _id organization branch",
@@ -257,20 +303,19 @@ var calculateCallCostJob = new CronJob("*/1 * * * *", async function () {
 
     for (let index in callLogs) {
       let singleCallLog = callLogs[index] || {};
-      console.log("single call log " + singleCallLog);
       let tariffsPerOrg = _.difference(
         tariffDetails.filter((td) => {
           if (
             String(td.organization) == String(singleCallLog["organization"]) &&
             String(td.branch) == String(singleCallLog["branch"])
           ) {
-            console.log("check code in file " + String(td.code));
             return td;
           }
         }),
         [undefined, null, ""]
       );
 
+      // console.log("Call cost cycle variable", callCostCycleVariable);
       let oneCycle = 60,
         cost = 0,
         totalCycles = 0;
@@ -284,51 +329,87 @@ var calculateCallCostJob = new CronJob("*/1 * * * *", async function () {
         let code, costCycleJson;
         let CallednumberLength = number.length;
 
-        console.log("printed coming");
-        // INTERNATIONAL
-        if (CallednumberLength == 14) {
-          code = number.substring(0, 2);
-          console.log("login international");
-          if (code == "00") {
-            console.log("checked international" + code);
+        // Removing 00 from international number as INAIPI
+        // people dont add tariff for numbers starting with 00
+        if (number.indexOf("00") == 0) {
+          number = number.substring(2, CallednumberLength);
+          CallednumberLength = number.length;
+        }
+
+        console.log("Called Number", number);
+
+        // if (CallednumberLength == 11) {
+        //   number = number.substring(1, CallednumberLength);
+        //   CallednumberLength = number.length;
+        // }
+
+        if (CallednumberLength > 10) {
+          code = number.substring(0, 3);
+          if (code == "971") {
+            costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
+          } else {
+            //INTERNATIONAL
+            code = number.substring(0, number.length % 10);
+            // console.log("COde >10", code);
+            costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
+            console.log("total cycle", costCycleJson);
+          }
+          // console.log("Cost json", costCycleJson);
+        } else if (CallednumberLength <= 10 && CallednumberLength >= 8) {
+          // NATIONAL , LOCAL FOR DUBAI
+          code = number.substring(0, 3);
+          if (
+            code == "500" ||
+            code == "600" ||
+            code == "700" ||
+            code == "800" ||
+            code == "181"
+          ) {
             costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
           }
-        }
-        // MOBILE
-        else if (CallednumberLength == 11 || CallednumberLength == 12) {
-          code = number.substring(0, number.length % 10);
-          if (code == "0") {
-            console.log("checked mobile" + code);
-            costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
-          } else if (code == "80") {
-            console.log("checked mobile" + code);
-            costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
+          // console.log("Code <=10 and >=8   -- 1", code);
+          // console.log("Cost json", costCycleJson);
+          if (!costCycleJson) {
+            code = number.substring(0, 2);
+            if (
+              code == "05" ||
+              code == "04" ||
+              code == "02" ||
+              code == "06" ||
+              code == "09" ||
+              code == "07" ||
+              code == "03" ||
+              code == "08"
+            ) {
+              costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
+            }
+            // console.log("Code <=10 and >=8   --2", code);
+            // console.log("Cost json", costCycleJson);
           }
-        }
-        // LOCAl
-        if (CallednumberLength >= 12) {
-          code = number.substring(0, number.length % 9);
-          if (code == "8004" || code == "8003") {
-            console.log("checked local" + code);
-            costCycleJson = _.findWhere(tariffsPerOrg, {
-              countryCode: code,
-            });
+        } else {
+          code = number.substring(0, 3);
+          if (
+            code == "500" ||
+            code == "600" ||
+            code == "700" ||
+            code == "800" ||
+            code == "181"
+          ) {
+            costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
           }
         }
 
+        // console.log("Cost", cost);
+
         if (costCycleJson) {
           cost = parseFloat(costCycleJson["rate"]);
-          console.log("cost " + cost);
           oneCycle =
             parseInt(costCycleJson["units"]) *
             parseInt(costCycleJson["unitsMeasurement"]);
-          console.log("one cycle " + oneCycle);
         }
 
         if (callLogs[index]["CallDuration"]) {
           totalCycles = Math.ceil(callLogs[index]["CallDuration"] / oneCycle);
-
-          console.log("total call cyce = " + totalCycles);
         }
 
         await CALL_LOGS.findByIdAndUpdate(

@@ -6,13 +6,17 @@ import { LoginComponent } from './login/login.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
-  { path: 'admin', loadChildren: () => import('./landing/landing.module').then(m => m.LandingModule), canActivate: [AuthGuard]},
-  { path: '', redirectTo: "login", pathMatch: "full"},
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./landing/landing.module').then((m) => m.LandingModule),
+    canActivate: [AuthGuard],
+  },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-
-export class AppRoutingModule { }
+export class AppRoutingModule {}

@@ -7,21 +7,72 @@ const routes: Routes = [
     path: '',
     component: LandingComponent,
     children: [
-      { path: 'organization', loadChildren: () => import("../components/organization/organization.module").then(m => m.OrganizationModule) },
-      { path: 'department', loadChildren: () => import("../components/department/department.module").then(m => m.DepartmentModule) },
-      { path: 'branch', loadChildren: () => import("../components/branch/branch.module").then(m => m.BranchModule) },
-      { path: 'role', loadChildren: () => import("../components/role/role.module").then(m => m.RoleModule) },
-      { path: 'user', loadChildren: () => import("../components/user/user.module").then(m => m.UserModule) },
-      { path: 'sub-department', loadChildren: () => import("../components/sub-department/sub-department.module").then(m => m.SubDepartmentModule) },
-      { path: 'inaipi/setup', loadChildren: () => import("../components/INAIPI/setup/setup.module").then(m => m.SetupModule) },
-      { path: 'inaipi/dashboard', loadChildren: () => import("../components/INAIPI/dashboard/dashboard.module").then(m => m.DashboardModule) },
+      {
+        path: 'organization',
+        loadChildren: () =>
+          import('../components/organization/organization.module').then(
+            (m) => m.OrganizationModule
+          ),
+      },
+      {
+        path: 'department',
+        loadChildren: () =>
+          import('../components/department/department.module').then(
+            (m) => m.DepartmentModule
+          ),
+      },
+      {
+        path: 'branch',
+        loadChildren: () =>
+          import('../components/branch/branch.module').then(
+            (m) => m.BranchModule
+          ),
+      },
+      {
+        path: 'role',
+        loadChildren: () =>
+          import('../components/role/role.module').then((m) => m.RoleModule),
+      },
+      {
+        path: 'user',
+        loadChildren: () =>
+          import('../components/user/user.module').then((m) => m.UserModule),
+      },
+      {
+        path: 'sub-department',
+        loadChildren: () =>
+          import('../components/sub-department/sub-department.module').then(
+            (m) => m.SubDepartmentModule
+          ),
+      },
+      {
+        path: 'payment',
+        loadChildren: () =>
+          import('../components/payment/payment.module').then(
+            (m) => m.PaymentModule
+          ),
+      },
+      {
+        path: 'inaipi/setup',
+        loadChildren: () =>
+          import('../components/INAIPI/setup/setup.module').then(
+            (m) => m.SetupModule
+          ),
+      },
+      {
+        path: 'inaipi/dashboard',
+        loadChildren: () =>
+          import('../components/INAIPI/dashboard/dashboard.module').then(
+            (m) => m.DashboardModule
+          ),
+      },
       { path: '', redirectTo: 'inaipi/dashboard' },
-    ]
-  }
+    ],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class LandingRoutingModule { }
+export class LandingRoutingModule {}
