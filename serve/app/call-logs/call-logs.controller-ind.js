@@ -90,19 +90,18 @@ exports.uploadCallLog = async (req, res) => {
     }
 
     console.log("dept findedddddd");
-
     let dataToAppend = {
-      // organizationCalculated: false,
       organization: req.user.organization,
+      organizationCalculated: true,
       softDelete: false,
       callCostCalculated: false,
       callTypeCalculated: false,
       callerNameCalculated: false,
       calledNameCalculated: false,
-      branch: branchNameFindedNew,
-      branchCalculated: true,
-      department: deptFindNew,
-      departmentCalculated: true,
+      // branch: req.user.branch,
+      // branchCalculated: true,
+      branchCalculated: false,
+      departmentCalculated: false,
       transferCallCalculated: false,
       parentTransferCallLog: false,
       creationDate: new Date(),
@@ -142,13 +141,8 @@ exports.uploadCallLog = async (req, res) => {
       }
     }
 
-    return res.json({
-      success: true,
-      data: "Call log captured",
-      message: "Data saved",
-    });
+    return res.json({ success: true, data: "", message: "Data saved" });
   } catch (err) {
-    // console.log("hi testing" + err);
     return res.json({ success: false, message: err, data: "" });
   }
 };

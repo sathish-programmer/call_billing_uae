@@ -105,15 +105,15 @@ var calculateCallType = new CronJob("*/2 * * * *", async function () {
 
       if (
         singleCallLog["Callernumber"] &&
-        String(singleCallLog["Callernumber"]).indexOf("04") == 0 &&
-        String(singleCallLog["Callernumber"]).length == 9
+        String(singleCallLog["Callernumber"]).indexOf("04") >= 0 &&
+        singleCallLog["Callernumber"].length == 9
       ) {
         type.push("local");
       }
       if (
         singleCallLog["Callernumber"] &&
         String(singleCallLog["Callernumber"]).indexOf("4") == 0 &&
-        String(singleCallLog["Callernumber"]).length == 8
+        singleCallLog["Callernumber"].length == 8
       ) {
         type.push("local");
       }
@@ -122,22 +122,22 @@ var calculateCallType = new CronJob("*/2 * * * *", async function () {
       if (
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("02") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 9) ||
+          singleCallLog["Callernumber"].length == 9) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("03") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 9) ||
+          singleCallLog["Callernumber"].length == 9) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("06") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 9) ||
+          singleCallLog["Callernumber"].length == 9) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("07") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 9) ||
+          singleCallLog["Callernumber"].length == 9) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("08") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 9) ||
+          singleCallLog["Callernumber"].length == 9) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("09") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 9)
+          singleCallLog["Callernumber"].length == 9)
       ) {
         type.push("national");
       }
@@ -145,22 +145,22 @@ var calculateCallType = new CronJob("*/2 * * * *", async function () {
       if (
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("2") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 8) ||
+          singleCallLog["Callernumber"].length == 8) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("3") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 8) ||
+          singleCallLog["Callernumber"].length == 8) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("6") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 8) ||
+          singleCallLog["Callernumber"].length == 8) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("7") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 8) ||
+          singleCallLog["Callernumber"].length == 8) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("8") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 8) ||
+          singleCallLog["Callernumber"].length == 8) ||
         (singleCallLog["Callernumber"] &&
           String(singleCallLog["Callernumber"]).indexOf("9") == 0 &&
-          String(singleCallLog["Callernumber"]).length == 8)
+          singleCallLog["Callernumber"].length == 8)
       ) {
         type.push("national");
       }
@@ -190,18 +190,10 @@ var calculateCallType = new CronJob("*/2 * * * *", async function () {
         type.push("mobile");
       }
 
-      // mobile bangalore call
-      if (
-        singleCallLog["Callednumber"] &&
-        singleCallLog["Callednumber"].indexOf("80") == 0
-      ) {
-        type.push("mobile");
-      }
-
       if (
         singleCallLog["Callernumber"] &&
         String(singleCallLog["Callernumber"]).indexOf("5") == 0 &&
-        String(singleCallLog["Callernumber"]).length == 9
+        singleCallLog["Callernumber"].length == 9
       ) {
         type.push("mobile");
       }
@@ -209,7 +201,7 @@ var calculateCallType = new CronJob("*/2 * * * *", async function () {
       if (
         singleCallLog["Callernumber"] &&
         String(singleCallLog["Callernumber"]).indexOf("05") == 0 &&
-        String(singleCallLog["Callernumber"]).length == 10
+        singleCallLog["Callernumber"].length == 10
       ) {
         type.push("mobile");
       }
@@ -438,25 +430,23 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
 
 calculateCallCostJob.start();
 
+// findOrgInfoForCallLog.start();
+
 // Find Branch Name for the Call log
-var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
+var findBranchInfoForCallLog = new CronJob("*/1 * * * *", async function () {
   console.log("Job triggered for finding branch details for call log");
   let callLogs = await CALL_LOGS.find(
     { branchCalculated: false },
-    "Callernumber Callednumber DialedNumber organization _id Direction",
+    "Callernumber Callednumber organization DialedNumber _id Direction",
     { limit: 5000, sort: { creationDate: -1 } }
   ).lean();
-  console.log("cal logs", callLogs.length);
   try {
     if (callLogs && callLogs.length) {
       let groupedCallLogs = _.groupBy(callLogs, "organization");
       let keys = Object.keys(groupedCallLogs);
-      console.log("Grouped call logs", groupedCallLogs);
-      console.log("keys", keys);
       for (let kI in keys) {
         callLogs = groupedCallLogs[keys[kI]];
         let extensions = [];
-
         // Get Exensions from the call logs
         {
           extensions = _.union(
@@ -469,7 +459,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
               _.map(extensions, function (se) {
                 se = String(se);
 
-                if (se.length <= 5 && !isNaN(parseInt(se))) {
+                if (se.length <= 6 && !isNaN(parseInt(se))) {
                   return se;
                 } else {
                   return null;
@@ -479,19 +469,16 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
             )
           );
         }
-
-        console.log("extensions", extensions);
-
+        console.log("find branch name");
         // Get User extensions
         let userDetails = await USER.find(
           {
+            softDelete: false,
             extension: { $in: extensions },
-            organization: keys[kI],
+            // organization: keys[kI],
           },
           "branch extension"
         ).lean();
-
-        console.log("user details", userDetails);
         // Tie branch with call log
         {
           let updateData;
@@ -499,31 +486,30 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
             updateData = {};
             let number,
               foundBranchDetail = {};
-
             if (callLogs[index]["Direction"] == "I") {
               number = String(callLogs[index]["Callednumber"]);
-
-              if (number.length <= 5) {
+              if (number.length <= 6) {
                 foundBranchDetail = _.findWhere(userDetails, {
                   extension: parseInt(number),
                 });
-
-                if (foundBranchDetail) {
+                if (foundBranchDetail && foundBranchDetail["branch"] != "all") {
                   updateData = {
                     branch: foundBranchDetail["branch"],
                     branchCalculated: true,
                   };
                 }
               }
-
               if (!updateData["branch"]) {
                 number = String(callLogs[index]["Dialednumber"]);
-                if (number.length <= 5) {
+                if (number.length <= 6) {
+                  console.log("sathishhh");
                   foundBranchDetail = _.findWhere(userDetails, {
                     extension: parseInt(number),
                   });
-
-                  if (foundBranchDetail) {
+                  if (
+                    foundBranchDetail &&
+                    foundBranchDetail["branch"] != "all"
+                  ) {
                     updateData = {
                       branch: foundBranchDetail["branch"],
                       branchCalculated: true,
@@ -533,13 +519,11 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
               }
             } else if (callLogs[index]["Direction"] == "O") {
               number = String(callLogs[index]["Callernumber"]);
-
-              if (number.length <= 5) {
+              if (number.length <= 6) {
                 foundBranchDetail = _.findWhere(userDetails, {
                   extension: parseInt(number),
                 });
-
-                if (foundBranchDetail) {
+                if (foundBranchDetail && foundBranchDetail["branch"] != "all") {
                   updateData = {
                     branch: foundBranchDetail["branch"],
                     branchCalculated: true,
@@ -547,7 +531,6 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
                 }
               }
             }
-
             //Updating the call log with branch
             console.log("update data", updateData);
             if (updateData && Object.keys(updateData).length) {
@@ -556,12 +539,10 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
                 { $set: updateData }
               );
             }
-
             number = foundBranchDetail = null;
           }
         }
       }
-
       callLogs = keys = groupedCallLogs = null;
     }
   } catch (err) {
@@ -573,26 +554,21 @@ findBranchInfoForCallLog.start();
 
 // Find Department Name for the Call log
 var findDepartmentInfoForCallLog = new CronJob(
-  "*/2 * * * *",
+  "*/1 * * * *",
   async function () {
     console.log("Job triggered for finding department call log");
     let callLogs = await CALL_LOGS.find(
       { departmentCalculated: false },
-      "Callernumber Callednumber DialedNumber organization _id Direction",
+      "Callernumber Callednumber organization DialedNumber _id Direction",
       { limit: 5000, sort: { creationDate: -1 } }
     ).lean();
-    console.log("cal logs", callLogs.length);
     try {
       if (callLogs && callLogs.length) {
         let groupedCallLogs = _.groupBy(callLogs, "organization");
         let keys = Object.keys(groupedCallLogs);
-
-        console.log("Grouped call logs", groupedCallLogs);
-        console.log("keys", keys);
         for (let kI in keys) {
           callLogs = groupedCallLogs[keys[kI]];
           let extensions = [];
-
           // Get Exensions from the call logs
           {
             extensions = _.union(
@@ -605,7 +581,7 @@ var findDepartmentInfoForCallLog = new CronJob(
                 _.map(extensions, function (se) {
                   se = String(se);
 
-                  if (se.length <= 5 && !isNaN(parseInt(se))) {
+                  if (se.length <= 6 && !isNaN(parseInt(se))) {
                     return se;
                   } else {
                     return null;
@@ -615,17 +591,16 @@ var findDepartmentInfoForCallLog = new CronJob(
               )
             );
           }
-
-          console.log("extensions", extensions);
+          console.log("find dept name");
           // Get User extensions
           let userDetails = await USER.find(
             {
+              softDelete: false,
               extension: { $in: extensions },
-              organization: keys[kI],
+              // organization: keys[kI],
             },
             "department extension"
           ).lean();
-          console.log("user details", userDetails);
           // Tie department with call log
           {
             let updateData;
@@ -633,16 +608,19 @@ var findDepartmentInfoForCallLog = new CronJob(
               updateData = {};
               let number,
                 foundDepartmentDetail = {};
-
               if (callLogs[index]["Direction"] == "I") {
                 number = String(callLogs[index]["Callednumber"]);
 
-                if (number.length <= 5) {
+                if (number.length <= 6) {
                   foundDepartmentDetail = _.findWhere(userDetails, {
                     extension: parseInt(number),
                   });
 
-                  if (foundDepartmentDetail) {
+                  // console.log('update department '+foundDepartmentDetail)
+                  if (
+                    foundDepartmentDetail &&
+                    foundDepartmentDetail["department"] != "all"
+                  ) {
                     updateData = {
                       department: foundDepartmentDetail["department"],
                       departmentCalculated: true,
@@ -652,12 +630,15 @@ var findDepartmentInfoForCallLog = new CronJob(
 
                 if (!updateData["department"]) {
                   number = String(callLogs[index]["Dialednumber"]);
-                  if (number.length <= 5) {
+                  if (number.length <= 6) {
                     foundDepartmentDetail = _.findWhere(userDetails, {
                       extension: parseInt(number),
                     });
 
-                    if (foundDepartmentDetail) {
+                    if (
+                      foundDepartmentDetail &&
+                      foundDepartmentDetail["department"] != "all"
+                    ) {
                       updateData = {
                         department: foundDepartmentDetail["department"],
                         departmentCalculated: true,
@@ -667,13 +648,17 @@ var findDepartmentInfoForCallLog = new CronJob(
                 }
               } else if (callLogs[index]["Direction"] == "O") {
                 number = String(callLogs[index]["Callernumber"]);
-
-                if (number.length <= 5) {
+                // console.log(callLogs[index]['Callernumber'] +' found call log')
+                // console.log('number' + number)
+                if (number.length <= 6) {
                   foundDepartmentDetail = _.findWhere(userDetails, {
                     extension: parseInt(number),
                   });
-
-                  if (foundDepartmentDetail) {
+                  // console.log('foundDepartmentDetail' + foundDepartmentDetail)
+                  if (
+                    foundDepartmentDetail &&
+                    foundDepartmentDetail["department"] != "all"
+                  ) {
                     updateData = {
                       department: foundDepartmentDetail["department"],
                       departmentCalculated: true,
@@ -708,7 +693,7 @@ findDepartmentInfoForCallLog.start();
 
 // Find Caller Name for the Call log
 var findCallerNameInfoForCallLog = new CronJob(
-  "*/2 * * * *",
+  "*/1 * * * *",
   async function () {
     let callLogs = await CALL_LOGS.find(
       { callerNameCalculated: false },
@@ -731,7 +716,7 @@ var findCallerNameInfoForCallLog = new CronJob(
               _.map(_.pluck(callLogs, "Callernumber"), function (se) {
                 se = String(se);
 
-                if (se.length <= 5 && !isNaN(parseInt(se))) {
+                if (se.length <= 6 && !isNaN(parseInt(se))) {
                   return parseInt(se);
                 } else {
                   return null;
@@ -742,16 +727,20 @@ var findCallerNameInfoForCallLog = new CronJob(
           );
         }
 
+        console.log("find caller name");
         // Get user details from the user and separate branch, department and names for extension
         let userDetails = [];
         if (extensions && extensions.length) {
           console.log("Keys", keys[kI]);
           userDetails = await USER.find(
-            { organization: keys[kI], extension: { $in: extensions } },
+            {
+              softDelete: false,
+              // organization: keys[kI],
+              extension: { $in: extensions },
+            },
             "extension"
           ).lean();
         }
-        console.log("User details", userDetails);
         {
           let updateData;
           for (let index in callLogs) {
@@ -761,7 +750,7 @@ var findCallerNameInfoForCallLog = new CronJob(
             if (!callLogs[index]["callerNameCalculated"]) {
               callerNumber = String(callLogs[index]["Callernumber"]);
 
-              if (callerNumber.length <= 5) {
+              if (callerNumber.length <= 6) {
                 callerExtension = _.findWhere(userDetails, {
                   extension: parseInt(callLogs[index]["Callernumber"]),
                 });
@@ -793,115 +782,8 @@ var findCallerNameInfoForCallLog = new CronJob(
 
 findCallerNameInfoForCallLog.start();
 
-// Find Called Name for the Call log
-var findCalledNameInfoForCallLog = new CronJob(
-  "*/2 * * * *",
-  async function () {
-    let callLogs = await CALL_LOGS.find(
-      { calledNameCalculated: false },
-      "Callednumber DialedNumber calledNameCalculated organization",
-      { limit: 5000, sort: { creationDate: -1 } }
-    ).lean();
-
-    if (callLogs && callLogs.length) {
-      let groupedCallLogs = _.groupBy(callLogs, "organization");
-      let keys = Object.keys(groupedCallLogs);
-
-      for (let kI in keys) {
-        console.log("Keys", keys[kI]);
-        callLogs = groupedCallLogs[keys[kI]];
-        let extensions = [];
-
-        // Get extensions from call logs
-        {
-          extensions = _.union(
-            _.pluck(callLogs, "DialedNumber"),
-            _.pluck(callLogs, "Callednumber")
-          );
-          extensions = _.uniq(
-            _.difference(
-              _.map(extensions, function (se) {
-                se = String(se);
-
-                if (se.length <= 5 && !isNaN(parseInt(se))) {
-                  return parseInt(se);
-                } else {
-                  return null;
-                }
-              }),
-              [undefined, null]
-            )
-          );
-        }
-
-        // Get user details from the user and separate branch, department and names for extension
-        let userDetails = [];
-        if (extensions && extensions.length) {
-          userDetails = await USER.find(
-            { organization: keys[kI], extension: { $in: extensions } },
-            "extension"
-          ).lean();
-        }
-        console.log("User details", userDetails);
-
-        {
-          let updateData;
-          for (let index in callLogs) {
-            updateData = {};
-            let callerExtension, calledNumber;
-            // for Caller Name
-            if (!callLogs[index]["calledNameCalculated"]) {
-              calledNumber = String(callLogs[index]["Callednumber"]);
-
-              if (calledNumber.length <= 5) {
-                callerExtension = _.findWhere(userDetails, {
-                  extension: parseInt(calledNumber),
-                });
-
-                if (callerExtension) {
-                  updateData["calledUser"] = callerExtension["_id"];
-                  updateData["calledNameCalculated"] = true;
-                }
-              } else if (calledNumber.length > 5) {
-                updateData["calledNameCalculated"] = true;
-              }
-
-              calledNumber = String(callLogs[index]["DialedNumber"]);
-
-              if (calledNumber.length <= 5) {
-                callerExtension = _.findWhere(userDetails, {
-                  extension: parseInt(calledNumber),
-                });
-
-                if (callerExtension) {
-                  updateData["calledUser"] = callerExtension["_id"];
-                  updateData["calledNameCalculated"] = true;
-                }
-              } else if (calledNumber.length > 5) {
-                updateData["calledNameCalculated"] = true;
-              }
-            }
-
-            if (updateData && Object.keys(updateData).length) {
-              // console.log("updateData", updateData);
-              await CALL_LOGS.findByIdAndUpdate(
-                { _id: callLogs[index]["_id"] },
-                { $set: updateData }
-              );
-            }
-            callerName = calledNumber = null;
-          }
-        }
-      }
-      callLogs = keys = groupedCallLogs = null;
-    }
-  }
-);
-
-findCalledNameInfoForCallLog.start();
-
 // Calculate Transfer Call for the Call log
-var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
+var checkForTransferCallLog = new CronJob("*/1 * * * *", async function () {
   let query = [
     { $match: { transferCallCalculated: false } },
     {
@@ -1039,5 +921,116 @@ async function fetchTariffDetails(organizations) {
   ];
 
   let retDoc = await TARIFF_DETAILS.aggregate(aggregateQuery);
+  // console.log(String(retDoc + " result retrtttt");
   return retDoc;
 }
+
+// Find Called Name for the Call log
+var findCalledNameInfoForCallLog = new CronJob(
+  "*/1 * * * *",
+  async function () {
+    let callLogs = await CALL_LOGS.find(
+      { calledNameCalculated: false },
+      "Callednumber DialedNumber calledNameCalculated organization",
+      { limit: 5000, sort: { creationDate: -1 } }
+    ).lean();
+
+    if (callLogs && callLogs.length) {
+      let groupedCallLogs = _.groupBy(callLogs, "organization");
+      let keys = Object.keys(groupedCallLogs);
+
+      for (let kI in keys) {
+        console.log("Keys", keys[kI]);
+        callLogs = groupedCallLogs[keys[kI]];
+        let extensions = [];
+
+        // Get extensions from call logs
+        {
+          extensions = _.union(
+            _.pluck(callLogs, "DialedNumber"),
+            _.pluck(callLogs, "Callednumber")
+          );
+          extensions = _.uniq(
+            _.difference(
+              _.map(extensions, function (se) {
+                se = String(se);
+
+                if (se.length <= 6 && !isNaN(parseInt(se))) {
+                  return parseInt(se);
+                } else {
+                  return null;
+                }
+              }),
+              [undefined, null]
+            )
+          );
+        }
+
+        // Get user details from the user and separate branch, department and names for extension
+        let userDetails = [];
+        if (extensions && extensions.length) {
+          userDetails = await USER.find(
+            {
+              softDelete: false,
+              organization: keys[kI],
+              extension: { $in: extensions },
+            },
+            "extension"
+          ).lean();
+        }
+
+        {
+          let updateData;
+          for (let index in callLogs) {
+            updateData = {};
+            let callerExtension, calledNumber;
+            // for Caller Name
+            if (!callLogs[index]["calledNameCalculated"]) {
+              calledNumber = String(callLogs[index]["Callednumber"]);
+
+              if (calledNumber.length <= 6) {
+                callerExtension = _.findWhere(userDetails, {
+                  extension: parseInt(calledNumber),
+                });
+
+                if (callerExtension) {
+                  updateData["calledUser"] = callerExtension["_id"];
+                  updateData["calledNameCalculated"] = true;
+                }
+              } else if (calledNumber.length > 5) {
+                updateData["calledNameCalculated"] = true;
+              }
+
+              calledNumber = String(callLogs[index]["DialedNumber"]);
+
+              if (calledNumber.length <= 6) {
+                callerExtension = _.findWhere(userDetails, {
+                  extension: parseInt(calledNumber),
+                });
+
+                if (callerExtension) {
+                  updateData["calledUser"] = callerExtension["_id"];
+                  updateData["calledNameCalculated"] = true;
+                }
+              } else if (calledNumber.length > 5) {
+                updateData["calledNameCalculated"] = true;
+              }
+            }
+
+            if (updateData && Object.keys(updateData).length) {
+              // console.log("updateData", updateData);
+              await CALL_LOGS.findByIdAndUpdate(
+                { _id: callLogs[index]["_id"] },
+                { $set: updateData }
+              );
+            }
+            callerName = calledNumber = null;
+          }
+        }
+      }
+      callLogs = keys = groupedCallLogs = null;
+    }
+  }
+);
+
+// findCalledNameInfoForCallLog.start();
