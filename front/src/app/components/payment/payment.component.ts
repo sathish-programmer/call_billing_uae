@@ -43,6 +43,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
   timeLeft: number = 60;
   interval;
 
+  newAvailAmountInEdit: any;
+  newTotalAmountEdit: any;
+
+  updateAmountEdit: any;
+
+  paymentGoingToExpire: Boolean = false;
+
   enableAddPackageButton: Boolean = false;
 
   paymentEmail: any;
@@ -96,6 +103,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     });
 
     this.paymentEditForm = this.fb.group({
+      packageEditName: ['', Validators.required],
       assignedAmount: ['', Validators.required],
       organizationEdit: ['', Validators.required],
       pendingAmount: ['', Validators.required],
@@ -143,8 +151,20 @@ export class PaymentComponent implements OnInit, OnDestroy {
       );
   }
 
+  onOptionsSelected(value: string) {
+    this.updateAmountEdit = value;
+    let newFullAmount = parseInt(this.newTotalAmountEdit) + parseInt(value);
+    let newAvailAmount = parseInt(this.newAvailAmountInEdit) + parseInt(value);
+    // console.log(newFullAmount);
+    // console.log(newAvailAmount);
+    $('#avilAmt').val(newFullAmount);
+    $('#pendAmt').val(newAvailAmount);
+  }
+
   editPayment(paymentData: Payment) {
     if (paymentData) {
+      this.newAvailAmountInEdit = paymentData['availablePackage'];
+      this.newTotalAmountEdit = paymentData['package'];
       this.paymentId = paymentData['_id'];
       this.paymentEditForm.patchValue({
         assignedAmount: paymentData['package'],
@@ -156,6 +176,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   updatePayment() {
+    let newAsingVal = $('#avilAmt').val();
+    let newPendVal = $('#pendAmt').val();
+    this.paymentEditForm.value['assignedAmount'] = newAsingVal;
+    this.paymentEditForm.value['pendingAmount'] = newPendVal;
+    console.log(this.paymentEditForm.value);
     this.editOrgSubscription = this.authService
       .updatePayment(this.paymentEditForm.value, this.paymentId)
       .subscribe(
@@ -360,11 +385,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   addPackage() {
+    $('.resend-optSpan').css('display', 'inline');
+    $('.resend-otp').css('display', 'inline');
+    this.timeLeft = 60;
+    clearInterval(this.interval);
     this.addPackageCredit = this.authService
       .addPackageCredit(this.paymentForm.value)
       .subscribe(
         (res) => {
-          if (res['success']) {
+          if (res['success'] && res['data'] != 'Id already available') {
             $('#addOrgModal').modal('hide');
             $('.verify-icon').removeAttr('Disabled');
             $('.verify-icon').css('background-color', '#fff');
@@ -375,6 +404,17 @@ export class PaymentComponent implements OnInit, OnDestroy {
             this.changeOrgList();
             $('#addPackBtn').prop('disabled', true);
             this.toastr.success(res['message'], 'Success!');
+          } else if (res['success'] && res['data'] == 'Id already available') {
+            $('#addOrgModal').modal('hide');
+            $('.verify-icon').removeAttr('Disabled');
+            $('.verify-icon').css('background-color', '#fff');
+            this.butSendOtp = true;
+            this.butVerifyOtp = false;
+            this.paymentForm.reset();
+            this.getPaymentOrgList(1);
+            this.changeOrgList();
+            $('#addPackBtn').prop('disabled', true);
+            this.toastr.info(res['message'], 'Info!');
           } else {
             this.toastr.error(res['message'], 'Error!');
           }

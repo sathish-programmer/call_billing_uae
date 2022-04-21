@@ -21,12 +21,26 @@ exports.login = async (req, res) => {
         "availablePackage package orgName"
       );
 
+      let pendingAmmountPer;
+      let totalAmt;
+      let availableAmt;
+      let paymentGoingToExpire;
+
       // return false;
       if (user) {
         if (bcrypt.compareSync(body.password, user["password"])) {
           // If exists , createe token for the user
           let token = await createAndSaveToken(user);
           // Send token and other things to FE.
+
+          totalAmt = userPayment["package"];
+          availableAmt = userPayment["availablePackage"];
+          pendingAmmountPer = Math.round((availableAmt / totalAmt) * 100);
+          if (pendingAmmountPer < 30) {
+            paymentGoingToExpire = true;
+          } else {
+            paymentGoingToExpire = false;
+          }
           return res.json({
             success: true,
             message: "user logged in!",
@@ -39,6 +53,10 @@ exports.login = async (req, res) => {
               loginType: user.loginType,
               organization: user.organization,
               availableAmount: userPayment["availablePackage"],
+              totalAmount: totalAmt,
+              availablePayment: availableAmt,
+              checkPercentage: pendingAmmountPer,
+              paymentGoingToExpire: paymentGoingToExpire,
             },
           });
         } else {

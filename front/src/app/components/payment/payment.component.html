@@ -33,11 +33,13 @@
           <th scope="row">{{ data.currencySymbol }}{{ data.package }}</th>
           <td>{{ data.orgName || "-" }}</td>
           <td>
-            {{ data.currencySymbol }}{{ data.availablePackage
-            }}<span id="showLimitExpire">Limit going to Expire</span
-            ><span id="sendNotiBtn" (click)="notifyAlertMail(data)"
-              >Send notification to Mail</span
-            >
+            {{ data.currencySymbol }}{{ data.availablePackage }}
+            <div *ngIf="data.paymentGoingToExpire">
+              <span id="showLimitExpire">Limit going to Expire</span
+              ><span id="sendNotiBtn" (click)="notifyAlertMail(data)"
+                >Send notification via Mail</span
+              >
+            </div>
           </td>
           <td>{{ (data.creationDate | date: "medium") || "-" }}</td>
           <td>{{ (data.updationDate | date: "medium") || "-" }}</td>
@@ -169,7 +171,7 @@
             type="button"
             id="addPackBtn"
             class="btn btn-sm btn-primary"
-            disabled
+            [disabled]="!paymentForm.valid"
             (click)="addPackage()"
           >
             Add Package
@@ -181,7 +183,6 @@
   </div>
 </div>
 
-<!--Edit Modal -->
 <!--Edit Modal -->
 <div
   class="modal fade"
@@ -206,12 +207,29 @@
         <hr />
         <form [formGroup]="paymentEditForm" (ngSubmit)="updatePayment()">
           <div style="margin-top: 5px">
+            <label class="required">Update Package</label>
+            <select
+              class="dropdown"
+              id="packageEdit"
+              formControlName="packageEditName"
+              required
+              #mySelect
+              (change)="onOptionsSelected(mySelect.value)"
+            >
+              <option [ngValue]="null" selected>Select Package</option>
+              <option [value]="500">Package One ( $500 )</option>
+              <option [value]="1000">Package Two ( $1000 )</option>
+            </select>
+          </div>
+          <div style="margin-top: 5px">
             <label class="required">Assigned Amount</label>
             <input
               class="input-field"
               placeholder="Enter Amount"
               formControlName="assignedAmount"
+              id="avilAmt"
               required
+              disabled
             />
           </div>
           <div style="margin-top: 5px">
@@ -220,11 +238,13 @@
               class="input-field"
               placeholder="Enter Pending Amount"
               formControlName="pendingAmount"
+              id="pendAmt"
               required
+              disabled
             />
           </div>
           <div style="margin-top: 5px">
-            <label>Organization</label>
+            <label class="required">Organization</label>
             <input
               class="input-field"
               id="editOrgDisabled"

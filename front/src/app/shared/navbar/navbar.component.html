@@ -124,6 +124,59 @@
                             </button> -->
             </li>
 
+            <li class="notificationIcon" routerlinkactive="open">
+              <a
+                class="navbar-brand active-link"
+                routerlinkactive="active-link"
+                (click)="notificationShow()"
+              >
+                <img
+                  *ngIf="userInfo.paymentGoingToExpire == 'false'"
+                  class="img-fluid"
+                  id="notification_logo"
+                  height="37"
+                  src="assets/images/notifications.png"
+                  width="110"
+                />
+                <img
+                  *ngIf="userInfo.paymentGoingToExpire == 'true'"
+                  class="img-fluid"
+                  id="notification_logo-1"
+                  height="37"
+                  src="assets/images/notifications-1.png"
+                  width="110"
+                />
+              </a>
+              <ul class="sub-menu arrow-up" id="notifyDiv">
+                <li
+                  class="nav-item padding-0 text-center text-transform-none"
+                  routerlinkactive="open"
+                >
+                  <span class="font-bold">Recent Notifications</span>
+                  <hr />
+                </li>
+
+                <li
+                  class="nav-item padding-10 text-center text-transform-none"
+                  routerlinkactive="open"
+                  *ngIf="userInfo.paymentGoingToExpire == 'true'"
+                  id="showNotify"
+                >
+                  Your payment goes to expire, Remaining amount from your
+                  account is <b>${{ userInfo.pendingAmount }}</b>
+                </li>
+
+                <li
+                  class="nav-item padding-10 text-center text-transform-none"
+                  routerlinkactive="open"
+                  *ngIf="userInfo.paymentGoingToExpire == 'false'"
+                  id="showNotify"
+                >
+                  No notifications at the moment
+                </li>
+              </ul>
+            </li>
+
             <li class="nav-item" menutogglelink="" routerlinkactive="open">
               <a
                 class="nav-link"
@@ -133,7 +186,7 @@
               >
                 <img src="assets/images/user.png_" class="img-width-height" />
               </a>
-              <ul class="sub-menu arrow-up">
+              <ul class="sub-menu arrow-up" id="showUserDetails">
                 <li
                   class="nav-item padding-20 text-center text-transform-none"
                   routerlinkactive="open"

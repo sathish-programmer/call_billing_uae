@@ -40,11 +40,15 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('firstName', res['data']['firstName']);
             localStorage.setItem('lastName', res['data']['lastName']);
             localStorage.setItem('email', res['data']['email']);
-            localStorage.setItem('isSU', res['data']['isSU']);
+            localStorage.setItem(
+              'paymentGoingToExpire',
+              res['data']['paymentGoingToExpire']
+            );
             localStorage.setItem(
               'pendingAmount',
               res['data']['availableAmount']
             );
+            localStorage.setItem('isSU', res['data']['isSU']);
             this.fetchRoles();
           } else if (res['success'] && res['data']['loginType'] == 'fromWeb') {
             this.http
@@ -62,6 +66,10 @@ export class LoginComponent implements OnInit {
                   localStorage.setItem('lastName', res['data']['lastName']);
                   localStorage.setItem('email', res['data']['email']);
                   localStorage.setItem('isSU', res['data']['isSU']);
+                  localStorage.setItem(
+                    'paymentGoingToExpire',
+                    res['data']['paymentGoingToExpire']
+                  );
                   localStorage.setItem(
                     'pendingAmount',
                     res['data']['availableAmount']

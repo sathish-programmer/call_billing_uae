@@ -37,6 +37,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       lastName: localStorage.getItem('lastName'),
       email: localStorage.getItem('email'),
       pendingAmount: localStorage.getItem('pendingAmount'),
+      paymentGoingToExpire: localStorage.getItem('paymentGoingToExpire'),
     };
 
     this.getSubsData = localStorage.getItem('subs_ends');
@@ -81,5 +82,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   // navigate to support page
   support() {
     this.router.navigate(['/admin/inaipi/dashboard/support']);
+  }
+
+  notificationShow() {
+    console.log('showing notification');
   }
 }

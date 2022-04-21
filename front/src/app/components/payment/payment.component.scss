@@ -172,7 +172,9 @@ button {
   padding: 2px 0px 0 2px;
 }
 
-#editOrgDisabled {
+#editOrgDisabled,
+#avilAmt,
+#pendAmt {
   background-color: #80808026;
 }
 
@@ -182,7 +184,7 @@ button {
   font-size: 12px;
   font-weight: 500;
   margin: 5px 0 0 0;
-  display: none;
+  // display: none;
 }
 #showLimitExpire {
   color: red;

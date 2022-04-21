@@ -8,6 +8,7 @@ function generateRandomNumber() {
   return Math.floor(Math.random() * (maxm - minm + 1)) + minm;
 }
 
+// send OTP
 exports.sendOtp = async (req, res) => {
   try {
     let otp = generateRandomNumber();
@@ -25,7 +26,7 @@ exports.sendOtp = async (req, res) => {
 
     const options = {
       from: "Notifications@imperiumapp.com", // sender address
-      to: "sathishkumarksk007@gmail.com", // list of receivers
+      to: "admin@inaipi.com", // list of receivers
       subject: "Call Billing - Payment Verification OTP", // Subject line
       html:
         "Dear User, <br><br>You have requested to Initiate payment credit from call billing. Your OTP for this request is " +
@@ -52,6 +53,7 @@ exports.sendOtp = async (req, res) => {
   }
 };
 
+// verify OTP
 exports.verifyOtp = async (req, res) => {
   let verifyOtp = req.body.otp;
   let adminEmail = "admin@inaipi.com";
@@ -82,6 +84,7 @@ exports.verifyOtp = async (req, res) => {
   }
 };
 
+// update OTP
 let updateOTP = async function (otp, adminEmailBody) {
   let newOTP = otp;
   let adminEmail = adminEmailBody;
@@ -122,6 +125,7 @@ let updateOTP = async function (otp, adminEmailBody) {
   }
 };
 
+// insert payment details
 let insertData = async function (adminEmail) {
   let output = generateRandomNumber();
   let paymentObject = {
@@ -149,69 +153,17 @@ let insertData = async function (adminEmail) {
   }
 };
 
-// insert and update data in payment
-// exports.saveData = async (req, res) => {
-//   let adminId = "625e9ef88cb36b107cd68ab2";
-//   let adminEmail = "admin@inaipi.com";
-//   const adminUser = await paymentDB.findOne({
-//     otpSentEmail: adminEmail,
-//   });
-//   if (adminUser) {
-//     let output = generateRandomNumber();
-//     let updateObject = { OTP: output };
-//     let updateDoc = await paymentDB.findByIdAndUpdate(
-//       { _id: adminUser["_id"], softDelete: false, updationDate: new Date() },
-//       { $set: { OTP: output, updationDate: new Date() } }
-//     );
-
-//     if (updateDoc) {
-//       return res.json({
-//         success: true,
-//         data: updateDoc["_id"],
-//         OTP: output,
-//         message: "Record Updated",
-//       });
-//     } else {
-//       return res.json({
-//         success: false,
-//         data: "",
-//         message: "Something went wrong",
-//       });
-//     }
-//   } else {
-//     let output = generateRandomNumber();
-//     let paymentObject = {
-//       otpSentEmail: adminEmail,
-//       OTP: output,
-//       creationDate: new Date(),
-//     };
-//     let docToSave = new paymentDB(paymentObject);
-//     let saveDoc = await docToSave.save();
-//     if (saveDoc) {
-//       return res.json({
-//         success: true,
-//         data: saveDoc["_id"],
-//         message: "Record inserted",
-//       });
-//     } else {
-//       return res.json({
-//         success: false,
-//         data: "",
-//         message: "Something went wrong",
-//       });
-//     }
-//   }
-// };
+// add package details
 exports.addPackage = async (req, res) => {
   try {
     let body = req.body;
     let orgId = body.parent;
-    const checkOrg = await paymentDB.findOne(
+    let checkOrg = await paymentDB.findOne(
       {
         organization: orgId,
         softDelete: false,
       },
-      "package availablePackage"
+      "package availablePackage orgName"
     );
     if (checkOrg) {
       let old_amt = checkOrg["package"];
@@ -222,26 +174,36 @@ exports.addPackage = async (req, res) => {
 
       let updatedAvailableAmt = parseInt(old_available_amt) + parseInt(new_amt);
 
-      let updatePackage = await paymentDB.findByIdAndUpdate(
-        {
-          _id: checkOrg["_id"],
-          softDelete: false,
-        },
-        {
-          $set: {
-            OTP: body.otp,
-            updationDate: new Date(),
-            package: updatedAmt,
-            availablePackage: updatedAvailableAmt,
-          },
-        }
-      );
+      // let updatePackage = await paymentDB.findByIdAndUpdate(
+      //   {
+      //     _id: checkOrg["_id"],
+      //     softDelete: false,
+      //   },
+      //   {
+      //     $set: {
+      //       OTP: body.otp,
+      //       updationDate: new Date(),
+      //       package: updatedAmt,
+      //       availablePackage: updatedAvailableAmt,
+      //     },
+      //   }
+      // );
+
+      let updatePackage = await paymentDB.findOne({
+        _id: checkOrg["_id"],
+        softDelete: false,
+      });
 
       if (updatePackage) {
         return res.json({
           success: true,
-          data: "New Available Credit is - " + updatedAmt,
-          message: "Package for " + orgId + " is updated",
+          data: "Id already available",
+          message:
+            "Package for " +
+            "' " +
+            checkOrg["orgName"] +
+            " '" +
+            " is already available, Please update",
         });
       } else {
         return res.json({
@@ -276,7 +238,7 @@ exports.addPackage = async (req, res) => {
         return res.json({
           success: true,
           data: retDoc["_id"],
-          message: "Packaged Added to - " + retDoc["_id"],
+          message: "Packaged Added to - " + "' " + org.name + " '",
         });
       } else {
         return res.json({
@@ -304,9 +266,30 @@ exports.getAllList = async (req, res) => {
           res.send(err);
         } else {
           // res.send(JSON.stringify(result));
+          let arrList = [];
+          let arr;
+          let pendingAmmountPer;
+          let totalAmt;
+          let availableAmt;
+          for (let index in result) {
+            arr = result[index];
+
+            totalAmt = arr["package"];
+            availableAmt = arr["availablePackage"];
+            pendingAmmountPer = Math.round((availableAmt / totalAmt) * 100);
+
+            // send alert if available amount goes to less than 70% from total amount
+            if (pendingAmmountPer < 30) {
+              arr["paymentGoingToExpire"] = true;
+            } else {
+              arr["paymentGoingToExpire"] = false;
+            }
+            arr["checkPercentage"] = pendingAmmountPer;
+            arrList.push(arr);
+          }
           return res.json({
             success: true,
-            data: result,
+            data: arrList,
             message: "List retrieved",
           });
         }
@@ -406,16 +389,60 @@ exports.notifyPaymentExpire = async (req, res) => {
         softDelete: false,
       },
       "email"
-    );
+    ).populate("role", "name");
     let userEmail = "";
     if (userDetails.email != "" || userDetails.email != null) {
       userEmail = userDetails["email"];
     }
 
+    let adminEmails = [];
+    let findArr;
+    // var colData = [];
+    for (let index in userDetails) {
+      findArr = userDetails.filter(function (admin) {
+        return admin.role.name == "admin";
+      })[index];
+      if (findArr !== undefined) {
+        adminEmails.push(findArr.email);
+      }
+    }
+
+    // send email
+    sendEmailToAdmin(adminEmails);
+
     return res.json({
       success: true,
-      data: userDetails,
+      data: adminEmails,
       message: "Payment expire notification sent",
     });
   }
 };
+
+// send email function
+function sendEmailToAdmin(recivers) {
+  let transporter = nodemailer.createTransport({
+    host: "smtp.office365.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: "Notifications@imperiumapp.com", // username
+      pass: "IstNfy4747@", // password
+    },
+  });
+
+  let admiEmail = recivers;
+
+  const options = {
+    from: "Notifications@imperiumapp.com", // sender address
+    to: admiEmail, // list of receivers
+    subject: "Call Billing - Notify for Payment", // Subject line
+    html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately..<br><br> Thanks,<br>Call Billing Support ",
+  };
+
+  transporter.sendMail(options, function (err, info) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+  });
+}

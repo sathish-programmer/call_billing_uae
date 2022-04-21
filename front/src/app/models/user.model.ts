@@ -3,4 +3,5 @@ export interface User {
   lastName: string;
   email: string;
   pendingAmount: string;
+  paymentGoingToExpire: string;
 }
