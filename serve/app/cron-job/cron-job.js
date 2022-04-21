@@ -452,7 +452,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
       let groupedCallLogs = _.groupBy(callLogs, "organization");
       let keys = Object.keys(groupedCallLogs);
       console.log("Grouped call logs", groupedCallLogs);
-      console.log("keys", keys);
+      console.log("keys branch", keys);
       for (let kI in keys) {
         callLogs = groupedCallLogs[keys[kI]];
         let extensions = [];
@@ -569,7 +569,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
   }
 });
 
-findBranchInfoForCallLog.start();
+// findBranchInfoForCallLog.start();
 
 // Find Department Name for the Call log
 var findDepartmentInfoForCallLog = new CronJob(
@@ -588,7 +588,7 @@ var findDepartmentInfoForCallLog = new CronJob(
         let keys = Object.keys(groupedCallLogs);
 
         console.log("Grouped call logs", groupedCallLogs);
-        console.log("keys", keys);
+        console.log("keys dept", keys);
         for (let kI in keys) {
           callLogs = groupedCallLogs[keys[kI]];
           let extensions = [];
@@ -704,7 +704,7 @@ var findDepartmentInfoForCallLog = new CronJob(
   }
 );
 
-findDepartmentInfoForCallLog.start();
+// findDepartmentInfoForCallLog.start();
 
 // Find Caller Name for the Call log
 var findCallerNameInfoForCallLog = new CronJob(
@@ -745,7 +745,7 @@ var findCallerNameInfoForCallLog = new CronJob(
         // Get user details from the user and separate branch, department and names for extension
         let userDetails = [];
         if (extensions && extensions.length) {
-          console.log("Keys", keys[kI]);
+          console.log("Keys caller name", keys[kI]);
           userDetails = await USER.find(
             { organization: keys[kI], extension: { $in: extensions } },
             "extension"
@@ -791,7 +791,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-findCallerNameInfoForCallLog.start();
+// findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -808,7 +808,7 @@ var findCalledNameInfoForCallLog = new CronJob(
       let keys = Object.keys(groupedCallLogs);
 
       for (let kI in keys) {
-        console.log("Keys", keys[kI]);
+        console.log("Keys calledname", keys[kI]);
         callLogs = groupedCallLogs[keys[kI]];
         let extensions = [];
 
@@ -898,7 +898,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-findCalledNameInfoForCallLog.start();
+// findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {

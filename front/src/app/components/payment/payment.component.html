@@ -32,8 +32,13 @@
         >
           <th scope="row">{{ data.currencySymbol }}{{ data.package }}</th>
           <td>{{ data.orgName || "-" }}</td>
-          <td>
-            {{ data.currencySymbol }}{{ data.availablePackage }}
+          <td class="tdPaymentExp">
+            <span *ngIf="data.paymentGoingToExpire" class="showAvaiAmt"
+              >{{ data.currencySymbol }}{{ data.availablePackage }}</span
+            >
+            <span *ngIf="!data.paymentGoingToExpire"
+              >{{ data.currencySymbol }}{{ data.availablePackage }}</span
+            >
             <div *ngIf="data.paymentGoingToExpire">
               <span id="showLimitExpire">Limit going to Expire</span
               ><span id="sendNotiBtn" (click)="notifyAlertMail(data)"
@@ -120,8 +125,13 @@
               required
             >
               <option [ngValue]="null" disabled>Select Package</option>
-              <option value="500">Package One ( $500 )</option>
-              <option value="1000">Package Two ( $1000 )</option>
+              <option
+                *ngFor="let packages of packageDetails"
+                [value]="packages.value"
+                [selected]="packages.value == 'null'"
+              >
+                {{ packages.package }}
+              </option>
             </select>
           </div>
           <div style="margin-top: 5px">
@@ -216,9 +226,14 @@
               #mySelect
               (change)="onOptionsSelected(mySelect.value)"
             >
-              <option [ngValue]="null" selected>Select Package</option>
-              <option [value]="500">Package One ( $500 )</option>
-              <option [value]="1000">Package Two ( $1000 )</option>
+              <option [ngValue]="null" disabled>Select Package</option>
+              <option
+                *ngFor="let packages of packageDetails"
+                [value]="packages.value"
+              >
+                {{ packages.package }}
+              </option>
+              <!-- <option [value]="1000">Package Two ( $1000 )</option> -->
             </select>
           </div>
           <div style="margin-top: 5px">

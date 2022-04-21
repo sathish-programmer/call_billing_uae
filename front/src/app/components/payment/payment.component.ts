@@ -62,6 +62,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   butSendOtp: boolean = true;
   butVerifyOtp: boolean = false;
   message: boolean = false;
+
+  packageDetails: any[];
   constructor(
     private authService: AuthService,
     private toastr: ToastrService,
@@ -81,6 +83,17 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
     this.permissions = JSON.parse(localStorage.getItem('permissions'));
     $('#org-dropdown-navbar').prop('disabled', true);
+
+    this.packageDetails = [
+      {
+        value: '500',
+        package: 'Package One ( $500 )',
+      },
+      {
+        value: '1000',
+        package: 'Package Two ( $1000 )',
+      },
+    ];
   }
 
   ngOnDestroy(): void {
