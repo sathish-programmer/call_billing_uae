@@ -4,10 +4,10 @@
 
 export const environment = {
   production: false,
-  baseUrl: "http://localhost:8000/api/",
-  urlForFileDownload: "http://localhost:8000/",
+  baseUrl: 'http://localhost:8000/api/',
+  urlForFileDownload: 'http://localhost:8000/',
   // urlForPhpApis: "https://mycloudcx.com/ticketing/public/index.php/",
-  urlForPhpApis: "http://10.13.224.2/ticketing/public/index.php/",
+  urlForPhpApis: 'http://10.13.224.2/ticketing/public/index.php/',
 };
 
 /*

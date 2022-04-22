@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  NgZone,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -17,7 +23,7 @@ declare let $: any;
 @Component({
   selector: 'app-setup',
   templateUrl: './setup.component.html',
-  styleUrls: ['./setup.component.scss']
+  styleUrls: ['./setup.component.scss'],
 })
 export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
   sharingSubscription: Subscription;
@@ -31,7 +37,7 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
   deleteProviderSubscription: Subscription;
   deleteTariffSubscription: Subscription;
   deleteTariffFileSubscription: Subscription;
-  baseUrl = environment.urlForFileDownload+'uploads/';
+  baseUrl = environment.urlForFileDownload + 'uploads/';
   orgId: string;
   permissions: any = [];
   providerList: Provider[];
@@ -50,38 +56,43 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
   file = '';
   tariffList: Tariff[];
   tariffFiles: TariffFile[];
-  errorFile = "";
-  tariffFileId:any;
-  tariffFileName:any;
+  errorFile = '';
+  tariffFileId: any;
+  tariffFileName: any;
   showHideAddBtn: any;
-  unitMeasurementList = [{ view: "Seconds", value: "1" },
-  { view: "Minutes", value: "60" },
-  { view: "Hours", value: "3600" }];
+  unitMeasurementList = [
+    { view: 'Seconds', value: '1' },
+    { view: 'Minutes', value: '60' },
+    { view: 'Hours', value: '3600' },
+  ];
   tariffPaginator = { limit: 10, skip: 1, total: 0 };
   assignTariffPaginator = { limit: 10, skip: 1, total: 0 };
   providerPaginator = { limit: 10, skip: 1, total: 0 };
-  tariffFilePaginator = { limit: 10, skip: 1, total: 0 }
+  tariffFilePaginator = { limit: 10, skip: 1, total: 0 };
 
-  constructor(private authService: AuthService,
+  constructor(
+    private authService: AuthService,
     private toastr: ToastrService,
     private sharingService: OrganizationIdSharingService,
     private router: Router,
     private fb: FormBuilder,
-    private _zone: NgZone,) {
+    private _zone: NgZone
+  ) {
+    $('#org-dropdown-navbar').prop('disabled', false);
 
-    $("#org-dropdown-navbar").prop("disabled", false);
-
-    this.sharingSubscription = this.sharingService.currentOrgId.subscribe(orgId => {
-      this.orgId = orgId;
-      this.getDetails(this.orgId);
-    });
+    this.sharingSubscription = this.sharingService.currentOrgId.subscribe(
+      (orgId) => {
+        this.orgId = orgId;
+        this.getDetails(this.orgId);
+      }
+    );
   }
 
   ngAfterViewInit(): void {
     let that = this;
 
     setTimeout(function () {
-      that.orgId = $("#org-dropdown-navbar").attr('value');
+      that.orgId = $('#org-dropdown-navbar').attr('value');
       if (that.orgId) {
         that.getDetails(that.orgId);
       }
@@ -89,7 +100,7 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.permissions = JSON.parse(localStorage.getItem("permissions"));
+    this.permissions = JSON.parse(localStorage.getItem('permissions'));
     this.formInit();
   }
 
@@ -107,11 +118,11 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getDetails(orgId) {
-    localStorage.setItem("organization", orgId);
+    localStorage.setItem('organization', orgId);
     this.getAssignTariffListByLimit(1, this.tabValue);
     this.getTariffFileList(1, this.tabValue);
     this.getProviderListByLimit(1, this.tabValue);
-    this.getTariffList(1, this.tabValue)
+    this.getTariffList(1, this.tabValue);
     this.getBranchList();
   }
 
@@ -122,17 +133,22 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
       skip: this.assignTariffPaginator.skip,
       limit: this.assignTariffPaginator.limit,
     };
-    this.assignedTariffSubscription = this.authService.getAssignedTariffList(dataToSend, this.orgId).subscribe(res => {
-      if (res['success']) {
-        this.showHideAddBtn = 'showbutton';
-        this.assignTariffPaginator.total = res["total"];
-        this.assignedTariffList = res['data'];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.assignedTariffSubscription = this.authService
+      .getAssignedTariffList(dataToSend, this.orgId)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.showHideAddBtn = 'showbutton';
+            this.assignTariffPaginator.total = res['total'];
+            this.assignedTariffList = res['data'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
   }
 
   getTariffFileList(skip, tabvalue) {
@@ -142,19 +158,24 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
       skip: this.tariffPaginator.skip,
       limit: this.tariffPaginator.limit,
     };
-    this.getTariffFileListSubscription = this.authService.getTariffFile(dataToSend, this.orgId).subscribe(res => {
-      console.log("res file____________", res)
-      if (res['success']) {
-        this.showHideAddBtn = 'hidebutton';
-        console.log(this.showHideAddBtn)
-        this.tariffFiles = res['data'];
-        this.tariffFilePaginator.total = res["total"];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.getTariffFileListSubscription = this.authService
+      .getTariffFile(dataToSend, this.orgId)
+      .subscribe(
+        (res) => {
+          console.log('res file____________', res);
+          if (res['success']) {
+            this.showHideAddBtn = 'hidebutton';
+            console.log(this.showHideAddBtn);
+            this.tariffFiles = res['data'];
+            this.tariffFilePaginator.total = res['total'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
   }
 
   errorsFile(singleTariffFile) {
@@ -170,21 +191,28 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
       limit: this.tariffPaginator.limit,
     };
 
-    this.getTariffListSubscription = this.authService.getTariffList(dataToSend, this.orgId).subscribe(res => {
-      if (res['success']) {
-        this.showHideAddBtn = 'showbutton';
-        this.tariffPaginator.total = res["total"];
-        for (let index in res['data']) {
-          let unit = _.findWhere(this.unitMeasurementList, { value: res['data'][index].unitsMeasurement });
-          res['data'][index]['unitsMeasurementName'] = unit.view;
+    this.getTariffListSubscription = this.authService
+      .getTariffList(dataToSend, this.orgId)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.showHideAddBtn = 'showbutton';
+            this.tariffPaginator.total = res['total'];
+            for (let index in res['data']) {
+              let unit = _.findWhere(this.unitMeasurementList, {
+                value: res['data'][index].unitsMeasurement,
+              });
+              res['data'][index]['unitsMeasurementName'] = unit.view;
+            }
+            this.tariffList = res['data'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
         }
-        this.tariffList = res['data'];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+      );
   }
 
   getProviderListByLimit(skip, tabvalue) {
@@ -195,30 +223,40 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
       limit: this.providerPaginator.limit,
     };
 
-    this.providerListSubscription = this.authService.getProviderList(this.orgId, dataToSend).subscribe(res => {
-      if (res['success']) {
-        this.showHideAddBtn = 'showbutton';
-        this.providerList = res['data'];
-        this.providerPaginator.total = res["total"];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.providerListSubscription = this.authService
+      .getProviderList(this.orgId, dataToSend)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.showHideAddBtn = 'showbutton';
+            this.providerList = res['data'];
+            this.providerPaginator.total = res['total'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
   }
 
   getBranchList() {
-    this.branchesSubscription = this.authService.getBranchList(this.orgId).subscribe(res => {
-      if (res['success']) {
-        this.showHideAddBtn = 'showbutton';
-        this.branchList = res['data'];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.branchesSubscription = this.authService
+      .getBranchList(this.orgId)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.showHideAddBtn = 'showbutton';
+            this.branchList = res['data'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
   }
 
   formInit() {
@@ -226,7 +264,7 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
       organization: [this.orgId, Validators.required],
       branch: ['', Validators.required],
       description: [''],
-      provider: ['', Validators.required]
+      provider: ['', Validators.required],
     });
   }
 
@@ -234,7 +272,7 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.tabValue == 1) {
       this.action = action;
       this.dataToEdit = data;
-      $("#addAssignTariff").modal("show");
+      $('#addAssignTariff').modal('show');
       if (action == 'add') {
         this.formInit();
       } else {
@@ -242,66 +280,87 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
           branch: data['branch']['_id'],
           description: data['description'],
           organization: data['organization'],
-          provider: data['provider']['_id']
+          provider: data['provider']['_id'],
         });
       }
     } else if (this.tabValue == 2) {
-      localStorage.setItem("providerAction", action);
+      localStorage.setItem('providerAction', action);
       if (action == 'edit') {
-        localStorage.setItem("providerToEdit", JSON.stringify(data));
+        localStorage.setItem('providerToEdit', JSON.stringify(data));
       }
-      this.router.navigate(["admin/inaipi/setup/manage-provider"]);
+      this.router.navigate(['admin/inaipi/setup/manage-provider']);
     } else if (this.tabValue == 3) {
-      $("#addTariff").modal("show");
+      $('#addTariff').modal('show');
     }
   }
 
   addEditAssignedTariff() {
     if (this.action == 'add') {
-      this.addAssignTariffSubscription = this.authService.addAssignedTariff(this.assignTariffForm.value).subscribe(res => {
-        if (res['success']) {
-          this.showHideAddBtn = 'showbutton';
-          this.toastr.success(res['message'], 'Success!');
-          this.clearAssignTariffForm();
-          this.getAssignTariffListByLimit(this.assignTariffPaginator.skip, this.tabValue)
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      }, () => {
-        this.toastr.error('Something went wrong', 'Error!')
-      });
+      this.addAssignTariffSubscription = this.authService
+        .addAssignedTariff(this.assignTariffForm.value)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              this.showHideAddBtn = 'showbutton';
+              this.toastr.success(res['message'], 'Success!');
+              this.clearAssignTariffForm();
+              this.getAssignTariffListByLimit(
+                this.assignTariffPaginator.skip,
+                this.tabValue
+              );
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
     } else {
-      this.editAssignTariffSubscription = this.authService.editAssignedTariff(this.assignTariffForm.value, this.dataToEdit['_id']).subscribe(res => {
-        this.clearAssignTariffForm();
-        if (res['success']) {
-          this.showHideAddBtn = 'showbutton';
-          this.toastr.success(res['message'], 'Success!');
-          this.getAssignTariffListByLimit(this.assignTariffPaginator.skip, this.tabValue)
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      }, () => {
-        this.clearAssignTariffForm();
-        this.toastr.error('Something went wrong', 'Error!')
-      });
+      this.editAssignTariffSubscription = this.authService
+        .editAssignedTariff(this.assignTariffForm.value, this.dataToEdit['_id'])
+        .subscribe(
+          (res) => {
+            this.clearAssignTariffForm();
+            if (res['success']) {
+              this.showHideAddBtn = 'showbutton';
+              this.toastr.success(res['message'], 'Success!');
+              this.getAssignTariffListByLimit(
+                this.assignTariffPaginator.skip,
+                this.tabValue
+              );
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.clearAssignTariffForm();
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
     }
   }
 
   changeBranch(value) {
-    this.providerListSubscription = this.authService.getProviderList(this.orgId, "", value?.target?.value).subscribe(res => {
-      if (res['success']) {
-        this.showHideAddBtn = 'showbutton';
-        this.providerList = res['data'];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.providerListSubscription = this.authService
+      .getProviderList(this.orgId, '', value?.target?.value)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.showHideAddBtn = 'showbutton';
+            this.providerList = res['data'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
   }
 
   clearAssignTariffForm() {
-    $("#addAssignTariff").modal('hide');
+    $('#addAssignTariff').modal('hide');
     this.assignTariffForm.reset();
     this.getAssignTariffListByLimit(1, this.tabValue);
   }
@@ -311,82 +370,108 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
     if (toDelete == 'provider') {
       this.providerId = data['_id'];
       this.providerName = data['name'];
-      $("#deleteProviderModal").modal('show');
+      $('#deleteProviderModal').modal('show');
     } else if (toDelete == 'tariff') {
       this.tariffId = data['_id'];
       this.tariffName = data['name'];
-      $("#deleteTariffModal").modal('show');
+      $('#deleteTariffModal').modal('show');
     } else if (toDelete == 'tariffFile') {
       this.tariffFileId = data['_id'];
       this.tariffFileName = data['name'];
-      $("#deleteTariffFileModal").modal('show');
-    }
-    else if (toDelete == 'assingTariff') {
+      $('#deleteTariffFileModal').modal('show');
+    } else if (toDelete == 'assingTariff') {
       // console.log(toDelete)
       this.assignTariffId = data['_id'];
-      console.log(toDelete+ this.assignTariffId)
+      console.log(toDelete + this.assignTariffId);
       // this.tariffName = 'Assigned Tarrif';
       this.tariffName = data['name'];
-      $("#deleteTariffModal").modal('show');
+      $('#deleteTariffModal').modal('show');
     }
   }
 
   deleteData() {
     if (this.toDelete == 'provider') {
-      this.deleteProviderSubscription = this.authService.deleteProvider(this.providerId).subscribe(res => {
-        if (res['success']) {
-          // this.showHideAddBtn = 'showbutton';
-          this.toastr.success('Provider Deleted', 'Success!');
-          $("#deleteModal").modal('hide');
-          this.getProviderListByLimit(this.providerPaginator.skip, this.tabValue);
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      },() => {
-        this.toastr.error('Something went wrong', 'Error!')
-      });
+      this.deleteProviderSubscription = this.authService
+        .deleteProvider(this.providerId)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              // this.showHideAddBtn = 'showbutton';
+              this.toastr.success('Provider Deleted', 'Success!');
+              $('#deleteModal').modal('hide');
+              this.getProviderListByLimit(
+                this.providerPaginator.skip,
+                this.tabValue
+              );
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
     } else if (this.toDelete == 'assingTariff') {
-          // this.toastr.success('Assigned Tariff Deleted', 'Success!');
-          // $("#deleteTariffModal").modal('hide');
+      // this.toastr.success('Assigned Tariff Deleted', 'Success!');
+      // $("#deleteTariffModal").modal('hide');
       // console.log('test assign del')
-      this.deleteTariffSubscription = this.authService.deleteAssginTariff(this.assignTariffId).subscribe(res => {
-        console.log('delete ass tarr '+this.assignTariffId)
-        if (res['success']) {
-
-          this.toastr.success('Tariff Deleted', 'Success!');
-          $("#deleteTariffModal").modal('hide');
-          this.getAssignTariffListByLimit(this.assignTariffPaginator.skip, this.tabValue)
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      },() => {
-        this.toastr.error('Something went wrong', 'Error!')
-      });
-    }
-    else if (this.toDelete == 'tariff') {
-      this.deleteTariffSubscription = this.authService.deleteTariff(this.tariffId).subscribe(res => {
-        if (res['success']) {
-          this.toastr.success('Tariff Deleted', 'Success!');
-          $("#deleteTariffModal").modal('hide');
-          this.getTariffList(this.tariffPaginator.skip, this.tabValue);
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      },() => {
-        this.toastr.error('Something went wrong', 'Error!')
-      });
+      this.deleteTariffSubscription = this.authService
+        .deleteAssginTariff(this.assignTariffId)
+        .subscribe(
+          (res) => {
+            console.log('delete ass tarr ' + this.assignTariffId);
+            if (res['success']) {
+              this.toastr.success('Tariff Deleted', 'Success!');
+              $('#deleteTariffModal').modal('hide');
+              this.getAssignTariffListByLimit(
+                this.assignTariffPaginator.skip,
+                this.tabValue
+              );
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
+    } else if (this.toDelete == 'tariff') {
+      this.deleteTariffSubscription = this.authService
+        .deleteTariff(this.tariffId)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              this.toastr.success('Tariff Deleted', 'Success!');
+              $('#deleteTariffModal').modal('hide');
+              this.getTariffList(this.tariffPaginator.skip, this.tabValue);
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
     } else if (this.toDelete == 'tariffFile') {
-      this.deleteTariffFileSubscription = this.authService.deleteTariffFile(this.tariffFileId).subscribe(res => {
-        if (res['success']) {
-          this.toastr.success('Tariff File Deleted', 'Success!');
-          $("#deleteTariffFileModal").modal('hide');
-          this.getTariffFileList(this.tariffFilePaginator.skip, this.tabValue);
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      },() => {
-        this.toastr.error('Something went wrong', 'Error!')
-      });
+      this.deleteTariffFileSubscription = this.authService
+        .deleteTariffFile(this.tariffFileId)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              this.toastr.success('Tariff File Deleted', 'Success!');
+              $('#deleteTariffFileModal').modal('hide');
+              this.getTariffFileList(
+                this.tariffFilePaginator.skip,
+                this.tabValue
+              );
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
     }
   }
 
@@ -397,7 +482,10 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
         // this.saveTariffFileDetails(singleData);
         this.getFileData(event['originalFile'], event['originalId']);
       } else {
-        this.toastr.error("Please select organization before uploading file", "Error!");
+        this.toastr.error(
+          'Please select organization before uploading file',
+          'Error!'
+        );
       }
     });
   }
@@ -406,19 +494,27 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
     var f = fileDetail;
     var that = this;
 
-    if (f['name'].indexOf(".csv") > 0) {
+    if (f['name'].indexOf('.csv') > 0) {
       readFile(f, function (content) {
-        content = content.split("\n");
-        content.splice(0, 1);    // REMOVING FIRST ROW
+        content = content.split('\n');
+        content.splice(0, 1); // REMOVING FIRST ROW
         if (content[content.length - 1] == ['']) {
           content.pop(content[content.length - 1]);
         }
         let proceed = true;
-        var json, data = [], tariffJson, tariffRateAndTimeJson;
+        var json,
+          data = [],
+          tariffJson,
+          tariffRateAndTimeJson;
         for (var index in content) {
-          content[index] = content[index].split(",");
+          content[index] = content[index].split(',');
 
-          if (content[index][0] && content[index][5] && content[index][16] && content[index][17]) {
+          if (
+            content[index][0] &&
+            content[index][5] &&
+            content[index][16] &&
+            content[index][17]
+          ) {
             tariffJson = {};
             tariffRateAndTimeJson = {};
             tariffJson['organization'] = that.orgId;
@@ -426,57 +522,74 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
             tariffJson['externalId'] = content[index][0];
             tariffJson['countryCode'] = content[index][5];
             tariffJson['trunkId'] = content[index][11];
-            tariffJson['type'] = "Standard";
+            tariffJson['type'] = 'Standard';
             tariffJson['priority'] = content[index][12];
             tariffJson['units'] = content[index][13];
             tariffJson['unitsMeasurement'] = 1;
             tariffJson['countryName'] = content[index][7];
             tariffJson['currencyName'] = content[index][14];
             tariffJson['timeZoneName'] = content[index][15];
-            tariffJson['calculationType'] = "Cycle time";
-            tariffJson['provider'] = content[index][16] ? content[index][16].split("\r")[0] : "";
-            tariffJson['callType'] = content[index][17] ? content[index][17].split("\r")[0] : ""
+            tariffJson['calculationType'] = 'Cycle time';
+            tariffJson['provider'] = content[index][16]
+              ? content[index][16].split('\r')[0]
+              : '';
+            tariffJson['callType'] = content[index][17]
+              ? content[index][17].split('\r')[0]
+              : '';
 
             tariffRateAndTimeJson['organization'] = that.orgId;
             tariffRateAndTimeJson['rate'] = content[index][9];
             tariffRateAndTimeJson['specialRate'] = content[index][10];
-            tariffRateAndTimeJson['rateStartDate'] = content[index][1] + " " + content[index][3];
-            tariffRateAndTimeJson['rateEndDate'] = content[index][2] + " " + content[index][4];
-            tariffRateAndTimeJson['specialRateStartDate'] = content[index][1] + " " + content[index][3];
-            tariffRateAndTimeJson['specialRateEndDate'] = content[index][2] + " " + content[index][4];
+            tariffRateAndTimeJson['rateStartDate'] =
+              content[index][1] + ' ' + content[index][3];
+            tariffRateAndTimeJson['rateEndDate'] =
+              content[index][2] + ' ' + content[index][4];
+            tariffRateAndTimeJson['specialRateStartDate'] =
+              content[index][1] + ' ' + content[index][3];
+            tariffRateAndTimeJson['specialRateEndDate'] =
+              content[index][2] + ' ' + content[index][4];
 
-            json = JSON.parse(JSON.stringify({
-              tariffDetail: tariffJson,
-              tariffRateAndTimeDetail: tariffRateAndTimeJson
-            }));
+            json = JSON.parse(
+              JSON.stringify({
+                tariffDetail: tariffJson,
+                tariffRateAndTimeDetail: tariffRateAndTimeJson,
+              })
+            );
 
             data.push(json);
           } else {
             proceed = false;
           }
         }
-        var dataToSend = { tariff: data, fileId: fileId, organization: that.orgId };
+        var dataToSend = {
+          tariff: data,
+          fileId: fileId,
+          organization: that.orgId,
+        };
         if (proceed) {
-          that.authService.saveTariffFomFile(dataToSend).subscribe(res => {
-            if (res['success']) {
-              that.toastr.success(res['message'], 'Success!')
-              that.getTariffFileList(1, that.tabValue);
-              that.getTariffList(that.tariffPaginator.skip, that.tabValue);
-              $('#addTariff').modal('hide');
-            } else {
-              that.toastr.error(res['message'], 'Error!')
+          that.authService.saveTariffFomFile(dataToSend).subscribe(
+            (res) => {
+              if (res['success']) {
+                that.toastr.success(res['message'], 'Success!');
+                that.getTariffFileList(1, that.tabValue);
+                that.getTariffList(that.tariffPaginator.skip, that.tabValue);
+                $('#addTariff').modal('hide');
+              } else {
+                that.toastr.error(res['message'], 'Error!');
+              }
+            },
+            () => {
+              that.toastr.error('Something went wrong', 'Error!');
             }
-          }, () => {
-            that.toastr.error('Something went wrong', 'Error!')
-          });
+          );
         } else {
           that.toastr.error('Something wrong in the file', 'Error!');
-          $("#addTariff").modal("hide");
-          return
+          $('#addTariff').modal('hide');
+          return;
         }
       });
     } else {
-      this.toastr.error("Please upload a csv file");
+      this.toastr.error('Please upload a csv file');
       this.file = '';
     }
 
@@ -485,16 +598,15 @@ export class SetupComponent implements OnInit, OnDestroy, AfterViewInit {
       reader.onload = function (e) {
         var contents = e.target.result;
         onLoadCallback(contents);
-      }
+      };
       reader.readAsText(f);
-    };
+    }
   }
 
   goToManageTariffPage(tariffAction, id) {
-    $("#addTariff").modal("hide");
-    localStorage.setItem("tariffAction", tariffAction);
-    localStorage.setItem("tariffId", id);
+    $('#addTariff').modal('hide');
+    localStorage.setItem('tariffAction', tariffAction);
+    localStorage.setItem('tariffId', id);
     this.router.navigate(['/admin/inaipi/setup/manage-tariff']);
   }
-
 }

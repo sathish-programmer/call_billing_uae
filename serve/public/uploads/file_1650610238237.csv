@@ -1,0 +1,2 @@
+TARIFF_ID,START_DATE,END_DATE,START_TIME,END_TIME,CODES,ZONE,COUNTRY,CITY,RATE,SPL_RATE,TRUNK_ID,PRIORITY,UNIT - Seconds,Currency,timeZoneName,Provider,Call Type,branch,organization
+1,01-01-2010,01-01-2030,00:00:00,23:59:59,80,India,India,Bangalore,100,90,1,1,60,INR,India Standard Time,Ksk Test Org,Internal,Tamil Nadu,KSK Test Env Org

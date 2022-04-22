@@ -3,7 +3,8 @@ const CALL_LOGS = require("../call-logs/call-logs.model");
 const _ = require("underscore");
 const TARIFF_DETAILS = require("../tariff/tariff.model");
 const USER = require("../user/user.model");
-
+const paymentDB = require("../payment/payment.model");
+const paymentHistory = require("../payment-history/paymentHistory.model");
 // Calculate Call Type for the Call log
 var calculateCallType = new CronJob("*/2 * * * *", async function () {
   console.log("Job triggered for calcualting call type");
@@ -420,7 +421,7 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
           totalCycles = Math.ceil(callLogs[index]["CallDuration"] / oneCycle);
         }
 
-        await CALL_LOGS.findByIdAndUpdate(
+        let callCostCalc = await CALL_LOGS.findByIdAndUpdate(
           { _id: callLogs[index]["_id"] },
           {
             $set: {
@@ -431,6 +432,52 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
             },
           }
         );
+
+        if (callCostCalc) {
+          let checkAvailableAmt = await paymentDB.findOne(
+            {
+              organization: callLogs[index]["organization"],
+              softDelete: false,
+            },
+            "availablePackage"
+          );
+          let callCostForLog = parseFloat(cost * totalCycles).toFixed(2);
+          let availableCost = checkAvailableAmt["availablePackage"];
+          let newAvailPackage = availableCost - callCostForLog;
+          // console.log("new availabele amount = " + newAvailPackage);
+          if (availableCost > 0) {
+            let updatePayment = await paymentDB.findOneAndUpdate(
+              {
+                organization: callLogs[index]["organization"],
+                softDelete: false,
+                typeOfPayment: 1,
+              },
+              {
+                $set: {
+                  availablePackage: newAvailPackage.toFixed(2),
+                  updationDate: new Date(),
+                },
+              }
+            );
+            if (updatePayment) {
+              let genUniqueId =
+                new Date().getTime().toString(36) +
+                Math.random().toString(36).slice(2);
+              let updatePaymentHis = {
+                calculatedCost: callCostForLog,
+                availablePackage: newAvailPackage.toFixed(2),
+                costPaidDate: new Date(),
+                creationDate: new Date(),
+                organization: callLogs[index]["organization"],
+                isCostCalculated: true,
+                uniqueId: genUniqueId,
+              };
+
+              let dataToSave = new paymentHistory(updatePaymentHis);
+              await dataToSave.save();
+            }
+          }
+        }
       }
     }
   }
@@ -791,7 +838,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-findCallerNameInfoForCallLog.start();
+// findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -898,7 +945,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-findCalledNameInfoForCallLog.start();
+// findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
