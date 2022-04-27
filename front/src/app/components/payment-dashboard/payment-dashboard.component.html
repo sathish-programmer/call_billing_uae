@@ -1,0 +1,397 @@
+<!-- Tabs navs -->
+<ul class="nav nav-tabs nav-fill mb-3" id="ex1" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link active"
+      id="ex2-tab-1"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard']"
+      role="tab"
+      aria-controls="ex2-tabs-1"
+      aria-selected="true"
+      >Payment Overview</a
+    >
+  </li>
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link"
+      id="ex2-tab-2"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard/graph-view']"
+      role="tab"
+      aria-controls="ex2-tabs-2"
+      aria-selected="false"
+      >Graphical View</a
+    >
+  </li>
+  <!-- <li class="nav-item" role="presentation">
+    <a
+      class="nav-link"
+      id="ex2-tab-3"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard/budgets']"
+      role="tab"
+      aria-controls="ex2-tabs-3"
+      aria-selected="false"
+      >BUDGETS AND ALERTS</a
+    >
+  </li> -->
+</ul>
+<!-- Tabs navs -->
+
+<section class="overview">
+  <div class="container-fluid">
+    <div class="card mb-2 mt-3" style="max-width: 100%">
+      <div class="card-header font-weight-bolder text-uppercase">Overview</div>
+      <div class="card-body">
+        <ul
+          class="nav nav-pills mt-3 mb-3 border-primary border-bottom pb-2"
+          id="pills-tab"
+          role="tablist"
+        >
+          <li class="nav-item" role="presentation">
+            <a
+              class="nav-link active"
+              id="pills-home-tab"
+              data-toggle="pill"
+              href="#pills-home"
+              role="tab"
+              aria-controls="pills-home"
+              aria-selected="true"
+              >BILLING ACCOUNT OVERVIEW</a
+            >
+          </li>
+          <li class="nav-item" role="presentation">
+            <a
+              class="nav-link"
+              id="pills-profile-tab"
+              data-toggle="pill"
+              href="#pills-profile"
+              role="tab"
+              aria-controls="pills-profile"
+              aria-selected="false"
+              >PAYMENT OVERVIEW</a
+            >
+          </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+          <div
+            class="tab-pane fade show active"
+            id="pills-home"
+            role="tabpanel"
+            aria-labelledby="pills-home-tab"
+          >
+            <div class="border border-info rounded p-4">
+              <div class="Current-month mb-5">
+                <h1 class="font-weight-bolder">Current month</h1>
+                <small class="text-secondary"
+                  >{{ thisMonthStartDate | date }} -
+                  {{ currentDate | date }}</small
+                >
+              </div>
+              <div class="Total border-bottom">
+                <div class="row">
+                  <div class="col-lg-6 col-md-12 Month-to-date">
+                    <div class="d-flex">
+                      <p class="font-weight-bold">Month-to-date total cost</p>
+                      <a> <i class="fas fa-question-circle ml-3"></i></a>
+                    </div>
+                    <div class="amount">
+                      <p class="font-weight-bold">${{ monthToDayData }}</p>
+                    </div>
+                  </div>
+                  <div
+                    class="col-lg-6 col-md-12 Month-to-date border-left pl-5"
+                  >
+                    <div class="d-flex">
+                      <p class="font-weight-bold">
+                        End-of-month total cost (forecasted)
+                      </p>
+                      <a> <i class="fas fa-question-circle ml-3"></i></a>
+                    </div>
+                    <div class="amount">
+                      <p class="font-weight-bold">${{ forecastTotal }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="view-all pt-3 pb-3">
+                <button
+                  type="button"
+                  class="btn btn-light btn-sm nav-link"
+                  data-toggle="pill"
+                  href="#pills-profile"
+                  role="tab"
+                  aria-controls="pills-profile"
+                  aria-selected="false"
+                  (click)="viewReport()"
+                >
+                  <i class="fas fa-arrow-right mr-3"></i>View Report
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="pills-profile"
+            role="tabpanel"
+            aria-labelledby="pills-profile-tab"
+          >
+            <div class="border border-info rounded p-4">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="balance">
+                  <p class="text-capitalize">Your balance</p>
+                </div>
+                <div class="amount">
+                  <p class="font-weight-bolder">${{ availableAmount }}</p>
+                </div>
+              </div>
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <div class="payment d-flex">
+                  <!-- <div class="mr-5">
+                    <p class="text-capitalize">
+                      <i class="far fa-credit-card mr-3"></i>Automatic payments
+                    </p>
+                  </div> -->
+                  <div class="mr-3">
+                    <p class="text-capitalize">
+                      <i class="fas fa-calendar-alt mr-3"></i>Your last payment
+                      was on {{ (lastPaidDate | date) || "-" }} for ${{
+                        lastPaidAmount || "0"
+                      }}
+                    </p>
+                  </div>
+                </div>
+                <!-- <div class="amount">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm text-uppercase"
+                  >
+                    Pay early
+                  </button>
+                </div> -->
+              </div>
+              <div class="border-top">
+                <div class="Transactions mt-3 mb-3">
+                  <p class="text-capitalize font-weight-bold">
+                    Recent Transactions
+                  </p>
+                </div>
+
+                <div class="Transactions-details">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                  >
+                    <div class="text-primary">
+                      {{ showcurrentMnthData.startDate | date }} -
+                      {{ showcurrentMnthData.endDate | date }}
+                    </div>
+                    <div class="d-flex">
+                      <p class="text-dark mb-0" role="button">
+                        ${{ showcurrentMnthData.costPaid | number: "1.2-2" }}
+                      </p>
+
+                      <a
+                        (click)="
+                          downloadPdf(
+                            showcurrentMnthData.startDate +
+                              '+' +
+                              showcurrentMnthData.endDate
+                          )
+                        "
+                      >
+                        <i
+                          class="fas fa-download ml-3 text-dark text-decoration-none"
+                        ></i
+                      ></a>
+                    </div>
+                  </div>
+
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                  >
+                    <div class="text-primary">
+                      {{ showPreviousMnthData.startDate | date }} -
+                      {{ showPreviousMnthData.endDate | date }}
+                    </div>
+                    <div class="d-flex">
+                      <p class="text-dark mb-0" role="button">
+                        ${{ showPreviousMnthData.costPaid | number: "1.2-2" }}
+                      </p>
+                      <a
+                        (click)="
+                          downloadPdf(
+                            showPreviousMnthData.startDate +
+                              '+' +
+                              showPreviousMnthData.endDate
+                          )
+                        "
+                      >
+                        <i
+                          class="fas fa-download ml-3 text-dark text-decoration-none"
+                        ></i
+                      ></a>
+                    </div>
+                  </div>
+
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                  >
+                    <div class="text-primary">
+                      {{ showPreviousMnthDataOne.startDate | date }} -
+                      {{ showPreviousMnthDataOne.endDate | date }}
+                    </div>
+                    <div class="d-flex">
+                      <p class="text-dark mb-0" role="button">
+                        ${{
+                          showPreviousMnthDataOne.costPaid | number: "1.2-2"
+                        }}
+                      </p>
+                      <a
+                        (click)="
+                          downloadPdf(
+                            showPreviousMnthDataOne.startDate +
+                              '+' +
+                              showPreviousMnthDataOne.endDate
+                          )
+                        "
+                      >
+                        <i
+                          class="fas fa-download ml-3 text-dark text-decoration-none"
+                        ></i
+                      ></a>
+                    </div>
+                  </div>
+
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                  >
+                    <div class="text-primary">
+                      {{ showPreviousMnthDataTwo.startDate | date }} -
+                      {{ showPreviousMnthDataTwo.endDate | date }}
+                    </div>
+                    <div class="d-flex">
+                      <p class="text-dark mb-0" role="button">
+                        ${{
+                          showPreviousMnthDataTwo.costPaid | number: "1.2-2"
+                        }}
+                      </p>
+                      <a
+                        (click)="
+                          downloadPdf(
+                            showPreviousMnthDataTwo.startDate +
+                              '+' +
+                              showPreviousMnthDataTwo.endDate
+                          )
+                        "
+                      >
+                        <i
+                          class="fas fa-download ml-3 text-dark text-decoration-none"
+                        ></i
+                      ></a>
+                    </div>
+                  </div>
+
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                  >
+                    <div class="text-primary">
+                      {{ showPreviousMnthDataThree.startDate | date }} -
+                      {{ showPreviousMnthDataThree.endDate | date }}
+                    </div>
+                    <div class="d-flex">
+                      <p class="text-dark mb-0" role="button">
+                        ${{
+                          showPreviousMnthDataThree.costPaid | number: "1.2-2"
+                        }}
+                      </p>
+                      <a
+                        (click)="
+                          downloadPdf(
+                            showPreviousMnthDataThree.startDate +
+                              '+' +
+                              showPreviousMnthDataThree.endDate
+                          )
+                        "
+                      >
+                        <i
+                          class="fas fa-download ml-3 text-dark text-decoration-none"
+                        ></i
+                      ></a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="Transaction-genarte pt-3 pb-3 mt-5 mb-3 border-top">
+                  <p class="text-capitalize font-weight-bold">
+                    Generate Transactions By Date
+                  </p>
+
+                  <form
+                    [formGroup]="pdfGenerateForm"
+                    (ngSubmit)="pdfGenerateByDate(f.value)"
+                    #f="ngForm"
+                  >
+                    <div class="row">
+                      <div class="col-sm-1">
+                        <label class="required">From</label>
+                      </div>
+                      <div class="col-sm-8">
+                        <div class="reports-datepicker">
+                          <dp-date-picker
+                            [formControl]="
+                              pdfGenerateForm.controls['startDate']
+                            "
+                            theme="dp-material"
+                            placeholder="Select date"
+                            [config]="config"
+                            (onSelect)="startDateChange($event.date)"
+                          ></dp-date-picker>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row mt-2">
+                      <div class="col-sm-1">
+                        <label class="required">To</label>
+                      </div>
+                      <div class="col-sm-8">
+                        <div class="reports-datepicker">
+                          <dp-date-picker
+                            [formControl]="pdfGenerateForm.controls['endDate']"
+                            theme="dp-material"
+                            placeholder="Select date"
+                            [config]="config"
+                            (onSelect)="endDateChange($event.date)"
+                          ></dp-date-picker>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      class="btn btn-primary mt-3 text-capitalize btn-sm"
+                      [disabled]="!pdfGenerateForm.valid"
+                    >
+                      <i class="fas fa-arrow-right mr-1"></i>Generate PDF
+                    </button>
+                  </form>
+                </div>
+
+                <!-- <div class="View-transactions pt-3 pb-3 border-top mt-5">
+                  <button
+                    type="button"
+                    class="btn btn-light text-capitalize btn-sm"
+                  >
+                    <i class="fas fa-arrow-right mr-3"></i>View transactions
+                  </button>
+                </div> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

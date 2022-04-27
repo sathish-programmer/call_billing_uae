@@ -1,0 +1,155 @@
+<!-- Tabs navs -->
+<ul class="nav nav-tabs nav-fill mb-3" id="ex1" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link"
+      id="ex2-tab-1"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard']"
+      role="tab"
+      aria-controls="ex2-tabs-1"
+      aria-selected="true"
+      >Payment Overview</a
+    >
+  </li>
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link active"
+      id="ex2-tab-2"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard/graph-view']"
+      role="tab"
+      aria-controls="ex2-tabs-2"
+      aria-selected="false"
+      >Graphical View</a
+    >
+  </li>
+  <!-- <li class="nav-item" role="presentation">
+    <a
+      class="nav-link"
+      id="ex2-tab-3"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard/budgets']"
+      role="tab"
+      aria-controls="ex2-tabs-3"
+      aria-selected="false"
+      >BUDGETS AND ALERTS</a
+    >
+  </li> -->
+</ul>
+<!-- Tabs navs -->
+
+<section class="overview">
+  <div class="container-fluid">
+    <div class="card mb-5 mt-3" style="max-width: 100%">
+      <div class="card-body">
+        <!-- <div class="col-3">
+          <select class="form-control">
+            <option selected disabled>Default select</option>
+            <option selected disabled>Saved Views</option>
+          </select>
+        </div> -->
+        <div class="col-12 chat-content border-bottom mt-4">
+          <div class="row">
+            <div class="col-lg-6 col-md-12 Month-date-chart">
+              <div class="d-flex">
+                <p class="font-weight-bold">
+                  {{ thisMonthStartDate | date }} -
+                  {{ currentDate | date }} (total cost)
+                </p>
+                <a> <i class="fas fa-question-circle ml-3"></i></a>
+              </div>
+              <div
+                class="amount-chart d-flex justify-content-between align-items-center"
+              >
+                <div class="mb-4">
+                  <p class="font-weight-bold mb-0">
+                    ${{ monthToDayData || 00 }}
+                  </p>
+                  <!-- <small class="text-secondary"
+                    >includes $0.00 in credits</small
+                  > -->
+                </div>
+                <div class="d-flex flex-column mb-4">
+                  <a
+                    *ngIf="currentMnthCostDec"
+                    class="text-danger text-decoration-none"
+                    ><i class="fas fa-arrow-down mr-3"></i
+                    >{{ percenValForPrev }}%</a
+                  >
+                  <a
+                    *ngIf="currentMnthCostInc"
+                    class="text-success text-decoration-none"
+                    ><i class="fas fa-arrow-up mr-3"></i
+                    >{{ percenValForPrev }}%</a
+                  >
+                  <small class="text-secondary">
+                    {{ previousMonthFirstDate | date }} -
+                    {{ previousMonthCurrentDate | date }}</small
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-12 Month-date-chart border-left pl-5">
+              <div class="d-flex">
+                <p class="font-weight-bold">
+                  {{ currentMonth }} (forecasted total cost)
+                </p>
+                <a> <i class="fas fa-question-circle ml-3"></i></a>
+              </div>
+              <div
+                class="amount-chart d-flex justify-content-between align-items-center"
+              >
+                <div class="mb-4">
+                  <p class="font-weight-bold mb-0">
+                    ${{ forecastTotal || 00 }}
+                  </p>
+                  <!-- <small class="text-secondary"
+                    >includes $0.00 in credits</small
+                  > -->
+                </div>
+                <div class="d-flex flex-column mb-4">
+                  <a
+                    *ngIf="currentMnthForcastCostInc"
+                    class="text-success text-decoration-none"
+                    ><i class="fas fa-arrow-up mr-3"></i
+                    >{{ percenValForForcast }}%</a
+                  >
+                  <a
+                    *ngIf="currentMnthForecastCostDec"
+                    class="text-success text-decoration-none"
+                    ><i class="fas fa-arrow-down mr-3"></i
+                    >{{ percenValForForcast }}%</a
+                  >
+                  <small class="text-secondary">
+                    <!-- $4.30 over -->
+                    {{ previousMonth }}</small
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 chart mb-5">
+          <div class="mt-3 mb-3">
+            <!--<div class="form-group col-2">
+               <label for="exampleFormControlSelect1">Example select</label> 
+              <select
+                class="form-control form-control-sm"
+                id="exampleFormControlSelect1"
+              >
+                <option>Daily</option>
+                <option>Monthly</option>
+              </select>
+            </div> -->
+          </div>
+          <div class="col-12 chat-main d-flex justify-content-center">
+            <div class="col-12">
+              <canvas id="myChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

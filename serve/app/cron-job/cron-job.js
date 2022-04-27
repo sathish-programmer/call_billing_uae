@@ -363,7 +363,6 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
             costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
             console.log("total cycle", costCycleJson);
           }
-          // console.log("Cost json", costCycleJson);
         } else if (CallednumberLength <= 10 && CallednumberLength >= 8) {
           // NATIONAL , LOCAL FOR DUBAI
           code = number.substring(0, 3);
@@ -411,6 +410,7 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
         // console.log("Cost", cost);
 
         if (costCycleJson) {
+          console.log("testing provider name", costCycleJson["provider"]);
           cost = parseFloat(costCycleJson["rate"]);
           oneCycle =
             parseInt(costCycleJson["units"]) *
@@ -460,6 +460,15 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
               }
             );
             if (updatePayment) {
+              let updatePayIsCalc = await CALL_LOGS.findByIdAndUpdate(
+                { _id: callLogs[index]["_id"] },
+                {
+                  $set: {
+                    paymentFromPackage: true,
+                  },
+                }
+              );
+
               let genUniqueId =
                 new Date().getTime().toString(36) +
                 Math.random().toString(36).slice(2);
@@ -471,6 +480,8 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
                 organization: callLogs[index]["organization"],
                 isCostCalculated: true,
                 uniqueId: genUniqueId,
+                TotalCycles: totalCycles,
+                CostPerCycle: cost,
               };
 
               let dataToSave = new paymentHistory(updatePaymentHis);
@@ -838,7 +849,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-findCallerNameInfoForCallLog.start();
+// findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -945,7 +956,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-findCalledNameInfoForCallLog.start();
+// findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {

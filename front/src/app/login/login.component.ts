@@ -48,6 +48,7 @@ export class LoginComponent implements OnInit {
               'pendingAmount',
               res['data']['availableAmount']
             );
+            localStorage.setItem('userRole', res['data']['userRole']);
             localStorage.setItem('isSU', res['data']['isSU']);
             this.fetchRoles();
           } else if (res['success'] && res['data']['loginType'] == 'fromWeb') {
@@ -74,6 +75,7 @@ export class LoginComponent implements OnInit {
                     'pendingAmount',
                     res['data']['availableAmount']
                   );
+                  localStorage.setItem('userRole', res['data']['userRole']);
                   this.fetchRoles();
                 } else {
                   this.toastr.error('Error, Subscription ended', 'Error!');

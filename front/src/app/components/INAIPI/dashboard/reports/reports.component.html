@@ -1,358 +1,578 @@
 <div class="container-fluid">
-    <h4 class="text-uppercase header">CALL REPORTS</h4>
-    <p class="note">
-        -- For Multiple Select/Remove &nbsp;&nbsp; <img src="../../../../../assets/images/windows.png"> ctrl + select
-        &nbsp;&nbsp; <img src="../../../../../assets/images/apple-logo.png"> cmd + select --
-    </p>
-    <div class="rel-action">
-        <a class="add-btn" href="admin/inaipi/dashboard" title="Back to Dashboard">
-            <img src="assets/images/list.svg">
-        </a>
-    </div>
+  <h4 class="text-uppercase header">CALL REPORTS</h4>
+  <p class="note">
+    -- For Multiple Select/Remove &nbsp;&nbsp;
+    <img src="../../../../../assets/images/windows.png" /> ctrl + select
+    &nbsp;&nbsp; <img src="../../../../../assets/images/apple-logo.png" /> cmd +
+    select --
+  </p>
+  <div class="rel-action">
+    <a class="add-btn" href="admin/inaipi/dashboard" title="Back to Dashboard">
+      <img src="assets/images/list.svg" />
+    </a>
+  </div>
 
-    <div class="col-md-12 m-30 box-shadow" *ngIf="orgId">
-        <form class="report-form" [formGroup]="callReportForm" #f="ngForm" (submit)="getReport(f.value, 1)">
+  <div class="col-md-12 m-30 box-shadow" *ngIf="orgId">
+    <form
+      class="report-form"
+      [formGroup]="callReportForm"
+      #f="ngForm"
+      (submit)="getReport(f.value, 1)"
+    >
+      <div class="row">
+        <div class="col-md-4">
+          <div class="col-md-12 form-group form-group-sm">
             <div class="row">
-                <div class="col-md-4">
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label>Saved Template</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown h-40" [(ngModel)]="savedTemplateId"
-                                    [ngModelOptions]="{standalone: true}" #ST (change)="fillFormValue(savedTemplateId)">
-                                    <option value="" disabled selected>Select Saved Template</option>
-                                    <option *ngFor="let data of savedFilter" [value]="data._id">{{data.fileName}}
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label>Date Options</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown h-40" formControlName="dRTOption" #DRT
-                                    (change)="setFromAndToDate(DRT.value)">
-                                    <option value="" disabled selected>Date Options</option>
-                                    <option *ngFor="let data of dateRangeType" [value]="data.view">{{data.view}}
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="required">From</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="reports-datepicker">
-                                    <dp-date-picker [formControl]="callReportForm.controls['startDate']"
-                                        theme="dp-material" placeholder="Select date" [config]="config"
-                                        (onSelect)="startDateChange($event.date)"></dp-date-picker>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="required">To</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="reports-datepicker">
-                                    <dp-date-picker [formControl]="callReportForm.controls['endDate']"
-                                        theme="dp-material" placeholder="Select date" [config]="config"
-                                        (onSelect)="endDateChange($event.date)"></dp-date-picker>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label>Group By</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown h-40" formControlName="groupBy">
-                                    <option value="" disabled selected>Select Condition</option>
-                                    <option *ngFor="let data of groupByList" [value]="data.value">{{data.view}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label>Order By</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown h-40" formControlName="orderBy">
-                                    <option value="" disabled selected>Select Condition</option>
-                                    <option *ngFor="let data of orderByList" [value]="data.value">{{data.view}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <input type="checkbox" ng-checked="selected" [(ngModel)]="allBranch"
-                                    [ngModelOptions]="{standalone: true}"
-                                    (ngModelChange)="selectAllBranches(allBranch)">
-                                <label>Branch</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown" formControlName="branch" multiple
-                                    (change)="fetchDepartmentAndExtension(orgId)" size="3">
-                                    <option [selected]="branch.selected" *ngFor="let branch of branchList"
-                                        [value]="branch._id">{{branch.name}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <input type="checkbox" [(ngModel)]="allDepartment" [ngModelOptions]="{standalone: true}"
-                                    (ngModelChange)="selectAllDepartments(allDepartment)">
-                                <label>Department</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown" formControlName="department" multiple
-                                    (change)="fetchExtension(orgId)" size="3">
-                                    <option [selected]="item.selected" *ngFor="let item of departmentList"
-                                        [value]="item._id">{{item.name}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <input type="checkbox" [(ngModel)]="allExtension" [ngModelOptions]="{standalone: true}"
-                                    (ngModelChange)="selectAllExtensions(allExtension)">
-                                <label>Extension</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown" formControlName="extension" multiple size="4">
-                                    <option [selected]="item.selected" *ngFor="let item of extensionList"
-                                        [value]="item._id"><span>{{item.extension || '-'}}
-                                            <span *ngIf="item.firstName && item.lastName">
-                                                ({{item.firstName.charAt(0).toUpperCase() + item.firstName.slice(1)}}
-                                                {{item.lastName.charAt(0).toUpperCase() + item.lastName.slice(1)}})
-                                            </span>
-                                        </span>
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <input type="checkbox" [(ngModel)]="allCallType" [ngModelOptions]="{standalone: true}"
-                                    (ngModelChange)="selectAllCallType(allCallType)">
-                                <label>Call Type</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown" formControlName="callType" multiple size="4">
-                                    <option [selected]="data.selected" *ngFor="let data of callTypes"
-                                        [value]="data.value">
-                                        {{data.view}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <input type="checkbox" [(ngModel)]="allDirection" [ngModelOptions]="{standalone: true}"
-                                    (ngModelChange)="selectAllDirections(allDirection)">
-                                <label>Direction</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown" formControlName="direction" multiple size="4">
-                                    <option [selected]="data.selected" *ngFor="let data of directionType"
-                                        [value]="data.value">{{data.view}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label>Cost</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <select class="dropdown h-40" formControlName="costEnabled">
-                                    <option value="" disabled selected>Select</option>
-                                    <option *ngFor="let data of costEnabledDisabledType" [value]="data.value">
-                                        {{data.view}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label>Search By Number</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <input class="input-field" type="text" formControlName="searchByNumber">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 form-group form-group-sm">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label>Save As:</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <input class="input-field" type="text" formControlName="fileName">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <div class="col-sm-4">
+                <label>Saved Template</label>
+              </div>
+              <div class="col-sm-8">
+                <select
+                  class="dropdown h-40"
+                  [(ngModel)]="savedTemplateId"
+                  [ngModelOptions]="{ standalone: true }"
+                  #ST
+                  (change)="fillFormValue(savedTemplateId)"
+                >
+                  <option value="" disabled selected>
+                    Select Saved Template
+                  </option>
+                  <option *ngFor="let data of savedFilter" [value]="data._id">
+                    {{ data.fileName }}
+                  </option>
+                </select>
+              </div>
             </div>
+          </div>
 
+          <div class="col-md-12 form-group form-group-sm">
             <div class="row">
-                <div class="col-md-12 pull-right text-right">
-                    <button [disabled]="!callReportForm.valid" type="button" *ngIf="!ST.value"
-                        class="btn btn-sm btn-primary" (click)="saveCallReportFilter(orgId, !ST.value)">Save
-                        Template</button>
-                    <button [disabled]="!callReportForm.valid" type="button" *ngIf="ST.value"
-                        class="btn btn-sm btn-warning margin-left-5" (click)="clearFilter()">Clear</button>
-                    <button [disabled]="!callReportForm.valid" type="button" *ngIf="ST.value"
-                        class="btn btn-sm btn-warning margin-left-5"
-                        (click)="editCallReportFilter(orgId, ST.value)">Edit Template</button>
-                    <button type="button" *ngIf="ST.value" class="btn btn-sm btn-primary margin-left-5"
-                        (click)="delete(ST.value)"> Delete Template</button>
-                    <button type="submit" [disabled]="!callReportForm.valid"
-                        class="btn btn-sm btn-primary margin-left-5">Create</button>
-                </div>
+              <div class="col-sm-4">
+                <label>Date Options</label>
+              </div>
+              <div class="col-sm-8">
+                <select
+                  class="dropdown h-40"
+                  formControlName="dRTOption"
+                  #DRT
+                  (change)="setFromAndToDate(DRT.value)"
+                >
+                  <option value="" disabled selected>Date Options</option>
+                  <option
+                    *ngFor="let data of dateRangeType"
+                    [value]="data.view"
+                  >
+                    {{ data.view }}
+                  </option>
+                </select>
+              </div>
             </div>
-            <br>
-        </form>
-    </div>
-    <br>
+          </div>
 
-    <div class="col-md-12 m-15 box-shadow" *ngIf="callReports && callReports.length">
-        <div class="col-md-12 p-0">
-            <div class="col-md-12 p-0">
-                <ul class="nav nav-tabs">
-                    <li class="nav-item active">
-                        <a class="nav-link active" data-toggle="tab" aria-controls="FileReportTab" href="#FileReportTab"
-                            role="tab" (click)="tabValue=1;">Report Output ({{callReportPaginator.total}})</a>
-                    </li>
-                </ul>
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label class="required">From</label>
+              </div>
+              <div class="col-sm-8">
+                <div class="reports-datepicker">
+                  <dp-date-picker
+                    [formControl]="callReportForm.controls['startDate']"
+                    theme="dp-material"
+                    placeholder="Select date"
+                    [config]="config"
+                    (onSelect)="startDateChange($event.date)"
+                  ></dp-date-picker>
+                </div>
+              </div>
             </div>
-            <div class="tab-content">
-                <div class="tab-pane active" id="FileReportTab" role="tabpanel" *ngIf="tabValue == 1">
-                    <div class="row" *ngIf="callReports && callReports.length" style="margin-top: 15px;">
-                        <div class="col-md-3">
-                            <input type="text" class="form-control input-sm " (keydown)="keyDownFunction($event)"
-                                [(ngModel)]="searchData" placeholder="Search by number">
-                        </div>
-                        <div class="col-md-1 p-0">
-                            <button class="btn btn-primary btn-sm report-btn" (click)="getReport(saveFormValue, 1)">
-                                Search</button>
-                        </div>
-                        <div class="col-md-8">
-                            <button class="btn btn-sm btn-primary f-right margin-left-5 report-btn"
-                                (click)="downloadReportCSV()">Download CSV</button>
-                            <button class="btn btn-sm btn-primary f-right report-btn"
-                                (click)="downloadReportExcel()">Download PDF</button>
-                        </div>
-                        <div class="col-md-12">
-                            <br>
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Branch</th>
-                                        <th>Department</th>
-                                        <th>Call start</th>
-                                        <th>Ring Dur</th>
-                                        <th>Call Duration</th>
-                                        <th>Direction</th>
-                                        <th>Caller</th>
-                                        <th>Caller Name</th>
-                                        <th>Called No</th>
-                                        <th>Called Name</th>
-                                        <th>Amt</th>
-                                        <th>Ans</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        *ngFor="let data of callReports
-                                        | paginate: { itemsPerPage: callReportPaginator.limit, currentPage: callReportPaginator.skip, totalItems: callReportPaginator.total}">
-                                        <td>{{data.branchName || '-'}}</td>
-                                        <td>{{data.departmentName || '-'}}
-                                        <td>{{data.CallTime}}</td>
-                                        <td>{{data.Ringduration}}</td>
-                                        <td>{{data.CallDuration}}</td>
-                                        <td>{{data.Direction}}</td>
-                                        <td>{{data.Callernumber}}</td>
-                                        <td>{{data.CallerName || '-'}}</td>
-                                        <td>{{data.Callednumber}}</td>
-                                        <td>{{data.CalledName || '-'}}</td>
-                                        <td>{{data.CalculatedCost || '-'}}</td>
-                                        <td>{{data.CallAnswered || '-'}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <pagination-controls (pageChange)="getReport(saveFormValue, $event)"></pagination-controls>
-                        </div>
-                    </div>
-                    <!-- <div class="row" *ngIf="reportTabMessage && reportTabMessage.length">
+          </div>
+
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label class="required">To</label>
+              </div>
+              <div class="col-sm-8">
+                <div class="reports-datepicker">
+                  <dp-date-picker
+                    [formControl]="callReportForm.controls['endDate']"
+                    theme="dp-material"
+                    placeholder="Select date"
+                    [config]="config"
+                    (onSelect)="endDateChange($event.date)"
+                  ></dp-date-picker>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label>Group By</label>
+              </div>
+              <div class="col-sm-8">
+                <select class="dropdown h-40" formControlName="groupBy">
+                  <option value="" disabled selected>Select Condition</option>
+                  <option *ngFor="let data of groupByList" [value]="data.value">
+                    {{ data.view }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label>Order By</label>
+              </div>
+              <div class="col-sm-8">
+                <select class="dropdown h-40" formControlName="orderBy">
+                  <option value="" disabled selected>Select Condition</option>
+                  <option *ngFor="let data of orderByList" [value]="data.value">
+                    {{ data.view }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <input
+                  type="checkbox"
+                  ng-checked="selected"
+                  [(ngModel)]="allBranch"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="selectAllBranches(allBranch)"
+                />
+                <label>Branch</label>
+              </div>
+              <div class="col-sm-8">
+                <select
+                  class="dropdown"
+                  formControlName="branch"
+                  multiple
+                  (change)="fetchDepartmentAndExtension(orgId)"
+                  size="3"
+                >
+                  <option
+                    [selected]="branch.selected"
+                    *ngFor="let branch of branchList"
+                    [value]="branch._id"
+                  >
+                    {{ branch.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="allDepartment"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="selectAllDepartments(allDepartment)"
+                />
+                <label>Department</label>
+              </div>
+              <div class="col-sm-8">
+                <select
+                  class="dropdown"
+                  formControlName="department"
+                  multiple
+                  (change)="fetchExtension(orgId)"
+                  size="3"
+                >
+                  <option
+                    [selected]="item.selected"
+                    *ngFor="let item of departmentList"
+                    [value]="item._id"
+                  >
+                    {{ item.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="allExtension"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="selectAllExtensions(allExtension)"
+                />
+                <label>Extension</label>
+              </div>
+              <div class="col-sm-8">
+                <select
+                  class="dropdown"
+                  formControlName="extension"
+                  multiple
+                  size="4"
+                >
+                  <option
+                    [selected]="item.selected"
+                    *ngFor="let item of extensionList"
+                    [value]="item._id"
+                  >
+                    <span
+                      >{{ item.extension || "-" }}
+                      <span *ngIf="item.firstName && item.lastName">
+                        ({{
+                          item.firstName.charAt(0).toUpperCase() +
+                            item.firstName.slice(1)
+                        }}
+                        {{
+                          item.lastName.charAt(0).toUpperCase() +
+                            item.lastName.slice(1)
+                        }})
+                      </span>
+                    </span>
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="allCallType"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="selectAllCallType(allCallType)"
+                />
+                <label>Call Type</label>
+              </div>
+              <div class="col-sm-8">
+                <select
+                  class="dropdown"
+                  formControlName="callType"
+                  multiple
+                  size="4"
+                >
+                  <option
+                    [selected]="data.selected"
+                    *ngFor="let data of callTypes"
+                    [value]="data.value"
+                  >
+                    {{ data.view }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="allDirection"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="selectAllDirections(allDirection)"
+                />
+                <label>Direction</label>
+              </div>
+              <div class="col-sm-8">
+                <select
+                  class="dropdown"
+                  formControlName="direction"
+                  multiple
+                  size="4"
+                >
+                  <option
+                    [selected]="data.selected"
+                    *ngFor="let data of directionType"
+                    [value]="data.value"
+                  >
+                    {{ data.view }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label>Cost</label>
+              </div>
+              <div class="col-sm-8">
+                <select class="dropdown h-40" formControlName="costEnabled">
+                  <option value="" disabled selected>Select</option>
+                  <option
+                    *ngFor="let data of costEnabledDisabledType"
+                    [value]="data.value"
+                  >
+                    {{ data.view }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label>Search By Number</label>
+              </div>
+              <div class="col-sm-8">
+                <input
+                  class="input-field"
+                  type="text"
+                  formControlName="searchByNumber"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label>Save As:</label>
+              </div>
+              <div class="col-sm-8">
+                <input
+                  class="input-field"
+                  type="text"
+                  formControlName="fileName"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12 pull-right text-right">
+          <button
+            [disabled]="!callReportForm.valid"
+            type="button"
+            *ngIf="!ST.value"
+            class="btn btn-sm btn-primary"
+            (click)="saveCallReportFilter(orgId, !ST.value)"
+          >
+            Save Template
+          </button>
+          <button
+            [disabled]="!callReportForm.valid"
+            type="button"
+            *ngIf="ST.value"
+            class="btn btn-sm btn-warning margin-left-5"
+            (click)="clearFilter()"
+          >
+            Clear
+          </button>
+          <button
+            [disabled]="!callReportForm.valid"
+            type="button"
+            *ngIf="ST.value"
+            class="btn btn-sm btn-warning margin-left-5"
+            (click)="editCallReportFilter(orgId, ST.value)"
+          >
+            Edit Template
+          </button>
+          <button
+            type="button"
+            *ngIf="ST.value"
+            class="btn btn-sm btn-primary margin-left-5"
+            (click)="delete(ST.value)"
+          >
+            Delete Template
+          </button>
+          <button
+            type="submit"
+            [disabled]="!callReportForm.valid"
+            class="btn btn-sm btn-primary margin-left-5"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+      <br />
+    </form>
+  </div>
+  <br />
+
+  <div
+    class="col-md-12 m-15 box-shadow"
+    *ngIf="callReports && callReports.length"
+  >
+    <div class="col-md-12 p-0">
+      <div class="col-md-12 p-0">
+        <ul class="nav nav-tabs">
+          <li class="nav-item active">
+            <a
+              class="nav-link active"
+              data-toggle="tab"
+              aria-controls="FileReportTab"
+              href="#FileReportTab"
+              role="tab"
+              (click)="tabValue = 1"
+              >Report Output ({{ callReportPaginator.total }})</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="tab-content">
+        <div
+          class="tab-pane active"
+          id="FileReportTab"
+          role="tabpanel"
+          *ngIf="tabValue == 1"
+        >
+          <div
+            class="row"
+            *ngIf="callReports && callReports.length"
+            style="margin-top: 15px"
+          >
+            <div class="col-md-3">
+              <input
+                type="text"
+                class="form-control input-sm"
+                (keydown)="keyDownFunction($event)"
+                [(ngModel)]="searchData"
+                placeholder="Search by number"
+              />
+            </div>
+            <div class="col-md-1 p-0">
+              <button
+                class="btn btn-primary btn-sm report-btn"
+                (click)="getReport(saveFormValue, 1)"
+              >
+                Search
+              </button>
+            </div>
+            <div class="col-md-8">
+              <button
+                class="btn btn-sm btn-primary f-right margin-left-5 report-btn"
+                (click)="downloadReportCSV()"
+              >
+                Download CSV
+              </button>
+              <button
+                class="btn btn-sm btn-primary f-right report-btn"
+                (click)="downloadReportExcel()"
+              >
+                Download PDF
+              </button>
+            </div>
+            <div class="col-md-12">
+              <br />
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Branch</th>
+                    <th>Department</th>
+                    <th>Call start</th>
+                    <th>Ring Dur</th>
+                    <th>Call Duration</th>
+                    <th>Direction</th>
+                    <th>Caller</th>
+                    <th>Caller Name</th>
+                    <th>Called No</th>
+                    <th>Called Name</th>
+                    <th>Amt</th>
+                    <th>Ans</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let data of callReports
+                        | paginate
+                          : {
+                              itemsPerPage: callReportPaginator.limit,
+                              currentPage: callReportPaginator.skip,
+                              totalItems: callReportPaginator.total
+                            }
+                    "
+                  >
+                    <td>{{ data.branchName || "-" }}</td>
+                    <td>{{ data.departmentName || "-" }}</td>
+                    <td>{{ data.CallTime }}</td>
+                    <td>{{ data.Ringduration }}</td>
+                    <td>{{ data.CallDuration }}</td>
+                    <td>{{ data.Direction }}</td>
+                    <td>{{ data.Callernumber }}</td>
+                    <td>{{ data.CallerName || "-" }}</td>
+                    <td>{{ data.Callednumber }}</td>
+                    <td>{{ data.CalledName || "-" }}</td>
+                    <td>{{ data.CalculatedCost || "-" }}</td>
+                    <td>{{ data.CallAnswered || "-" }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <pagination-controls
+                (pageChange)="getReport(saveFormValue, $event)"
+              ></pagination-controls>
+            </div>
+          </div>
+          <!-- <div class="row" *ngIf="reportTabMessage && reportTabMessage.length">
                         <div class="col-md-12">
                             <p class="text-center">{{reportTabMessage}}</p>
                         </div>
                     </div> -->
-                </div>
-            </div>
         </div>
+      </div>
     </div>
-    <br>
-    <br>
+  </div>
+  <br />
+  <br />
 </div>
 
 <!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="container">
-                <h6 class="heading">TEMPLATE | DELETE</h6>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <hr>
-                <label>Do you want to delete this template?</label>
-                <br>
-                <button type="button" class="btn-sm btn delete-btn btn-light" data-dismiss="modal">No</button>
-                <button type="button" class="btn-sm btn delete-btn btn-primary"
-                    (click)="deleteSavedFilter()">Yes</button>
-                <br><br>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="deleteModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="deleteModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="container">
+        <h6 class="heading">TEMPLATE | DELETE</h6>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <hr />
+        <label>Do you want to delete this template?</label>
+        <br />
+        <button
+          type="button"
+          class="btn-sm btn delete-btn btn-light"
+          data-dismiss="modal"
+        >
+          No
+        </button>
+        <button
+          type="button"
+          class="btn-sm btn delete-btn btn-primary"
+          (click)="deleteSavedFilter()"
+        >
+          Yes
+        </button>
+        <br /><br />
+      </div>
     </div>
+  </div>
 </div>

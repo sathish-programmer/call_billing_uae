@@ -14,36 +14,42 @@ exports.sendOtp = async (req, res) => {
     let otp = generateRandomNumber();
     let body = req.body;
     let userEmail = body.email;
+    let orgName = body.orgName;
     let transporter = nodemailer.createTransport({
       host: "smtp.office365.com",
       port: 587,
       secure: false, // true for 465, false for other ports
       auth: {
-        user: "Notifications@imperiumapp.com", // username
-        pass: "IstNfy4747@", // password
+        user: "sathish@imperiumapp.com", // username
+        pass: "NewPassword@#april", // password
       },
     });
 
     const options = {
-      from: "Notifications@imperiumapp.com", // sender address
-      to: "admin@inaipi.com", // list of receivers
+      from: "sathish@imperiumapp.com", // sender address
+      to: "sathishkumarksk007@gmail.com", // list of receivers
       subject: "Call Billing - Payment Verification OTP", // Subject line
       html:
-        "Dear User, <br><br>You have requested to Initiate payment credit from call billing. Your OTP for this request is " +
+        "Dear Admin, <br><br>You have requested to Initiate payment credit for organization '<b> " +
+        orgName +
+        " </b>' from call billing. Your OTP for this request is " +
         otp +
         " and it is valid for one minutes.<br><br> Thanks,<br>Call Billing Support ",
     };
 
     transporter.sendMail(options, function (err, info) {
       if (err) {
-        console.log(err);
-        return;
+        return res.json({
+          success: false,
+          message: "Try after some time",
+        });
+      } else {
+        updateOTP(otp, userEmail);
+        return res.json({
+          success: true,
+          message: "OTP Sent to " + userEmail,
+        });
       }
-    });
-    updateOTP(otp, userEmail);
-    return res.json({
-      success: true,
-      message: "OTP Sent to " + userEmail,
     });
   } catch (err) {
     return res.json({
@@ -68,7 +74,6 @@ exports.verifyOtp = async (req, res) => {
         _id: checkOtp["_id"],
         softDelete: false,
         otpExpired: false,
-        updationDate: new Date(),
       },
       { $set: { otpVerified: true, updationDate: new Date() } }
     );
@@ -155,106 +160,118 @@ let insertData = async function (adminEmail) {
 
 // add package details
 exports.addPackage = async (req, res) => {
-  try {
-    let body = req.body;
-    let orgId = body.parent;
-    let checkOrg = await paymentDB.findOne(
+  // try {
+  let body = req.body;
+  let orgId = body.parent;
+  let checkOrg = await paymentDB.findOne(
+    {
+      organization: orgId,
+      softDelete: false,
+    },
+    "package availablePackage orgName"
+  );
+  if (checkOrg) {
+    let old_amt = checkOrg["package"];
+    let old_available_amt = checkOrg["availablePackage"];
+    let new_amt = body.package;
+
+    let updatedAmt = parseInt(old_amt) + parseInt(new_amt);
+
+    let updatedAvailableAmt = parseInt(old_available_amt) + parseInt(new_amt);
+
+    let updatePackage = await paymentDB.findOne({
+      _id: checkOrg["_id"],
+      softDelete: false,
+    });
+
+    if (updatePackage) {
+      return res.json({
+        success: true,
+        data: "Id already available",
+        // adminEmails: adminEmails,
+        message:
+          "Package for " +
+          "' " +
+          checkOrg["orgName"] +
+          " '" +
+          " is already available, Please update",
+      });
+    } else {
+      return res.json({
+        success: false,
+        data: "",
+        message: "Something went wrong",
+      });
+    }
+  } else {
+    let userDetails = await USER.find(
       {
         organization: orgId,
         softDelete: false,
       },
-      "package availablePackage orgName"
-    );
-    if (checkOrg) {
-      let old_amt = checkOrg["package"];
-      let old_available_amt = checkOrg["availablePackage"];
-      let new_amt = body.package;
+      "email"
+    ).populate("role", "name");
 
-      let updatedAmt = parseInt(old_amt) + parseInt(new_amt);
+    if (userDetails.email != "" || userDetails.email != null) {
+      userEmail = userDetails["email"];
+    }
 
-      let updatedAvailableAmt = parseInt(old_available_amt) + parseInt(new_amt);
-
-      // let updatePackage = await paymentDB.findByIdAndUpdate(
-      //   {
-      //     _id: checkOrg["_id"],
-      //     softDelete: false,
-      //   },
-      //   {
-      //     $set: {
-      //       OTP: body.otp,
-      //       updationDate: new Date(),
-      //       package: updatedAmt,
-      //       availablePackage: updatedAvailableAmt,
-      //     },
-      //   }
-      // );
-
-      let updatePackage = await paymentDB.findOne({
-        _id: checkOrg["_id"],
-        softDelete: false,
-      });
-
-      if (updatePackage) {
-        return res.json({
-          success: true,
-          data: "Id already available",
-          message:
-            "Package for " +
-            "' " +
-            checkOrg["orgName"] +
-            " '" +
-            " is already available, Please update",
-        });
-      } else {
-        return res.json({
-          success: false,
-          data: "",
-          message: "Something went wrong",
-        });
-      }
-    } else {
-      let packageObject = {
-        otpSentEmail: "",
-        OTP: body.otp,
-        otpVerified: true,
-        organization: body.parent,
-        package: body.package,
-        availablePackage: body.package,
-        currencySymbol: "$",
-        creationDate: new Date(),
-      };
-      let org = await ORG.findOne({
-        softDelete: false,
-        _id: body.parent,
-      });
-
-      if (org) {
-        packageObject["orgName"] = org.name;
-      }
-
-      let docToSave = new paymentDB(packageObject);
-      let retDoc = await docToSave.save();
-      if (retDoc) {
-        return res.json({
-          success: true,
-          data: retDoc["_id"],
-          message: "Packaged Added to - " + "' " + org.name + " '",
-        });
-      } else {
-        return res.json({
-          success: false,
-          data: "",
-          message: "Something went wrong",
-        });
+    let adminEmails = [];
+    let findArr;
+    // var colData = [];
+    for (let index in userDetails) {
+      findArr = userDetails.filter(function (admin) {
+        return admin.role.name == "admin";
+      })[index];
+      if (findArr !== undefined) {
+        adminEmails.push(findArr.email);
       }
     }
-  } catch (e) {
-    return res.json({
-      success: false,
-      data: "",
-      message: e,
+    let packageObject = {
+      otpSentEmail: "",
+      OTP: body.otp,
+      otpVerified: true,
+      organization: body.parent,
+      package: body.package,
+      availablePackage: body.package,
+      currencySymbol: "$",
+      creationDate: new Date(),
+    };
+    let org = await ORG.findOne({
+      softDelete: false,
+      _id: body.parent,
     });
+
+    if (org) {
+      packageObject["orgName"] = org.name;
+    }
+
+    let docToSave = new paymentDB(packageObject);
+    let retDoc = await docToSave.save();
+    if (retDoc) {
+      // send email to admins
+      sendEmailToAdminForSuccess(adminEmails, new_amt);
+      return res.json({
+        success: true,
+        data: retDoc["_id"],
+        adminEmails: adminEmails,
+        message: "Packaged Added to - " + "' " + org.name + " '",
+      });
+    } else {
+      return res.json({
+        success: false,
+        data: "",
+        message: "Something went wrong",
+      });
+    }
   }
+  // } catch (e) {
+  //   return res.json({
+  //     success: false,
+  //     data: "",
+  //     message: e,
+  //   });
+  // }
 };
 
 // get all payment org details
@@ -425,18 +442,18 @@ function sendEmailToAdmin(recivers) {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: "Notifications@imperiumapp.com", // username
-      pass: "IstNfy4747@", // password
+      user: "sathish@imperiumapp.com", // username
+      pass: "NewPassword@#april", // password
     },
   });
 
   let admiEmail = recivers;
 
   const options = {
-    from: "Notifications@imperiumapp.com", // sender address
+    from: "sathish@imperiumapp.com", // sender address
     to: admiEmail, // list of receivers
     subject: "Call Billing - Notify for Payment", // Subject line
-    html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately..<br><br> Thanks,<br>Call Billing Support ",
+    html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
   };
 
   transporter.sendMail(options, function (err, info) {
@@ -445,4 +462,86 @@ function sendEmailToAdmin(recivers) {
       return;
     }
   });
+}
+
+function sendEmailToAdminForSuccess(recivers, package) {
+  let transporter = nodemailer.createTransport({
+    host: "smtp.office365.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: "sathish@imperiumapp.com", // username
+      pass: "NewPassword@#april", // password
+    },
+  });
+
+  let admiEmail = recivers;
+
+  const options = {
+    from: "sathish@imperiumapp.com", // sender address
+    to: admiEmail, // list of receivers
+    subject: "Call Billing - Notify for Payment", // Subject line
+    html:
+      "Dear Admin, <br><br> For your request of adding package <b>$" +
+      package +
+      " </b>added successfully. Any clarification contact us.<br><br> Thanks,<br>Call Billing Support",
+  };
+
+  transporter.sendMail(options, function (err, info) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+  });
+}
+
+exports.getPaymentDetails = async (req, res) => {
+  // Find user to see if it exists
+  let body = req.body;
+  let user = await fetchUser(body.email);
+  console.log("User found", user);
+
+  let userPayment = await paymentDB.findOne(
+    { organization: user.organization._id, softDelete: false },
+    "availablePackage package orgName"
+  );
+
+  let pendingAmmountPer;
+  let totalAmt;
+  let availableAmt;
+  let paymentGoingToExpire;
+
+  if (user) {
+    totalAmt = userPayment["package"];
+    availableAmt = userPayment["availablePackage"];
+    pendingAmmountPer = Math.round((availableAmt / totalAmt) * 100);
+    if (pendingAmmountPer < 30) {
+      paymentGoingToExpire = true;
+    } else {
+      paymentGoingToExpire = false;
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        organization: user.organization,
+        availableAmount: userPayment["availablePackage"],
+        totalAmount: totalAmt,
+        availablePayment: availableAmt,
+        checkPercentage: pendingAmmountPer,
+        paymentGoingToExpire: paymentGoingToExpire,
+      },
+    });
+  }
+};
+
+async function fetchUser(email) {
+  let userQuery = { email: email, softDelete: false, enableLogin: true };
+
+  let user = await USER.findOne(
+    userQuery,
+    "firstName lastName email token role organization branch password type loginType"
+  ).populate("organization");
+
+  return user;
 }

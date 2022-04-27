@@ -1,3 +1,4 @@
+import { PackageMaster } from './../../models/package.model';
 import { Organization } from './../../models/organization.model';
 import {
   Component,
@@ -39,6 +40,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
   paymentId: any;
   paymentName: any;
   permissions: [] = [];
+
+  packListSubscription: Subscription;
+  packgList: PackageMaster[];
   payPaginator = { limit: 10, skip: 1, total: 0 };
   timeLeft: number = 60;
   interval;
@@ -63,6 +67,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   butVerifyOtp: boolean = false;
   message: boolean = false;
 
+  OrganizationName: any;
+
   packageDetails: any[];
   constructor(
     private authService: AuthService,
@@ -83,17 +89,17 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
     this.permissions = JSON.parse(localStorage.getItem('permissions'));
     $('#org-dropdown-navbar').prop('disabled', true);
-
-    this.packageDetails = [
-      {
-        value: '500',
-        package: 'Package One ( $500 )',
-      },
-      {
-        value: '1000',
-        package: 'Package Two ( $1000 )',
-      },
-    ];
+    this.getPackList();
+    //   this.packageDetails = [
+    //     {
+    //       value: '500',
+    //       package: 'Package One ( $500 )',
+    //     },
+    //     {
+    //       value: '1000',
+    //       package: 'Package Two ( $1000 )',
+    //     },
+    //   ];
   }
 
   ngOnDestroy(): void {
@@ -106,6 +112,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.editOrgSubscription?.unsubscribe();
     this.deletePaymentSubscription?.unsubscribe();
     this.notifyPaymentExpire?.unsubscribe();
+    this.packListSubscription?.unsubscribe();
   }
 
   formInit() {
@@ -121,6 +128,21 @@ export class PaymentComponent implements OnInit, OnDestroy {
       organizationEdit: ['', Validators.required],
       pendingAmount: ['', Validators.required],
     });
+  }
+
+  getPackList() {
+    this.packListSubscription = this.authService.getPackageList().subscribe(
+      (res) => {
+        if (res['success']) {
+          this.packageDetails = res['data'];
+        } else {
+          this.toastr.error(res['message'], 'Error!');
+        }
+      },
+      () => {
+        this.toastr.error('Something went wrong', 'Error!');
+      }
+    );
   }
 
   getPaymentOrgList(skip) {
@@ -164,12 +186,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
       );
   }
 
-  onOptionsSelected(value: string) {
+  onOptionsSelected($event) {
+    let value = $event.target.value;
     this.updateAmountEdit = value;
     let newFullAmount = parseInt(this.newTotalAmountEdit) + parseInt(value);
     let newAvailAmount = parseInt(this.newAvailAmountInEdit) + parseInt(value);
-    // console.log(newFullAmount);
-    // console.log(newAvailAmount);
+
     $('#avilAmt').val(newFullAmount);
     $('#pendAmt').val(newAvailAmount);
   }
@@ -186,6 +208,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
       });
       $('#editPaymentModal').modal('show');
     }
+  }
+
+  onChangeGetVal($event) {
+    let text = $event.target.options[$event.target.options.selectedIndex].text;
+    console.log(text);
+    this.OrganizationName = text;
   }
 
   updatePayment() {
@@ -344,7 +372,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
       }
     }, 1000);
 
-    let data = { email: this.orgAdminEmail };
+    // let data = { email: this.orgAdminEmail };
+    let mailOrganizationName = this.OrganizationName;
+    let data = { email: this.orgAdminEmail, orgName: mailOrganizationName };
     // let data_new = JSON.stringify(data);
     this.sendOtpPayment = this.authService.sendOtpPayment(data).subscribe(
       (res) => {
@@ -380,7 +410,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
       }
     }, 1000);
 
-    let data = { email: this.orgAdminEmail };
+    let mailOrganizationName = this.OrganizationName;
+    let data = { email: this.orgAdminEmail, orgName: mailOrganizationName };
     // let data_new = JSON.stringify(data);
     // console.log(data_new);
     this.sendOtpPayment = this.authService.sendOtpPayment(data).subscribe(

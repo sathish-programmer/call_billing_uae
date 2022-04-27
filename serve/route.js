@@ -25,6 +25,7 @@ module.exports = function (app) {
 
   app.use("/api/payment", require("./app/payment"));
   app.use("/api/paymentHistory", require("./app/payment-history"));
+  app.use("/api/paymentMaster", require("./app//payment-master"));
 
   // api for org, role, user to use in other websites
   app.use("/api/createorg", require("./app/organization"));

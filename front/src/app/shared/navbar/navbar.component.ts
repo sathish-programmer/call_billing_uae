@@ -31,13 +31,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.getAllPaymentDetails();
     this.getRoleList();
+
     this.userInfo = {
       firstName: localStorage.getItem('firstName'),
       lastName: localStorage.getItem('lastName'),
       email: localStorage.getItem('email'),
       pendingAmount: localStorage.getItem('pendingAmount'),
       paymentGoingToExpire: localStorage.getItem('paymentGoingToExpire'),
+      userRole: localStorage.getItem('userRole'),
     };
 
     this.getSubsData = localStorage.getItem('subs_ends');
@@ -45,15 +48,34 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {}
 
+  getAllPaymentDetails() {
+    let email = localStorage.getItem('email');
+    const user = { email: email };
+    if (user.email) {
+      this.authService.getPaymentDetails(user).subscribe((res) => {
+        if (res['success']) {
+          localStorage.setItem(
+            'paymentGoingToExpire',
+            res['data']['paymentGoingToExpire']
+          );
+          localStorage.setItem('pendingAmount', res['data']['availableAmount']);
+        }
+      });
+    }
+  }
+
   getRoleList() {
     this.authService.getRoles().subscribe((res) => {
       if (res['success']) {
+        let userRole = localStorage.getItem('userRole');
         // add manange payment role for admin
         if (localStorage.getItem('email') == 'admin@inaipi.com') {
           res['data']['list'].push('canManagePayment');
+        } else {
+          res['data']['list'].push('canManagePaymentAmount');
         }
+        res['data']['list'].push(userRole);
         this.menuItems = PRODUCT_ROUTES.paths(res['data']['list']);
-        console.log(res['data']['list']);
         localStorage.setItem(
           'permissions',
           JSON.stringify(res['data']['list'])

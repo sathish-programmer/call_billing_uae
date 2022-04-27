@@ -1,0 +1,363 @@
+<!-- Tabs navs -->
+<ul class="nav nav-tabs nav-fill mb-3" id="ex1" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link"
+      id="ex2-tab-1"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard']"
+      role="tab"
+      aria-controls="ex2-tabs-1"
+      aria-selected="true"
+      >Payment Overview</a
+    >
+  </li>
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link"
+      id="ex2-tab-2"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard/graph-view']"
+      role="tab"
+      aria-controls="ex2-tabs-2"
+      aria-selected="false"
+      >Graphical View</a
+    >
+  </li>
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link active"
+      id="ex2-tab-3"
+      data-mdb-toggle="tab"
+      [routerLink]="['/admin/payment-dashboard/budgets']"
+      role="tab"
+      aria-controls="ex2-tabs-3"
+      aria-selected="false"
+      >BUDGETS AND ALERTS</a
+    >
+  </li>
+</ul>
+<!-- Tabs navs -->
+
+<section>
+  <div class="container-fluid">
+    <div class="card mb-2 mt-3" style="max-width: 100%">
+      <div class="card-header font-weight-bolder text-uppercase">
+        Budgets and alerts
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="Budgets-alerts">
+            <p class="text-capitalize font-weight-bold"></p>
+          </div>
+          <div class="budget d-flex">
+            <div class="mr-3">
+              <button
+                type="button"
+                class="btn btn-outline-primary text-capitalize btn-sm"
+              >
+                <i class="fas fa-plus-circle mr-2"></i>
+                create budget
+              </button>
+            </div>
+            <div class="mr-3">
+              <button
+                type="button"
+                class="btn btn-outline-primary text-capitalize btn-sm"
+              >
+                <i class="fas fa-trash mr-2"></i>delete
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <form class="d-flex">
+            <div>
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm mb-4"
+              >
+                <i class="fas fa-filter mr-3"></i>
+                Filter
+              </button>
+            </div>
+            <div class="col-auto">
+              <label class="sr-only" for="inlineFormInputGroup"
+                >Search...</label
+              >
+              <div class="input-group mb-2 input-group-sm">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">
+                    <i class="fas fa-search"></i>
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inlineFormInputGroup"
+                  placeholder="Search..."
+                />
+              </div>
+            </div>
+          </form>
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input position-relative"
+                      type="checkbox"
+                      value=""
+                      id="defaultCheck1"
+                    />
+                  </div>
+                </th>
+                <th scope="col">
+                  Budget Name
+                  <a href="http://" class="text-dark text-decoration-none"
+                    ><i class="fas fa-arrow-circle-up ml-2"></i
+                  ></a>
+                </th>
+                <th scope="col">Budget Period</th>
+                <th scope="col">Budget Type</th>
+                <th scope="col">Applies To</th>
+                <th scope="col">Trigger Alerts At</th>
+                <th scope="col">Spend and Budget Amount</th>
+                <th scope="col">Last</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      id="defaultCheck1"
+                    />
+                  </div>
+                </th>
+                <td>Monthly limit</td>
+                <td>Monthly</td>
+                <td>Specified amount</td>
+                <td>
+                  <select
+                    class="custom-select custom-select-sm"
+                    id="inputGroupSelect01"
+                  >
+                    <option selected>This billil</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                  </select>
+                </td>
+                <td>50%, 90%, and 100%</td>
+                <td>
+                  <div class="progress">
+                    <div
+                      class="progress-bar progress-bar-striped progress-bar-animated"
+                      role="progressbar"
+                      aria-valuenow="75"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      style="width: 75%"
+                    >
+                      75%
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  $28.09 / $150.00 <br />
+                  No credits used
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      id="defaultCheck1"
+                    />
+                  </div>
+                </th>
+                <td>Monthly limit</td>
+                <td>Monthly</td>
+                <td>Specified amount</td>
+                <td>
+                  <select
+                    class="custom-select custom-select-sm"
+                    id="inputGroupSelect01"
+                  >
+                    <option selected>This billil</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                  </select>
+                </td>
+                <td>50%, 90%, and 100%</td>
+                <td>
+                  <div class="progress">
+                    <div
+                      class="progress-bar progress-bar-striped progress-bar-animated"
+                      role="progressbar"
+                      aria-valuenow="75"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      style="width: 75%"
+                    >
+                      75%
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  $28.09 / $150.00 <br />
+                  No credits used
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      id="defaultCheck1"
+                    />
+                  </div>
+                </th>
+                <td>Monthly limit</td>
+                <td>Monthly</td>
+                <td>Specified amount</td>
+                <td>
+                  <select
+                    class="custom-select custom-select-sm"
+                    id="inputGroupSelect01"
+                  >
+                    <option selected>This billil</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                  </select>
+                </td>
+                <td>50%, 90%, and 100%</td>
+                <td>
+                  <div class="progress">
+                    <div
+                      class="progress-bar progress-bar-striped progress-bar-animated"
+                      role="progressbar"
+                      aria-valuenow="100"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      style="width: 100%"
+                    >
+                      100%
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  $28.09 / $150.00 <br />
+                  No credits used
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      id="defaultCheck1"
+                    />
+                  </div>
+                </th>
+                <td>Monthly limit</td>
+                <td>Monthly</td>
+                <td>Specified amount</td>
+                <td>
+                  <select
+                    class="custom-select custom-select-sm"
+                    id="inputGroupSelect01"
+                  >
+                    <option selected>This billil</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                  </select>
+                </td>
+                <td>50%, 90%, and 100%</td>
+                <td>
+                  <div class="progress">
+                    <div
+                      class="progress-bar progress-bar-striped progress-bar-animated"
+                      role="progressbar"
+                      aria-valuenow="50"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      style="width: 50%"
+                    >
+                      50%
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  $28.09 / $150.00 <br />
+                  No credits used
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      id="defaultCheck1"
+                    />
+                  </div>
+                </th>
+                <td>Monthly limit</td>
+                <td>Monthly</td>
+                <td>Specified amount</td>
+                <td>
+                  <select
+                    class="custom-select custom-select-sm"
+                    id="inputGroupSelect01"
+                  >
+                    <option selected>This billil</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                  </select>
+                </td>
+                <td>50%, 90%, and 100%</td>
+                <td>
+                  <div class="progress">
+                    <div
+                      class="progress-bar progress-bar-striped progress-bar-animated"
+                      role="progressbar"
+                      aria-valuenow="10"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      style="width: 10%"
+                    >
+                      10%
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  $28.09 / $150.00 <br />
+                  No credits used
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

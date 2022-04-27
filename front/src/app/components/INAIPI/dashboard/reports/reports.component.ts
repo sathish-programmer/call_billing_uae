@@ -393,6 +393,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   getReport(formValue, event) {
+    console.log(formValue);
     this.callReportPaginator.skip = event;
     this.ngxLoader.start();
     formValue['skip'] =
@@ -481,6 +482,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   startDateChange(event) {
+    console.log;
     this._zone.run(() => {
       this.startDate = moment(event._d);
       this.callReportForm.patchValue({ startDate: this.startDate });

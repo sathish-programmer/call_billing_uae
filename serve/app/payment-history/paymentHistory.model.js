@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 var paymentHistorySchema = new Schema({
+  TotalCycles: { type: Number },
+  CostPerCycle: { type: Number },
+
   calculatedCost: { type: Number, required: true },
   availablePackage: { type: Number, required: true, default: 00 },
   creationDate: { type: Date },

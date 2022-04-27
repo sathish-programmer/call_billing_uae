@@ -1,9 +1,37 @@
-.cover-image{ height: 100vh; width: 100%; }
-.logo-image{ height: 60px; margin-top: 6%; }
-.heading{ margin-top: 5%; font-weight: 900;}
-.input-field{ height: 60px; border: 1px solid lightgrey; width: 100%; border-radius: 3px; 
-    padding: 0px 10px 25px 10px; font-size: 13px;}
-.input-field:focus{outline: none;}
-.forgot-link{font-size: 13px; position: relative; top: 10px;}
-.below-text{font-size: 12px; color: darkgrey; margin-top: 60px; font-weight: 500;}
-.policy-link{font-size: 13px;}
+.logo-image {
+  height: 120px;
+  margin-top: 6%;
+}
+.login-banner {
+  background: linear-gradient(to right, #1447d4, #006fff, #00e7ff) fixed !important;
+  height: 100vh;
+}
+.heading {
+  margin-top: 5%;
+  font-weight: 900;
+}
+.input-field {
+  height: 60px;
+  border: 1px solid lightgrey;
+  width: 100%;
+  border-radius: 3px;
+  // padding: 0px 10px 25px 10px;
+  font-size: 13px;
+}
+.input-field:focus {
+  outline: none;
+}
+.forgot-link {
+  font-size: 13px;
+  position: relative;
+  top: 10px;
+}
+.below-text {
+  font-size: 12px;
+  color: darkgrey;
+  margin-top: 60px;
+  font-weight: 500;
+}
+.policy-link {
+  font-size: 13px;
+}

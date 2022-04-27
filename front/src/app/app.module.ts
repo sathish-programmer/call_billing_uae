@@ -17,6 +17,8 @@ import { NgxPaginationModule, PaginatePipe } from 'ngx-pagination';
 import { DpDatePickerModule } from 'ng2-date-picker';
 import { SubscriptionComponent } from './components/subscription/subscription.component';
 import { PaymentComponent } from './components/payment/payment.component';
+import { PaymentDashboardComponent } from './components/payment-dashboard/payment-dashboard.component';
+import { PaymentMasterComponent } from './components/payment-master/payment-master.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -25,6 +27,8 @@ import { PaymentComponent } from './components/payment/payment.component';
     ViewSupportComponent,
     SubscriptionComponent,
     PaymentComponent,
+    PaymentDashboardComponent,
+    PaymentMasterComponent,
   ],
   imports: [
     BrowserModule,

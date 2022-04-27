@@ -45,6 +45,13 @@ export class AuthService {
     // catchError(this.handleError)
   }
 
+  // get payment details
+  getPaymentDetails(data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .post<User>(this.baseUrl + 'payment/getFullPayDetails', data, headers)
+      .pipe((res) => res);
+  }
   // check user subscription
   // getSubscription(): Observable<Roles[]> {
   //   let headers = { headers: { token: localStorage.getItem("token") } };
@@ -124,6 +131,34 @@ export class AuthService {
       .pipe((res) => res);
   }
 
+  getPaymentHistory(id) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .get(this.baseUrl + 'paymentHistory/list/' + id, headers)
+      .pipe((res) => res);
+  }
+
+  getDataByDate(id) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .get(this.baseUrl + 'paymentHistory/lastMonthRecord/' + id, headers)
+      .pipe((res) => res);
+  }
+
+  getFiveMonthData(id) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .get(this.baseUrl + 'paymentHistory/monthRecord/' + id, headers)
+      .pipe((res) => res);
+  }
+
+  downloadCostReport(data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .post(this.baseUrl + 'paymentHistory/download/getPdf', data, headers)
+      .pipe((res) => res);
+  }
+
   addOrganization(data) {
     let headers = { headers: { token: localStorage.getItem('token') } };
 
@@ -186,6 +221,29 @@ export class AuthService {
     let headers = { headers: { token: localStorage.getItem('token') } };
     return this.http
       .delete(this.baseUrl + 'department/' + id, headers)
+      .pipe((res) => res);
+  }
+
+  addPackage(data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+
+    return this.http
+      .post(this.baseUrl + 'paymentMaster/add', data, headers)
+      .pipe((res) => res);
+  }
+
+  updatePackage(data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+
+    return this.http
+      .patch(this.baseUrl + 'paymentMaster/update/', data, headers)
+      .pipe((res) => res);
+  }
+
+  deletePackage(id) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .delete(this.baseUrl + 'paymentMaster/delete/' + id, headers)
       .pipe((res) => res);
   }
 
@@ -318,6 +376,15 @@ export class AuthService {
     };
     return this.http
       .get(this.baseUrl + 'user/' + orgId, headers)
+      .pipe((res) => res);
+  }
+
+  getPackageList() {
+    let headers = {
+      headers: { token: localStorage.getItem('token') },
+    };
+    return this.http
+      .get(this.baseUrl + 'paymentMaster/', headers)
       .pipe((res) => res);
   }
 

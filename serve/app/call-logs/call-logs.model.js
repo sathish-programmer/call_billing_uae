@@ -61,6 +61,7 @@ var callLogsSchema = new Schema({
   transferCallCalculated: { type: Boolean, default: false, required: true },
   parentTransferCallLog: { type: Boolean, default: false, required: true },
   creationDate: { type: Date, required: true },
+  paymentFromPackage: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("CallLogs", callLogsSchema);

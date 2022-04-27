@@ -75,10 +75,23 @@
                       <a
                         class="nav-link font-normal display-block"
                         routerlinkactive="active-link"
+                        [routerLink]="['/admin/payment-dashboard']"
+                        >Manage Your Account</a
+                      >
+                    </li>
+                    <!-- <li
+                      *ngIf="
+                        (menu.product !== 'INAIPI' && getSubsData !== null) ||
+                        getSubsData === ''
+                      "
+                    >
+                      <a
+                        class="nav-link font-normal display-block"
+                        routerlinkactive="active-link"
                         [routerLink]="['/admin/inaipi/dashboard/subscription']"
                         >Manage Subscription</a
                       >
-                    </li>
+                    </li> -->
                   </ul>
                 </li>
               </ul>

@@ -1,0 +1,118 @@
+const MASTER = require("./master.model");
+
+// add package
+exports.addpackage = async (req, res) => {
+  try {
+    let body = req.body;
+
+    let packageAmount = body.packageVal;
+
+    let packageObject = {
+      packageAmount: packageAmount,
+      packageName: "Package One ( $" + packageAmount + " )",
+      creationDate: new Date(),
+    };
+
+    let docToSave = new MASTER(packageObject);
+    let saveDoc = await docToSave.save();
+
+    if (saveDoc) {
+      return res.json({
+        success: true,
+        data: "Package added successfully",
+      });
+    } else {
+      return res.json({
+        success: false,
+        data: "Package added failed",
+      });
+    }
+  } catch (e) {
+    return res.json({
+      success: false,
+      data: "Server busy",
+    });
+  }
+};
+
+//get
+exports.getPackage = async (req, res) => {
+  try {
+    let packDetails = await MASTER.find({
+      softDelete: false,
+    });
+
+    return res.json({
+      success: true,
+      data: packDetails,
+      message: "Data retrieved",
+    });
+  } catch (e) {
+    return res.json({
+      success: false,
+      data: e,
+    });
+  }
+};
+
+// update
+exports.updatePackage = async (req, res) => {
+  try {
+    let body = req.body;
+    let newAmount = body.packageVal;
+    let updateDoc = await MASTER.findByIdAndUpdate(
+      {
+        _id: body.id,
+        softDelete: false,
+      },
+      {
+        $set: {
+          packageAmount: newAmount,
+          packageName: "Package One ( $" + newAmount + " )",
+          updationDate: new Date(),
+        },
+      }
+    );
+    if (updateDoc) {
+      return res.json({
+        success: true,
+        data: "Package updated",
+      });
+    } else {
+      return res.json({
+        success: false,
+        data: "Package update failed",
+      });
+    }
+  } catch (e) {
+    return res.json({
+      success: false,
+      data: e,
+    });
+  }
+};
+
+// delete api
+exports.delete = async (req, res) => {
+  let params = req.params.id.trim();
+  if (params) {
+    let delTable = await MASTER.findOneAndUpdate(
+      { _id: params, softDelete: false },
+      { $set: { softDelete: true } }
+    );
+
+    if (delTable) {
+      return res.json({
+        success: true,
+        data: params.id,
+        message: "Data deleted",
+      });
+    } else {
+      return res.json({
+        success: fasle,
+        data: "",
+        message: "Try again later",
+      });
+    }
+  }
+};

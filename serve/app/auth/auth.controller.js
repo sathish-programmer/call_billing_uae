@@ -8,31 +8,31 @@ var { OAUTH_SECRET } = require("../../config");
 
 // Normal Login for the Application/Admin panel
 exports.login = async (req, res) => {
-  try {
-    let body = req.body;
+  // try {
+  let body = req.body;
 
-    if (body.email && body.password) {
-      // Find user to see if it exists
-      let user = await fetchUser(body.email);
-      console.log("User found", user);
+  if (body.email && body.password) {
+    // Find user to see if it exists
+    let user = await fetchUser(body.email);
+    let checkUserRole = await checkRole(body.email);
 
-      let userPayment = await paymentDB.findOne(
-        { organization: user.organization._id },
-        "availablePackage package orgName"
-      );
+    let userPayment = await paymentDB.findOne(
+      { organization: user.organization._id, softDelete: false },
+      "availablePackage package orgName"
+    );
 
-      let pendingAmmountPer;
-      let totalAmt;
-      let availableAmt;
-      let paymentGoingToExpire;
+    let pendingAmmountPer;
+    let totalAmt;
+    let availableAmt;
+    let paymentGoingToExpire;
 
-      // return false;
-      if (user) {
-        if (bcrypt.compareSync(body.password, user["password"])) {
-          // If exists , createe token for the user
-          let token = await createAndSaveToken(user);
-          // Send token and other things to FE.
-
+    // return false;
+    if (user) {
+      if (bcrypt.compareSync(body.password, user["password"])) {
+        // If exists , createe token for the user
+        let token = await createAndSaveToken(user);
+        // Send token and other things to FE.
+        if (userPayment) {
           totalAmt = userPayment["package"];
           availableAmt = userPayment["availablePackage"];
           pendingAmmountPer = Math.round((availableAmt / totalAmt) * 100);
@@ -41,50 +41,53 @@ exports.login = async (req, res) => {
           } else {
             paymentGoingToExpire = false;
           }
-          return res.json({
-            success: true,
-            message: "user logged in!",
-            data: {
-              token: token,
-              email: user.email,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              isSU: user.type == "root" ? true : false,
-              loginType: user.loginType,
-              organization: user.organization,
-              availableAmount: userPayment["availablePackage"],
-              totalAmount: totalAmt,
-              availablePayment: availableAmt,
-              checkPercentage: pendingAmmountPer,
-              paymentGoingToExpire: paymentGoingToExpire,
-            },
-          });
-        } else {
-          // Incorrect password
-          return res.json({
-            success: false,
-            data: "",
-            message: "Incorrect password",
-          });
         }
+
+        return res.json({
+          success: true,
+          message: "user logged in!",
+          data: {
+            token: token,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            isSU: user.type == "root" ? true : false,
+            loginType: user.loginType,
+            organization: user.organization,
+            availableAmount: userPayment["availablePackage"],
+            totalAmount: totalAmt,
+            availablePayment: availableAmt,
+            checkPercentage: pendingAmmountPer,
+            paymentGoingToExpire: paymentGoingToExpire,
+            userRole: checkUserRole.role.name,
+          },
+        });
       } else {
-        // No user found
+        // Incorrect password
         return res.json({
           success: false,
           data: "",
-          message: "Not able to login. Please try again later",
+          message: "Incorrect password",
         });
       }
     } else {
+      // No user found
       return res.json({
         success: false,
         data: "",
-        message: "Email and Password required",
+        message: "Not able to login. Please try again later",
       });
     }
-  } catch (err) {
-    return res.json({ success: false, message: err, data: "" });
+  } else {
+    return res.json({
+      success: false,
+      data: "",
+      message: "Email and Password required",
+    });
   }
+  // } catch (err) {
+  //   return res.json({ success: false, message: err, data: "" });
+  // }
 };
 
 // Login for the Call logs
@@ -226,6 +229,14 @@ async function fetchUser(email) {
     userQuery,
     "firstName lastName email token role organization branch password type loginType"
   ).populate("organization");
+
+  return user;
+}
+
+async function checkRole(email) {
+  let userQuery = { email: email, softDelete: false, enableLogin: true };
+
+  let user = await USER.findOne(userQuery, "email").populate("role", "name");
 
   return user;
 }

@@ -53,6 +53,34 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'payment-dashboard',
+        loadChildren: () =>
+          import('../components/payment-dashboard/payment.module').then(
+            (m) => m.PaymentModule
+          ),
+      },
+      {
+        path: 'payment-dashboard/graph-view',
+        loadChildren: () =>
+          import(
+            '../components/payment-dashboard/payment-graphical-view/payment-graphical-view.module'
+          ).then((m) => m.PaymentGraphicalViewModule),
+      },
+      {
+        path: 'payment-dashboard/budgets',
+        loadChildren: () =>
+          import(
+            '../components/payment-dashboard/payment-budget/payment-budget.module'
+          ).then((m) => m.PaymentBudgetModule),
+      },
+      {
+        path: 'payment-master',
+        loadChildren: () =>
+          import('../components/payment-master/payment-master.module').then(
+            (m) => m.PaymentMasterModule
+          ),
+      },
+      {
         path: 'inaipi/setup',
         loadChildren: () =>
           import('../components/INAIPI/setup/setup.module').then(

@@ -9,5 +9,12 @@ router.post("/save", checkAuth, controller.savePayment);
 // get payment history
 router.get("/list/:orgId", checkAuth, controller.list);
 // download pdf
-router.post("/download/pdf/:uniqueId", checkAuth, controller.generatePdf);
+router.get("/download/pdf/:uniqueId", checkAuth, controller.generatePdf);
+
+router.post("/download/getPdf", checkAuth, controller.generatePdfByMonth);
+
+router.get("/lastMonthRecord/:orgId", checkAuth, controller.lastMonthRecord);
+
+router.get("/monthRecord/:orgId", checkAuth, controller.monthRecord);
+
 module.exports = router;
