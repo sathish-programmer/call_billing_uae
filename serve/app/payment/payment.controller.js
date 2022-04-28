@@ -93,8 +93,10 @@ exports.verifyOtp = async (req, res) => {
 let updateOTP = async function (otp, adminEmailBody) {
   let newOTP = otp;
   let adminEmail = adminEmailBody;
+  console.log("email body", adminEmailBody);
   const adminUser = await paymentDB.findOne({
     otpSentEmail: adminEmail,
+    type: "OTP - Admin",
     softDelete: false,
   });
   if (adminUser) {
@@ -139,6 +141,7 @@ let insertData = async function (adminEmail) {
     creationDate: new Date(),
     typeOfPayment: 2,
     package: 00,
+    type: "OTP - Admin",
   };
 
   let docToSave = new paymentDB(paymentObject);
@@ -160,118 +163,120 @@ let insertData = async function (adminEmail) {
 
 // add package details
 exports.addPackage = async (req, res) => {
-  // try {
-  let body = req.body;
-  let orgId = body.parent;
-  let checkOrg = await paymentDB.findOne(
-    {
-      organization: orgId,
-      softDelete: false,
-    },
-    "package availablePackage orgName"
-  );
-  if (checkOrg) {
-    let old_amt = checkOrg["package"];
-    let old_available_amt = checkOrg["availablePackage"];
+  try {
+    let body = req.body;
     let new_amt = body.package;
-
-    let updatedAmt = parseInt(old_amt) + parseInt(new_amt);
-
-    let updatedAvailableAmt = parseInt(old_available_amt) + parseInt(new_amt);
-
-    let updatePackage = await paymentDB.findOne({
-      _id: checkOrg["_id"],
-      softDelete: false,
-    });
-
-    if (updatePackage) {
-      return res.json({
-        success: true,
-        data: "Id already available",
-        // adminEmails: adminEmails,
-        message:
-          "Package for " +
-          "' " +
-          checkOrg["orgName"] +
-          " '" +
-          " is already available, Please update",
-      });
-    } else {
-      return res.json({
-        success: false,
-        data: "",
-        message: "Something went wrong",
-      });
-    }
-  } else {
-    let userDetails = await USER.find(
+    let orgId = body.parent;
+    let checkOrg = await paymentDB.findOne(
       {
         organization: orgId,
         softDelete: false,
       },
-      "email"
-    ).populate("role", "name");
+      "package availablePackage orgName"
+    );
+    if (checkOrg) {
+      let old_amt = checkOrg["package"];
+      let old_available_amt = checkOrg["availablePackage"];
 
-    if (userDetails.email != "" || userDetails.email != null) {
-      userEmail = userDetails["email"];
-    }
+      console.log("adding pack", new_amt);
 
-    let adminEmails = [];
-    let findArr;
-    // var colData = [];
-    for (let index in userDetails) {
-      findArr = userDetails.filter(function (admin) {
-        return admin.role.name == "admin";
-      })[index];
-      if (findArr !== undefined) {
-        adminEmails.push(findArr.email);
+      let updatedAmt = parseInt(old_amt) + parseInt(new_amt);
+
+      let updatedAvailableAmt = parseInt(old_available_amt) + parseInt(new_amt);
+
+      let updatePackage = await paymentDB.findOne({
+        _id: checkOrg["_id"],
+        softDelete: false,
+      });
+
+      if (updatePackage) {
+        return res.json({
+          success: true,
+          data: "Id already available",
+          // adminEmails: adminEmails,
+          message:
+            "Package for " +
+            "' " +
+            checkOrg["orgName"] +
+            " '" +
+            " is already available, Please update",
+        });
+      } else {
+        return res.json({
+          success: false,
+          data: "",
+          message: "Something went wrong",
+        });
+      }
+    } else {
+      let userDetails = await USER.find(
+        {
+          organization: orgId,
+          softDelete: false,
+        },
+        "email"
+      ).populate("role", "name");
+
+      if (userDetails.email != "" || userDetails.email != null) {
+        userEmail = userDetails["email"];
+      }
+
+      let adminEmails = [];
+      let findArr;
+      // var colData = [];
+      for (let index in userDetails) {
+        findArr = userDetails.filter(function (admin) {
+          return admin.role.name == "admin";
+        })[index];
+        if (findArr !== undefined) {
+          adminEmails.push(findArr.email);
+        }
+      }
+      let packageObject = {
+        otpSentEmail: "",
+        OTP: body.otp,
+        otpVerified: true,
+        organization: body.parent,
+        package: body.package,
+        availablePackage: body.package,
+        currencySymbol: "$",
+        creationDate: new Date(),
+      };
+      let org = await ORG.findOne({
+        softDelete: false,
+        _id: body.parent,
+      });
+
+      if (org) {
+        packageObject["orgName"] = org.name;
+      }
+
+      let docToSave = new paymentDB(packageObject);
+      let retDoc = await docToSave.save();
+      if (retDoc) {
+        // send email to admins
+        sendEmailToAdminForSuccess(adminEmails, new_amt);
+        return res.json({
+          success: true,
+          data: retDoc["_id"],
+          adminEmails: adminEmails,
+          message: "Packaged Added to - " + "' " + org.name + " '",
+        });
+      } else {
+        return res.json({
+          success: false,
+          data: "",
+          message: "Something went wrong",
+        });
       }
     }
-    let packageObject = {
-      otpSentEmail: "",
-      OTP: body.otp,
-      otpVerified: true,
-      organization: body.parent,
-      package: body.package,
-      availablePackage: body.package,
-      currencySymbol: "$",
-      creationDate: new Date(),
-    };
-    let org = await ORG.findOne({
-      softDelete: false,
-      _id: body.parent,
+  } catch (e) {
+    return res.json({
+      success: false,
+      data: "",
+      message: e,
     });
-
-    if (org) {
-      packageObject["orgName"] = org.name;
-    }
-
-    let docToSave = new paymentDB(packageObject);
-    let retDoc = await docToSave.save();
-    if (retDoc) {
-      // send email to admins
-      sendEmailToAdminForSuccess(adminEmails, new_amt);
-      return res.json({
-        success: true,
-        data: retDoc["_id"],
-        adminEmails: adminEmails,
-        message: "Packaged Added to - " + "' " + org.name + " '",
-      });
-    } else {
-      return res.json({
-        success: false,
-        data: "",
-        message: "Something went wrong",
-      });
-    }
   }
-  // } catch (e) {
-  //   return res.json({
-  //     success: false,
-  //     data: "",
-  //     message: e,
-  //   });
-  // }
 };
 
 // get all payment org details

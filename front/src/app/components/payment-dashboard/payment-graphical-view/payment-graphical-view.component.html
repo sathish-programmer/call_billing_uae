@@ -84,6 +84,7 @@
                     >{{ percenValForPrev }}%</a
                   >
                   <small class="text-secondary">
+                    ${{ sumOfPrevCost }} over
                     {{ previousMonthFirstDate | date }} -
                     {{ previousMonthCurrentDate | date }}</small
                   >
@@ -122,8 +123,7 @@
                     >{{ percenValForForcast }}%</a
                   >
                   <small class="text-secondary">
-                    <!-- $4.30 over -->
-                    {{ previousMonth }}</small
+                    ${{ sumOfForecastCost }} over {{ previousMonth }}</small
                   >
                 </div>
               </div>

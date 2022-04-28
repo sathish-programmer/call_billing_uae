@@ -40,6 +40,9 @@ export class PaymentGraphicalViewComponent implements OnInit {
   currentMnthForcastCostInc: Boolean = false;
   currentMnthForecastCostDec: Boolean = false;
 
+  sumOfPrevCost: any;
+  sumOfForecastCost: any;
+
   percenValForPrev: any;
   percenValForForcast: any;
 
@@ -146,14 +149,37 @@ export class PaymentGraphicalViewComponent implements OnInit {
           beforeLastPreviousMonthCost,
           PreviousFifthMonthCost,
         ];
+
+        console.log(yValues);
+
+        let newXvalues = [];
+
         var xValues = this.lastFiveMonths;
+
+        if (yValues[0] > 0) {
+          newXvalues.push(xValues[0]);
+        }
+        if (yValues[1] > 0) {
+          newXvalues.push(xValues[1]);
+        }
+        if (yValues[2] > 0) {
+          newXvalues.push(xValues[2]);
+        }
+        if (yValues[3] > 0) {
+          newXvalues.push(xValues[3]);
+        }
+        if (yValues[4] > 0) {
+          newXvalues.push(xValues[4]);
+        }
+
+        console.log(newXvalues);
         // console.log('xvalues', yValues);
         var barColors = ['#b91d47', '#00aba9', '#2b5797', '#e8c3b9', '#1e7145'];
         let ctx = document.getElementById('myChart');
         let chart = new Chart('myChart', {
           type: 'doughnut',
           data: {
-            labels: xValues,
+            labels: newXvalues,
             datasets: [
               {
                 backgroundColor: barColors,
@@ -175,7 +201,7 @@ export class PaymentGraphicalViewComponent implements OnInit {
 
         // last month
 
-        this.previousMonthCost = lastpreviousMonthCost;
+        // this.previousMonthCost = lastpreviousMonthCost;
 
         if (parseFloat(currentMonthCost) >= parseFloat(previousMonthCost)) {
           this.currentMnthCostInc = true;
@@ -191,13 +217,18 @@ export class PaymentGraphicalViewComponent implements OnInit {
           ((currentMonthCost - previousMonthCost) * 100) / currentMonthCost;
         this.percenValForPrev = percenForPrev.toFixed(2);
 
+        let sumOfPrevCost = (currentMonthCost - previousMonthCost).toFixed(2);
+        this.sumOfPrevCost = sumOfPrevCost;
+
+        console.log('check prev amount', previousMonthCost);
+
         this.forecastTotal = (
           (this.monthToDayData * 30) /
           this.calcBetweenDays
         ).toFixed(2);
 
         this.forecastTotalForChart = (
-          (this.previousMonthCost * 30) /
+          (previousMonthCost * 30) /
           this.calcBetweenDays
         ).toFixed(2);
 
@@ -205,9 +236,19 @@ export class PaymentGraphicalViewComponent implements OnInit {
         let previousForcastData = this.forecastTotalForChart;
 
         let percenForForcast =
-          ((currentMnthForecast - previousMonthCost) * 100) /
+          ((currentMnthForecast - previousForcastData) * 100) /
           currentMnthForecast;
         this.percenValForForcast = percenForForcast.toFixed(2);
+
+        console.log(previousMonthCost, 'previous mnth forecast');
+
+        let sumOfForcastCost = (
+          currentMnthForecast - previousForcastData
+        ).toFixed(2);
+
+        this.sumOfForecastCost = sumOfForcastCost;
+
+        console.log('check sum of forecast', sumOfForcastCost);
 
         if (
           parseFloat(currentMnthForecast) >= parseFloat(previousForcastData)

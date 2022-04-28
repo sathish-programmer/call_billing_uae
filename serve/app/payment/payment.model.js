@@ -7,12 +7,13 @@ var paymentSchema = new Schema({
   resentCount: { type: Number },
   otpExpired: { type: Boolean, default: false },
   otpVerified: { type: Boolean, default: false },
-  orgName: { type: String, required: true },
+  orgName: { type: String },
   organization: {
     type: Schema.Types.ObjectId,
     ref: "Organization",
     required: false,
   },
+  type: { type: String, default: "normal", required: true },
   typeOfPayment: { type: Number, required: true, default: 1 },
   currencySymbol: { type: String },
   package: { type: Number, required: true, default: 00 },
@@ -22,6 +23,13 @@ var paymentSchema = new Schema({
   deletionDate: { type: Date },
   updationDate: { type: Date },
   softDelete: { type: Boolean, required: true, default: false },
+  paymentGoingToExpire: {
+    type: Boolean,
+  },
+  notifiedAutomaticMail: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Payment", paymentSchema);

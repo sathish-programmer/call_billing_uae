@@ -210,6 +210,7 @@ export class PaymentDashboardComponent implements OnInit {
   }
 
   getAllPayHistory() {
+    this.availableAmount = localStorage.getItem('pendingAmount');
     let data = localStorage.getItem('organization');
     this.getPaymentHistory = this.authService.getPaymentHistory(data).subscribe(
       (res) => {
@@ -220,14 +221,14 @@ export class PaymentDashboardComponent implements OnInit {
         if (recordLength == 0) {
           this.lastPaidAmount = 0;
           // this.lastPaidDate = 0;
-          this.availableAmount = localStorage.getItem('pendingAmount');
+          // this.availableAmount = localStorage.getItem('pendingAmount');
           this.toastr.info('No transaction found', 'Info!');
         } else {
           this.checkPayHistory = false;
           // this.allPayData = data;
           this.lastPaidAmount = data[0]['calculatedCost'];
           this.lastPaidDate = data[0]['creationDate'];
-          this.availableAmount = data[0]['availablePackage'];
+          // this.availableAmount = data[0]['availablePackage'];
           console.log(res['data']);
         }
       },
@@ -235,6 +236,7 @@ export class PaymentDashboardComponent implements OnInit {
         this.toastr.error('Something went wrong', 'Error!');
       }
     );
+    console.log(this.availableAmount, 'hiii');
   }
 
   pdfGenerateByDate(formValue) {
@@ -258,7 +260,7 @@ export class PaymentDashboardComponent implements OnInit {
             setTimeout(() => {
               window.open(fileUrl);
               this.ngxLoader.stop();
-            }, 2000);
+            }, 5000);
             // this.toastr.success('Pdf Genarated', 'Success!');
           } else {
             this.toastr.error('Try after some times', 'Error!');
@@ -292,7 +294,7 @@ export class PaymentDashboardComponent implements OnInit {
             setTimeout(() => {
               window.open(fileUrl);
               this.ngxLoader.stop();
-            }, 2000);
+            }, 5000);
             // this.toastr.success('Pdf Genarated', 'Success!');
           } else {
             this.toastr.error('Try after some times', 'Error!');

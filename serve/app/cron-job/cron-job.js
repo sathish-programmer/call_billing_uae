@@ -5,6 +5,7 @@ const TARIFF_DETAILS = require("../tariff/tariff.model");
 const USER = require("../user/user.model");
 const paymentDB = require("../payment/payment.model");
 const paymentHistory = require("../payment-history/paymentHistory.model");
+const nodemailer = require("nodemailer");
 // Calculate Call Type for the Call log
 var calculateCallType = new CronJob("*/2 * * * *", async function () {
   console.log("Job triggered for calcualting call type");
@@ -460,15 +461,6 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
               }
             );
             if (updatePayment) {
-              let updatePayIsCalc = await CALL_LOGS.findByIdAndUpdate(
-                { _id: callLogs[index]["_id"] },
-                {
-                  $set: {
-                    paymentFromPackage: true,
-                  },
-                }
-              );
-
               let genUniqueId =
                 new Date().getTime().toString(36) +
                 Math.random().toString(36).slice(2);
@@ -486,6 +478,18 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
 
               let dataToSave = new paymentHistory(updatePaymentHis);
               await dataToSave.save();
+
+              if (dataToSave) {
+                let updatePayIsCalc = await CALL_LOGS.findByIdAndUpdate(
+                  { _id: callLogs[index]["_id"] },
+                  {
+                    $set: {
+                      paymentId: dataToSave,
+                      paymentFromPackage: true,
+                    },
+                  }
+                );
+              }
             }
           }
         }
@@ -1098,4 +1102,146 @@ async function fetchTariffDetails(organizations) {
 
   let retDoc = await TARIFF_DETAILS.aggregate(aggregateQuery);
   return retDoc;
+}
+
+// Calculate amount percentage if going to expire
+var checkForPendingAmount = new CronJob("*/2 * * * *", async function () {
+  let findPayment = await paymentDB
+    .find(
+      {
+        softDelete: false,
+        type: "normal",
+      },
+      "package availablePackage"
+    )
+    .lean();
+
+  if (findPayment) {
+    let pendingAmmountPer;
+    let totalAmt;
+    let availableAmt;
+    let paymentGoingToExpire;
+    let paymentId;
+    findPayment.forEach(async (elements) => {
+      paymentId = elements["_id"];
+      totalAmt = elements["package"];
+      availableAmt = elements["availablePackage"];
+
+      pendingAmountPer = Math.round((availableAmt / totalAmt) * 100);
+      if (pendingAmountPer < 30) {
+        paymentGoingToExpire = true;
+      } else {
+        paymentGoingToExpire = false;
+      }
+
+      console.log(paymentGoingToExpire);
+
+      await paymentDB.findByIdAndUpdate(
+        {
+          _id: paymentId,
+          softDelete: false,
+        },
+        {
+          $set: { paymentGoingToExpire: paymentGoingToExpire },
+        }
+      );
+    });
+  }
+});
+
+checkForPendingAmount.start();
+
+// send mail automatically if amount going to expire
+var checkAndSendMail = new CronJob("*/2 * * * *", async function () {
+  console.log("sending email to amount < 70% expire org admins");
+  let findPayment = await paymentDB
+    .find(
+      {
+        softDelete: false,
+        paymentGoingToExpire: true,
+        notifiedAutomaticMail: 0,
+        type: "normal",
+      },
+      "organization"
+    )
+    .lean();
+  let paymentId;
+  var payIds;
+  let orgId;
+  if (findPayment) {
+    findPayment.forEach(async (elements) => {
+      paymentId = elements["_id"];
+      payIds = elements["_id"];
+
+      orgId = elements["organization"];
+      console.log(payIds);
+
+      // update notification sent, dont resend automatically
+      await paymentDB.findByIdAndUpdate(
+        {
+          _id: payIds,
+          softDelete: false,
+        },
+        {
+          $set: { notifiedAutomaticMail: 1 },
+        }
+      );
+
+      let userDetails = await USER.find(
+        {
+          organization: orgId,
+          softDelete: false,
+        },
+        "email"
+      ).populate("role", "name");
+
+      if (userDetails.email != "" || userDetails.email != null) {
+        userEmail = userDetails["email"];
+      }
+
+      let adminEmails = [];
+      let findArr;
+      // var colData = [];
+      for (let index in userDetails) {
+        findArr = userDetails.filter(function (admin) {
+          return admin.role.name == "admin";
+        })[index];
+        if (findArr !== undefined) {
+          adminEmails.push(findArr.email);
+        }
+      }
+      // send email
+      // sendEmailToAdmin(adminEmails);
+    });
+  }
+});
+
+checkAndSendMail.start();
+
+function sendEmailToAdmin(recivers) {
+  let transporter = nodemailer.createTransport({
+    host: "smtp.office365.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: "sathish@imperiumapp.com", // username
+      pass: "NewPassword@#april", // password
+    },
+  });
+
+  let admiEmail = recivers;
+
+  const options = {
+    from: "sathish@imperiumapp.com", // sender address
+    to: admiEmail, // list of receivers
+    subject: "Call Billing - Notify for Payment", // Subject line
+    html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
+  };
+
+  transporter.sendMail(options, function (err, info) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+  });
 }

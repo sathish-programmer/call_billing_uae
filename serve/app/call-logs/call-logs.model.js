@@ -43,6 +43,7 @@ var callLogsSchema = new Schema({
   department: { type: Schema.Types.ObjectId, ref: "Department" },
   callerUser: { type: Schema.Types.ObjectId, ref: "User" },
   calledUser: { type: Schema.Types.ObjectId, ref: "User" },
+  paymentId: { type: Schema.Types.ObjectId, ref: "paymentHistory" },
   subdepartment: { type: String },
   CallType: { type: Array },
   CalculatedCost: { type: Number },
