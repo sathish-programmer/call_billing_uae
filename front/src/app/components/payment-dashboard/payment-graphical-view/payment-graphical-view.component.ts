@@ -27,6 +27,12 @@ export class PaymentGraphicalViewComponent implements OnInit {
   previousMonthFirstDate: any;
   lastFiveMonths = [];
   lastFiveMonthsData: any;
+  availableAmount: any;
+  lastPaidAmount: any;
+  checkPayHistory: Boolean = false;
+  lastPaidDate: any;
+
+  getPaymentHistory: any;
 
   currentMonthCost: number;
   previousMonthCost: number;
@@ -56,6 +62,7 @@ export class PaymentGraphicalViewComponent implements OnInit {
   ngOnInit(): void {
     this.getLastFiveMonths();
     this.getDatasByDate();
+    this.getAllPayHistory();
 
     let currentDate = new Date();
     let firstDay = new Date(
@@ -266,5 +273,35 @@ export class PaymentGraphicalViewComponent implements OnInit {
         this.toastr.error('Something went wrong', 'Error!');
       }
     );
+  }
+
+  getAllPayHistory() {
+    this.availableAmount = localStorage.getItem('pendingAmount');
+    let data = localStorage.getItem('organization');
+    this.getPaymentHistory = this.authService.getPaymentHistory(data).subscribe(
+      (res) => {
+        let data = res['data'];
+        let recordLength = data.length;
+
+        console.log('length date', recordLength);
+        if (recordLength == 0) {
+          this.lastPaidAmount = 0;
+          // this.lastPaidDate = 0;
+          // this.availableAmount = localStorage.getItem('pendingAmount');
+          this.toastr.info('No transaction found', 'Info!');
+        } else {
+          this.checkPayHistory = false;
+          // this.allPayData = data;
+          this.lastPaidAmount = data[0]['calculatedCost'];
+          this.lastPaidDate = data[0]['creationDate'];
+          // this.availableAmount = data[0]['availablePackage'];
+          console.log(res['data']);
+        }
+      },
+      () => {
+        this.toastr.error('Something went wrong', 'Error!');
+      }
+    );
+    // console.log(this.availableAmount, 'hiii');
   }
 }

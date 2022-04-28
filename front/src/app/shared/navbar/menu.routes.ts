@@ -54,13 +54,13 @@ export var PRODUCT_ROUTES = {
               permissions.indexOf('canRetrieveUser') >= 0,
           },
           {
-            title: 'Manage Amount',
+            title: 'Manage Credit',
             routerLink: '/admin/payment',
             checkpermission: permissions.indexOf('canManagePayment') >= 0,
           },
           {
-            title: 'Manage Your Account',
-            routerLink: '/admin/payment-dashboard',
+            title: 'Manage Your Credit',
+            routerLink: '/admin/payment-dashboard/graph-view',
             checkpermission:
               permissions.indexOf('canManagePaymentAmount') >= 0 &&
               permissions.indexOf('admin') >= 0,

@@ -16,7 +16,7 @@ export const environment = {
   production: true,
   baseUrl: 'http://callbilling.inaipi.in/api/',
   urlForFileDownload: 'http://callbilling.inaipi.in/',
-  urlForPhpApis: 'http://10.13.224.2/ticketing/public/index.php/',
+  urlForPhpApis: 'http://94.200.215.133:3034/ticketing/public/index.php/',
 };
 
 // export const environment = {

@@ -175,7 +175,7 @@
                   *ngIf="userInfo.paymentGoingToExpire == 'true'"
                   id="showNotify"
                 >
-                  Your payment goes to expire, Remaining amount from your
+                  Your payment goes to expire, Remaining credit from your
                   account is <b>${{ userInfo.pendingAmount }}</b>
                 </li>
 
@@ -221,7 +221,7 @@
                   routerlinkactive="open"
                 >
                   <span class="font-bold"
-                    >Pending Amount: ${{ userInfo.pendingAmount }}</span
+                    >Available Credit: ${{ userInfo.pendingAmount }}</span
                   >
                 </li>
                 <li
@@ -237,11 +237,18 @@
                   </button>
                 </li>
 
-                <!-- <li class="nav-item text-center text-transform-none support" routerlinkactive="open">
-                                    <button class="btn btn-sm btn-primary text-center col-md-12" (click)="support()" title="Need Support">
-                                        Need Support <i class="far fa-question-circle"></i>
-                                    </button>                                                  
-                                </li> -->
+                <!-- <li
+                  class="nav-item text-center text-transform-none support"
+                  routerlinkactive="open"
+                >
+                  <button
+                    class="btn btn-sm btn-primary text-center col-md-12"
+                    (click)="support()"
+                    title="Need Support"
+                  >
+                    Need Support <i class="far fa-question-circle"></i>
+                  </button>
+                </li> -->
               </ul>
             </li>
           </ul>

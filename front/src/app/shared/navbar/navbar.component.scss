@@ -109,9 +109,9 @@ hr {
 }
 .needSupport {
   position: absolute !important;
-  right: 48px;
-  bottom: 8px;
-  display: none;
+  right: 130px;
+  bottom: 10px;
+  // display: none;
 }
 .needSupport a {
   width: 40px;
@@ -137,7 +137,7 @@ hr {
 }
 
 #showPendingAmt {
-  color: red;
+  color: green;
   padding: 0px 4px 0px 11px !important;
 }
 

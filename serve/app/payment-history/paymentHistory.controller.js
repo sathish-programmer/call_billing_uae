@@ -9,6 +9,7 @@ const CALL_LOG = require("../call-logs/call-logs.model");
 
 var pdf = require("pdf-creator-node");
 var fs = require("fs");
+const { clear } = require("console");
 
 exports.savePayment = async (req, res) => {
   return res.json({
@@ -78,9 +79,9 @@ exports.generatePdf = async (req, res) => {
     orgName +
     "</p><p>Date: " +
     ceratedDate +
-    '</p> </div><div style="float: right"> <p>Available Amount : $' +
-    fullAmount +
-    "</p><p>Pending Amount : $" +
+    '</p> </div><div style="float: right"> <p>Available Credit : $' +
+    pendingPay +
+    "</p><p>Pending Credit : $" +
     pendingPay +
     "</p></div><div style='clear:both'><hr><p> Calculated Cost: $" +
     getDoc.calculatedCost +
@@ -630,7 +631,7 @@ getLastFiveMonths();
 exports.generatePdfByMonth = async (req, res) => {
   let body = req.body;
 
-  let orgName = "Imperium";
+  let orgName = "-";
   let fullAmount = "00";
   let createdDate = "0-0";
   let pendingPay = "00";
@@ -697,22 +698,26 @@ exports.generatePdfByMonth = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
-    });
+    })
+      .populate("branch", "name")
+      .populate("department", "name")
+      .populate("callerUser", "firstName lastName")
+      .populate("calledUser", "firstName lastName")
+      .lean();
   }
 
   //pdf gen start
   let dateToShow;
   var html;
-  let ceratedDate = new Date().toLocaleDateString();
+  let todayDate = new Date();
+  let ceratedDate = moment(todayDate).utc().format("L");
   // Read HTML Template
   html =
-    '<html><head><meta charset="utf-8"/></head><body style="padding:0 200px"><div style="float: left"> <p>Organization Name: ' +
+    '<html><head><meta charset="utf-8"/></head><body style="padding:0 200px;font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"; font-size: 1rem; line-height: 1.5; color: #212529;"><div style="float: left"> <p>Organization Name: ' +
     orgName +
     "</p><p>Generated Date: " +
     ceratedDate +
-    '</p> </div><div style="float: right"> <p>Available Amount : $' +
-    fullAmount +
-    "</p><p>Total Pending Amount : $" +
+    '</p> </div><div style="float: right"> <p>Available Credit : $' +
     pendingPay +
     "</p>";
 
@@ -724,7 +729,7 @@ exports.generatePdfByMonth = async (req, res) => {
     " )</h2></div>";
 
   html +=
-    "<table style='width: 100%; text-align: left;border: 1px solid #000; border-collapse: separate;'><thead><th style='border:1px solid #000;'>Payment made</th><th style='border:1px solid #000;'>Caller Number</th><th style='border:1px solid #000;'>Called Number</th><th style='border:1px solid #000;'>Call Duration</th><th style='border:1px solid #000;'>Call Time</th><th style='border:1px solid #000;'>Direction</th><th style='border:1px solid #000;'>Total Cycles</th><th style='border:1px solid #000;'>CostPerCycle</th><th style='border:1px solid #000;'>Calculated Cost</th></thead><tbody>";
+    "<table style='width: 100%; text-align: left;border: 1px solid #000; border-collapse: separate;margin-bottom:10px'><thead><th style='border:1px solid #000;'>Branch</th><th style='border:1px solid #000;'>Department</th><th style='border:1px solid #000;'>Caller Number</th><th style='border:1px solid #000;'>Called Number</th><th style='border:1px solid #000;'>Call Duration</th><th style='border:1px solid #000;'>Call Time</th><th style='border:1px solid #000;'>Direction</th><th style='border:1px solid #000;'>Total Cycles</th><th style='border:1px solid #000;'>CostPerCycle</th><th style='border:1px solid #000;'>Calculated Cost</th></thead><tbody>";
 
   let lastMonthCost = 0;
   let totalCost;
@@ -732,14 +737,30 @@ exports.generatePdfByMonth = async (req, res) => {
   for (let index of getMonthDocCallLog) {
     // console.log(index);
 
+    let branchName = index["branch"] ? index["branch"]["name"] : "";
+
+    let deptName = index["department"] ? index["department"]["name"] : "";
+    let callerName = index["callerUser"]
+      ? index["callerUser"]["firstName"]
+      : "";
+    let CalledName = index["calledUser"]
+      ? index["calledUser"]["firstName"]
+      : "";
+
     totalCost = lastMonthCost + parseFloat(index["CalculatedCost"]);
     lastMonthCost = totalCost;
 
     let direction;
     let paymentDate = new Date(moment(index["creationDate"]).utc(true));
     let callTime = new Date(moment(index["creationDate"]).utc(true));
-    let callTimeShow = formatterTime.format(callTime);
+    // let callTimeShow = formatterTime.format(callTime);
     let showdate = formatter.format(paymentDate);
+    let CallDuration = secondsToDHMS(index["CallDuration"]);
+
+    let callTimeShow =
+      moment(index["CallTime"]).utc().format("L") +
+      " " +
+      moment(index["CallTime"]).utc().format("LT");
 
     if (index["Direction"] == "O") {
       direction = "Outgoing";
@@ -749,13 +770,15 @@ exports.generatePdfByMonth = async (req, res) => {
 
     html +=
       "<tr><td style='border:1px solid #000;'>" +
-      showdate +
+      branchName +
+      "</td><td style='border:1px solid #000;'>" +
+      deptName +
       "</td><td style='border:1px solid #000;'>" +
       index["Callernumber"] +
       "</td><td style='border:1px solid #000;'>" +
       index["Callednumber"] +
       "</td><td style='border:1px solid #000;'>" +
-      index["CallDuration"] +
+      CallDuration +
       "</td><td style='border:1px solid #000;'>" +
       callTimeShow +
       "</td><td style='border:1px solid #000;'>" +
@@ -770,11 +793,19 @@ exports.generatePdfByMonth = async (req, res) => {
   }
 
   html +=
-    "</tbody><tfoot><tr><th id='total' style='text-align: right;' colspan='8'>Total :</th><th>$" +
+    "</tbody><tfoot><tr><th id='total' style='text-align: right;' colspan='9'>Total :</th><th>$" +
     lastMonthCost.toFixed(2) +
     "</th></tr></tfoot>";
 
   html += "</table>";
+
+  html +=
+    "<div style=clear:both;margin-top:10px'></div><div style='float: left;' >** Balance Credit = ( Available Credit - Total Calculated Cost)</div>";
+
+  html +=
+    "<div style='float: right'><span>Balance Credit: $" +
+    (pendingPay - lastMonthCost).toFixed(2);
+  +"</span></div>";
 
   html += "</body></html>";
 
@@ -785,7 +816,7 @@ exports.generatePdfByMonth = async (req, res) => {
     header: {
       height: "45mm",
       contents:
-        '<div style="text-align: center;font-size:30px">Payment Overview</div>',
+        '<div style="text-align: center;font-size:30px">Payment Cycle</div>',
     },
     footer: {
       height: "10mm",
@@ -840,3 +871,33 @@ exports.generatePdfByMonth = async (req, res) => {
     calllogs: getMonthDocCallLog,
   });
 };
+
+//Convert Seconds to Day Hours Minute Seconds
+function secondsToDHMS(seconds) {
+  var msg = "";
+  var d = Math.floor(seconds / (24 * 3600)); //Get Whole days
+  seconds -= d * (24 * 3600);
+  if (d > 0) {
+    msg += d + ":";
+  }
+  var h = Math.floor(seconds / 3600); //Get remaining hours
+  if (h > 0) {
+    msg += (h < 10 ? "0" + h : h) + ":";
+  } else {
+    msg += "00:";
+  }
+  seconds -= h * 3600;
+  var m = Math.floor(seconds / 60); //Get remaining minutes
+  if (m > 0) {
+    msg += (m < 10 ? "0" + m : m) + ":";
+  } else {
+    msg += "00:";
+  }
+  seconds -= m * 60;
+  if (seconds > 0) {
+    msg += seconds < 10 ? "0" + seconds : seconds;
+  } else {
+    msg += "00";
+  }
+  return msg;
+}

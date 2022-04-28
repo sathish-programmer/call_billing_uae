@@ -236,7 +236,7 @@ export class PaymentDashboardComponent implements OnInit {
         this.toastr.error('Something went wrong', 'Error!');
       }
     );
-    console.log(this.availableAmount, 'hiii');
+    // console.log(this.availableAmount, 'hiii');
   }
 
   pdfGenerateByDate(formValue) {
@@ -268,6 +268,7 @@ export class PaymentDashboardComponent implements OnInit {
           console.log('pdf downloaded ');
         },
         () => {
+          this.ngxLoader.stop();
           this.toastr.error('Something went wrong', 'Error!');
         }
       );
@@ -303,6 +304,7 @@ export class PaymentDashboardComponent implements OnInit {
         },
         () => {
           this.toastr.error('Something went wrong', 'Error!');
+          this.ngxLoader.stop();
         }
       );
   }
