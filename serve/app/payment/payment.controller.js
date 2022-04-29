@@ -2,6 +2,10 @@ const nodemailer = require("nodemailer");
 const paymentDB = require("./payment.model");
 const ORG = require("../organization/organization.model");
 const USER = require("../user/user.model");
+const CURRENCY = require("../currency/currency.model");
+
+const MASTER = require("../payment-master/master.model");
+
 function generateRandomNumber() {
   var minm = 100000;
   var maxm = 999999;
@@ -34,7 +38,7 @@ exports.sendOtp = async (req, res) => {
         orgName +
         " </b>' from call billing. Your OTP for this request is " +
         otp +
-        " and it is valid for one minutes.<br><br> Thanks,<br>Call Billing Support ",
+        " and it is valid for Five Minutes.<br><br> Thanks,<br>Call Billing Support ",
     };
 
     transporter.sendMail(options, function (err, info) {
@@ -126,7 +130,7 @@ let updateOTP = async function (otp, adminEmailBody) {
           },
         }
       );
-    }, 50000);
+    }, 300000);
   } else {
     insertData(adminEmail);
   }
@@ -163,120 +167,135 @@ let insertData = async function (adminEmail) {
 
 // add package details
 exports.addPackage = async (req, res) => {
-  try {
-    let body = req.body;
-    let new_amt = body.package;
-    let orgId = body.parent;
-    let checkOrg = await paymentDB.findOne(
+  // try {
+  let body = req.body;
+  let new_amt = body.package;
+  let orgId = body.parent;
+  let checkOrg = await paymentDB.findOne(
+    {
+      organization: orgId,
+      softDelete: false,
+    },
+    "package availablePackage orgName"
+  );
+  if (checkOrg) {
+    let old_amt = checkOrg["package"];
+    let old_available_amt = checkOrg["availablePackage"];
+
+    console.log("adding pack", new_amt);
+
+    let updatedAmt = parseInt(old_amt) + parseInt(new_amt);
+
+    let updatedAvailableAmt = parseInt(old_available_amt) + parseInt(new_amt);
+
+    let updatePackage = await paymentDB.findOne({
+      _id: checkOrg["_id"],
+      softDelete: false,
+    });
+
+    if (updatePackage) {
+      return res.json({
+        success: true,
+        data: "Id already available",
+        // adminEmails: adminEmails,
+        message:
+          "Package for " +
+          "' " +
+          checkOrg["orgName"] +
+          " '" +
+          " is already available, Please update",
+      });
+    } else {
+      return res.json({
+        success: false,
+        data: "",
+        message: "Something went wrong",
+      });
+    }
+  } else {
+    let userDetails = await USER.find(
       {
         organization: orgId,
         softDelete: false,
       },
-      "package availablePackage orgName"
-    );
-    if (checkOrg) {
-      let old_amt = checkOrg["package"];
-      let old_available_amt = checkOrg["availablePackage"];
+      "email"
+    ).populate("role", "name");
 
-      console.log("adding pack", new_amt);
+    if (userDetails.email != "" || userDetails.email != null) {
+      userEmail = userDetails["email"];
+    }
 
-      let updatedAmt = parseInt(old_amt) + parseInt(new_amt);
-
-      let updatedAvailableAmt = parseInt(old_available_amt) + parseInt(new_amt);
-
-      let updatePackage = await paymentDB.findOne({
-        _id: checkOrg["_id"],
-        softDelete: false,
-      });
-
-      if (updatePackage) {
-        return res.json({
-          success: true,
-          data: "Id already available",
-          // adminEmails: adminEmails,
-          message:
-            "Package for " +
-            "' " +
-            checkOrg["orgName"] +
-            " '" +
-            " is already available, Please update",
-        });
-      } else {
-        return res.json({
-          success: false,
-          data: "",
-          message: "Something went wrong",
-        });
-      }
-    } else {
-      let userDetails = await USER.find(
-        {
-          organization: orgId,
-          softDelete: false,
-        },
-        "email"
-      ).populate("role", "name");
-
-      if (userDetails.email != "" || userDetails.email != null) {
-        userEmail = userDetails["email"];
-      }
-
-      let adminEmails = [];
-      let findArr;
-      // var colData = [];
-      for (let index in userDetails) {
-        findArr = userDetails.filter(function (admin) {
-          return admin.role.name == "admin";
-        })[index];
-        if (findArr !== undefined) {
-          adminEmails.push(findArr.email);
-        }
-      }
-      let packageObject = {
-        otpSentEmail: "",
-        OTP: body.otp,
-        otpVerified: true,
-        organization: body.parent,
-        package: body.package,
-        availablePackage: body.package,
-        currencySymbol: "$",
-        creationDate: new Date(),
-      };
-      let org = await ORG.findOne({
-        softDelete: false,
-        _id: body.parent,
-      });
-
-      if (org) {
-        packageObject["orgName"] = org.name;
-      }
-
-      let docToSave = new paymentDB(packageObject);
-      let retDoc = await docToSave.save();
-      if (retDoc) {
-        // send email to admins
-        sendEmailToAdminForSuccess(adminEmails, new_amt);
-        return res.json({
-          success: true,
-          data: retDoc["_id"],
-          adminEmails: adminEmails,
-          message: "Packaged Added to - " + "' " + org.name + " '",
-        });
-      } else {
-        return res.json({
-          success: false,
-          data: "",
-          message: "Something went wrong",
-        });
+    let adminEmails = [];
+    let findArr;
+    // var colData = [];
+    for (let index in userDetails) {
+      findArr = userDetails.filter(function (admin) {
+        return admin.role.name == "admin";
+      })[index];
+      if (findArr !== undefined) {
+        adminEmails.push(findArr.email);
       }
     }
-  } catch (e) {
-    return res.json({
-      success: false,
-      data: "",
-      message: e,
+
+    let findCurrency = await MASTER.findOne(
+      {
+        _id: body.package,
+      },
+      "packageAmount currencySymbol"
+    );
+    let currencySymbol;
+    let packAmount;
+    if (findCurrency) {
+      currencySymbol = findCurrency["currencySymbol"];
+      packAmount = findCurrency["packageAmount"];
+    }
+
+    let packageObject = {
+      otpSentEmail: "",
+      OTP: body.otp,
+      otpVerified: true,
+      organization: body.parent,
+      package: packAmount,
+      availablePackage: packAmount,
+      currencySymbol: currencySymbol,
+      creationDate: new Date(),
+    };
+    let org = await ORG.findOne({
+      softDelete: false,
+      _id: body.parent,
     });
+
+    if (org) {
+      packageObject["orgName"] = org.name;
+    }
+
+    let docToSave = new paymentDB(packageObject);
+    let retDoc = await docToSave.save();
+    if (retDoc) {
+      let showAmountInMail = currencySymbol + " " + packAmount;
+      // send email to admins
+      sendEmailToAdminForSuccess(adminEmails, showAmountInMail, org.name);
+      return res.json({
+        success: true,
+        data: retDoc["_id"],
+        adminEmails: adminEmails,
+        message: "Packaged Added to - " + "' " + org.name + " '",
+      });
+    } else {
+      return res.json({
+        success: false,
+        data: "",
+        message: "Something went wrong",
+      });
+    }
   }
+  // } catch (e) {
+  //   return res.json({
+  //     success: false,
+  //     data: "",
+  //     message: e,
+  //   });
+  // }
 };
 
 // get all payment org details
@@ -469,7 +488,7 @@ function sendEmailToAdmin(recivers) {
   });
 }
 
-function sendEmailToAdminForSuccess(recivers, package) {
+function sendEmailToAdminForSuccess(recivers, package, orgName) {
   let transporter = nodemailer.createTransport({
     host: "smtp.office365.com",
     port: 587,
@@ -487,9 +506,11 @@ function sendEmailToAdminForSuccess(recivers, package) {
     to: admiEmail, // list of receivers
     subject: "Call Billing - Notify for Payment", // Subject line
     html:
-      "Dear Admin, <br><br> For your request of adding package <b>$" +
+      "Dear Admin, <br><br> For your request of adding package <b>" +
       package +
-      " </b>added successfully. Any clarification contact us.<br><br> Thanks,<br>Call Billing Support",
+      " </b> to <b>" +
+      orgName +
+      "</b> Organization added successfully. Any clarification contact us.<br><br> Thanks,<br>Call Billing Support",
   };
 
   transporter.sendMail(options, function (err, info) {
@@ -508,13 +529,14 @@ exports.getPaymentDetails = async (req, res) => {
 
   let userPayment = await paymentDB.findOne(
     { organization: user.organization._id, softDelete: false },
-    "availablePackage package orgName"
+    "availablePackage package orgName currencySymbol"
   );
 
   let pendingAmmountPer;
   let totalAmt;
   let availableAmt;
   let paymentGoingToExpire;
+  let currencySymbol;
 
   if (user) {
     totalAmt = userPayment["package"];
@@ -535,6 +557,7 @@ exports.getPaymentDetails = async (req, res) => {
         availablePayment: availableAmt,
         checkPercentage: pendingAmmountPer,
         paymentGoingToExpire: paymentGoingToExpire,
+        currencySymbol: currencySymbol,
       },
     });
   }
@@ -550,3 +573,24 @@ async function fetchUser(email) {
 
   return user;
 }
+
+exports.getPackageUsingCurrency = async (req, res) => {
+  try {
+    let body = req.body;
+
+    let getPackageUsingCurrency = await MASTER.find({
+      currencySymbol: body.currency,
+      softDelete: false,
+    });
+
+    return res.json({
+      success: true,
+      data: getPackageUsingCurrency,
+    });
+  } catch (e) {
+    return res.json({
+      success: false,
+      data: "",
+    });
+  }
+};

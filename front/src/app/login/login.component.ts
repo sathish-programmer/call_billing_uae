@@ -48,6 +48,10 @@ export class LoginComponent implements OnInit {
               'pendingAmount',
               res['data']['availableAmount']
             );
+            localStorage.setItem(
+              'currencySymbol',
+              res['data']['currencySymbol']
+            );
             localStorage.setItem('userRole', res['data']['userRole']);
             localStorage.setItem('isSU', res['data']['isSU']);
             this.fetchRoles();
@@ -74,6 +78,10 @@ export class LoginComponent implements OnInit {
                   localStorage.setItem(
                     'pendingAmount',
                     res['data']['availableAmount']
+                  );
+                  localStorage.setItem(
+                    'currencySymbol',
+                    res['data']['currencySymbol']
                   );
                   localStorage.setItem('userRole', res['data']['userRole']);
                   this.fetchRoles();

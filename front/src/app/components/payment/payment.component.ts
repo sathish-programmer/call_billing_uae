@@ -41,6 +41,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   paymentName: any;
   permissions: [] = [];
 
+  optionSelectedVal: any;
+
   packListSubscription: Subscription;
   packgList: PackageMaster[];
   payPaginator = { limit: 10, skip: 1, total: 0 };
@@ -197,6 +199,17 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   editPayment(paymentData: Payment) {
+    // console.log(paymentData);
+    let sendData = { currency: paymentData['currencySymbol'] };
+    this.authService.getEditPackageOptions(sendData).subscribe((res) => {
+      if (res['success']) {
+        console.log(res['data']);
+        this.optionSelectedVal = res['data'];
+      } else {
+        this.toastr.error(res['message'], 'Error!');
+      }
+    });
+
     if (paymentData) {
       this.newAvailAmountInEdit = paymentData['availablePackage'];
       this.newTotalAmountEdit = paymentData['package'];
@@ -433,6 +446,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
     $('.resend-otp').css('display', 'inline');
     this.timeLeft = 60;
     clearInterval(this.interval);
+    console.log(this.paymentForm.value);
+    // return;
     this.addPackageCredit = this.authService
       .addPackageCredit(this.paymentForm.value)
       .subscribe(

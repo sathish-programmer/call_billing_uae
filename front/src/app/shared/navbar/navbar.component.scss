@@ -10,6 +10,10 @@
   box-shadow: 0 8px 6px -6px darkgrey;
 }
 
+.fas {
+  color: #000;
+}
+
 .logout:focus {
   box-shadow: none;
 }
@@ -26,7 +30,9 @@ hr {
   border: 0;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
-
+.hed-menu .nav-link i {
+  font-size: 1.5rem;
+}
 .sub-menu {
   width: 220px !important;
 }
@@ -113,10 +119,10 @@ hr {
   bottom: 10px;
   // display: none;
 }
-.needSupport a {
-  width: 40px;
-  height: 40px;
-}
+// .needSupport a {
+//   width: 40px;
+//   height: 40px;
+// }
 #need_help_logo {
   height: 30px !important;
   width: 30px !important;
@@ -138,7 +144,7 @@ hr {
 
 #showPendingAmt {
   color: green;
-  padding: 0px 4px 0px 11px !important;
+  // padding: 0px 4px 0px 11px !important;
 }
 
 #notification_logo-1,
@@ -155,8 +161,28 @@ hr {
 }
 
 #notifyDiv {
-  left: -13px !important;
+  left: -6px !important;
+}
+#showUserDetails li {
+  padding: 10px 0 !important;
 }
 #showUserDetails {
-  left: 10px !important;
+  left: -5px;
+}
+.dashboard {
+  top: 11px;
+  right: 72px;
+}
+
+.showAlertInNotifi {
+  position: absolute;
+  top: 3px;
+  right: 2px;
+  font-size: 9px;
+  background: red;
+  text-align: center;
+  font-weight: 600;
+  color: #fff;
+  width: 14px;
+  border-radius: 50px;
 }

@@ -5,4 +5,5 @@ export interface User {
   pendingAmount: string;
   paymentGoingToExpire: string;
   userRole: string;
+  currencySymbol: string;
 }

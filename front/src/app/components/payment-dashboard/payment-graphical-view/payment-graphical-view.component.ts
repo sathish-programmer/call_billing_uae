@@ -33,6 +33,7 @@ export class PaymentGraphicalViewComponent implements OnInit {
   lastPaidDate: any;
 
   getPaymentHistory: any;
+  currencySymbol: any;
 
   currentMonthCost: number;
   previousMonthCost: number;
@@ -138,6 +139,7 @@ export class PaymentGraphicalViewComponent implements OnInit {
     this.getDataByDate = this.authService.getDataByDate(data).subscribe(
       (res) => {
         let data = res['data'];
+        this.currencySymbol = res['currencySymbol'];
         this.lastFiveMonthsData = res['costForMonth'];
         // start chart
         let currentMonthCost =

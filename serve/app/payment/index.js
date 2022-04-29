@@ -12,6 +12,12 @@ router.post("/verifyOtp", checkAuth, controller.verifyOtp);
 
 router.post("/addPackage", checkAuth, controller.addPackage);
 
+router.post(
+  "/getPackageUsingCurrency",
+  checkAuth,
+  controller.getPackageUsingCurrency
+);
+
 router.get("/getList", checkAuth, controller.getAllList);
 
 router.delete("/:paymentId", checkAuth, controller.deletePayment);

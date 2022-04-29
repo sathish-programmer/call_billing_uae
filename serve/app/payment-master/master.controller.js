@@ -1,15 +1,29 @@
 const MASTER = require("./master.model");
-
+const CURRENCY = require("../currency/currency.model");
 // add package
 exports.addpackage = async (req, res) => {
   try {
     let body = req.body;
+    let currency = body.currency;
 
     let packageAmount = body.packageVal;
 
+    let findCurrency = await CURRENCY.findOne(
+      {
+        _id: currency,
+      },
+      "symbol"
+    );
+    let currencySymbol;
+
+    if (findCurrency) {
+      currencySymbol = findCurrency["symbol"];
+    }
     let packageObject = {
       packageAmount: packageAmount,
-      packageName: "Package One ( $" + packageAmount + " )",
+      packageName: "Package( " + currencySymbol + " " + packageAmount + " )",
+      currency: currency,
+      currencySymbol: currencySymbol,
       creationDate: new Date(),
     };
 
@@ -40,7 +54,7 @@ exports.getPackage = async (req, res) => {
   try {
     let packDetails = await MASTER.find({
       softDelete: false,
-    });
+    }).sort({ _id: -1 });
 
     return res.json({
       success: true,
@@ -68,7 +82,7 @@ exports.updatePackage = async (req, res) => {
       {
         $set: {
           packageAmount: newAmount,
-          packageName: "Package One ( $" + newAmount + " )",
+          // packageName: "Package One ( $" + newAmount + " )",
           updationDate: new Date(),
         },
       }

@@ -18,13 +18,14 @@ exports.login = async (req, res) => {
 
     let userPayment = await paymentDB.findOne(
       { organization: user.organization._id, softDelete: false },
-      "availablePackage package orgName"
+      "availablePackage package orgName currencySymbol"
     );
 
     let pendingAmmountPer;
     let totalAmt;
     let availableAmt;
     let paymentGoingToExpire;
+    let currencySymbol;
 
     // return false;
     if (user) {
@@ -34,6 +35,7 @@ exports.login = async (req, res) => {
         // Send token and other things to FE.
         if (userPayment) {
           totalAmt = userPayment["package"];
+          currencySymbol = userPayment["currencySymbol"];
           availableAmt = userPayment["availablePackage"];
           pendingAmmountPer = Math.round((availableAmt / totalAmt) * 100);
           if (pendingAmmountPer < 30) {
@@ -60,6 +62,7 @@ exports.login = async (req, res) => {
             checkPercentage: pendingAmmountPer,
             paymentGoingToExpire: paymentGoingToExpire,
             userRole: checkUserRole.role.name,
+            currencySymbol: currencySymbol,
           },
         });
       } else {

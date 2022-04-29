@@ -28,7 +28,9 @@
                   }
           "
         >
-          <th scope="row">{{ data.currency }}{{ data.packageAmount }}</th>
+          <th scope="row">
+            {{ data.currencySymbol }} {{ data.packageAmount }}
+          </th>
           <td>Active</td>
           <td>{{ data.creationDate | date }}</td>
           <td>{{ (data.updationDate | date) || "-" }}</td>
@@ -85,7 +87,16 @@
           (ngSubmit)="addPackageMaster(paymentMasterForm.value)"
         >
           <div style="margin-top: 5px">
-            <label class="required">Amount for Package</label>
+            <label class="required">Currency</label>
+            <select class="dropdown" formControlName="currency">
+              <option value="" disabled selected>Select Currency</option>
+              <option *ngFor="let data of currencyList" [value]="data._id">
+                {{ data.symbol }} - {{ data.name }}
+              </option>
+            </select>
+          </div>
+          <div style="margin-top: 5px">
+            <label class="required">Package Amount</label>
             <input
               type="text"
               id="packageAmount"
@@ -93,10 +104,11 @@
               placeholder="Enter package amount"
               formControlName="packageVal"
             />
-            <span class="notice"
+            <!-- <span class="notice"
               >Note: The amount you entered, is automatically converted as
               dollar ($)</span
-            >
+            > -->
+            <hr />
             <button
               class="btn btn-sm btn-primary"
               type="submit"
@@ -138,6 +150,23 @@
           [formGroup]="paymentMasterForm"
           (ngSubmit)="updatePack(paymentMasterForm.value)"
         >
+          <div style="margin-top: 5px">
+            <label class="required">Currency</label>
+            <!-- <select class="dropdown" formControlName="currency">
+              <option [value]="null" disabled selected>Select Currency</option>
+              <option *ngFor="let data of currencyList" [value]="data._id">
+                {{ data.symbol }} - {{ data.name }}
+              </option>
+            </select> -->
+            <input
+              class="input-field"
+              placeholder=""
+              disabled
+              id="currencySymbol"
+              formControlName="currency"
+              required
+            />
+          </div>
           <div style="margin-top: 5px">
             <label class="required">Enter Amount</label>
             <input

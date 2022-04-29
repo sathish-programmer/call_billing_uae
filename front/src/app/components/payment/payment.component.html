@@ -39,14 +39,14 @@
                   }
           "
         >
-          <th scope="row">{{ data.currencySymbol }}{{ data.package }}</th>
+          <th scope="row">{{ data.currencySymbol }} {{ data.package }}</th>
           <td>{{ data.orgName || "-" }}</td>
           <td class="tdPaymentExp">
             <span *ngIf="data.paymentGoingToExpire" class="showAvaiAmt"
-              >{{ data.currencySymbol }}{{ data.availablePackage }}</span
+              >{{ data.currencySymbol }} {{ data.availablePackage }}</span
             >
             <span *ngIf="!data.paymentGoingToExpire"
-              >{{ data.currencySymbol }}{{ data.availablePackage }}</span
+              >{{ data.currencySymbol }} {{ data.availablePackage }}</span
             >
             <div *ngIf="data.paymentGoingToExpire">
               <span id="showLimitExpire">Limit going to Expire</span
@@ -137,7 +137,7 @@
               <option [ngValue]="null" disabled>Select Package</option>
               <option
                 *ngFor="let packages of packageDetails"
-                [value]="packages.packageAmount"
+                [value]="packages._id"
                 [selected]="packages.value == 'null'"
               >
                 {{ packages.packageName }}
@@ -236,9 +236,9 @@
               #mySelect
               (change)="onOptionsSelected($event)"
             >
-              <option [ngValue]="null" disabled>Select Package</option>
+              <option value="" selected disabled>Select Package</option>
               <option
-                *ngFor="let packages of packageDetails"
+                *ngFor="let packages of optionSelectedVal"
                 [value]="packages.packageAmount"
               >
                 {{ packages.packageName }}
@@ -278,6 +278,49 @@
               required
               disabled
             />
+          </div>
+          <!-- div otp for edit pack-->
+          <div style="margin-top: 5px; display: none">
+            <label class="required">OTP</label
+            ><span *ngIf="divCodeSentTo" class="code-sent-to"
+              >( code is sent to {{ paymentEmail }} )</span
+            >
+
+            <input
+              type="text"
+              class="input-field verify-icon"
+              placeholder="Enter OTP"
+              formControlName="otp"
+              id="otp_val"
+              maxlength="6"
+              required
+            />
+            <!-- <span class="otp-error">The code you entered was incorrect</span> -->
+            <button
+              type="submit"
+              *ngIf="butSendOtp"
+              class="send-otp-verify"
+              (click)="sendOtp()"
+            >
+              Send OTP
+            </button>
+            <button
+              *ngIf="butVerifyOtp"
+              type="button"
+              class="send-otp-verify-otp"
+              (click)="verifyOtp()"
+            >
+              Verify OTP
+            </button>
+            <span class="resend-optSpan">Didn't Receive code?</span
+            ><button
+              type="button"
+              disabled
+              class="resend-otp"
+              (click)="resendotp()"
+            >
+              Request again</button
+            ><span *ngIf="divTimer" class="timer-otp">( {{ timeLeft }} )</span>
           </div>
           <hr />
           <button

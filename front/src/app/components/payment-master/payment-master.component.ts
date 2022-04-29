@@ -21,7 +21,10 @@ export class PaymentMasterComponent implements OnInit {
   pacakgeDepartmentSubscription: Subscription;
   packgList: PackageMaster[];
   packageName: any;
+  currencySymbol: any;
   editPacktSubscription: Subscription;
+  currencyListSubscription: Subscription;
+  currencyList: [] = [];
   constructor(
     private authService: AuthService,
     private toastr: ToastrService,
@@ -44,6 +47,7 @@ export class PaymentMasterComponent implements OnInit {
   formInit() {
     this.paymentMasterForm = this.fb.group({
       packageVal: ['', Validators.required],
+      currency: ['', Validators.required],
     });
   }
 
@@ -53,6 +57,21 @@ export class PaymentMasterComponent implements OnInit {
     this.paymentMasterForm.reset();
   }
   getPackList(skip) {
+    this.currencyListSubscription = this.authService
+      .getCurrencyList(skip)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.currencyList = res['data'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
+
     // this.paymentMasterForm.patchValue({ organization: this.orgId });
     this.packPaginator.skip = skip;
     let dataToSend = {
@@ -113,8 +132,10 @@ export class PaymentMasterComponent implements OnInit {
     if (packData) {
       this.packId = packData['_id'];
       this.packageName = packData['packageAmount'];
+      this.currencySymbol = packData['currencySymbol'];
       this.paymentMasterForm.patchValue({
         packageVal: packData['packageAmount'],
+        currency: packData['currencySymbol'],
       });
       $('#editPackModal').modal('show');
     }
@@ -145,6 +166,7 @@ export class PaymentMasterComponent implements OnInit {
 
   addPackageMaster(formValue) {
     console.log(formValue);
+    // return;
     this.addPackSubscription = this.authService.addPackage(formValue).subscribe(
       (res) => {
         if (res['success']) {

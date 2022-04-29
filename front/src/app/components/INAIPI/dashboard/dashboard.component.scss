@@ -1,19 +1,76 @@
-thead{background: whitesmoke;}
-th{width: 20%;padding-left: 25px;font-size: 13px;}
-td{padding-left: 25px !important;padding: 0.65rem;font-size: 13px;}
-p{margin-bottom: 0.1rem;}
+thead {
+  background: whitesmoke;
+}
+th {
+  width: 20%;
+  padding-left: 25px;
+  font-size: 13px;
+}
+td {
+  padding-left: 25px !important;
+  padding: 0.65rem;
+  font-size: 13px;
+}
+p {
+  margin-bottom: 0.1rem;
+}
 
-.btn-primary:focus {box-shadow: none !important;}
+.btn-primary:focus {
+  box-shadow: none !important;
+}
 
-.nav-tabs { margin-bottom: 0px !important;}
-.nav-tabs .nav-link{ border: none;}
-.nav-tabs > li > a{color: #a5a5a5; font-size: 14px;}
-.nav-tabs > li.active > a { background: transparent; border-radius: 0; color: black; font-weight: 700;
-    border: none; border-bottom: 2px solid #2f74f1;}
-.nav-tabs>li >a:focus, .nav-tabs>li>a:hover {background: transparent; border-radius: 0; color: black;
-    border: none; border-bottom: 2px solid #2f74f1; font-weight: 700;}
-.dashboard{border: 1px solid lightgrey !important; border-radius: 3px;}
-.date-button{ padding: 7px 10px 8px 10px;}
-.mar-r-5{margin-right: 5px;}
-.support {position: fixed;bottom: 25px;left: 25px;z-index: 999;background: #009bdc;padding: 15px;border-radius: 50px;cursor: pointer;}
-.support img{width: 2em;height: 2em;filter: brightness(0) invert(1);}
+.nav-tabs {
+  margin-bottom: 0px !important;
+}
+.nav-tabs .nav-link {
+  border: none;
+}
+.nav-tabs > li > a {
+  color: #a5a5a5;
+  font-size: 14px;
+}
+.nav-tabs > li.active > a {
+  background: transparent;
+  border-radius: 0;
+  color: black;
+  font-weight: 700;
+  border: none;
+  border-bottom: 2px solid #2f74f1;
+}
+.nav-tabs > li > a:focus,
+.nav-tabs > li > a:hover {
+  background: transparent;
+  border-radius: 0;
+  color: black;
+  border: none;
+  border-bottom: 2px solid #2f74f1;
+  font-weight: 700;
+}
+.dashboard {
+  border: 1px solid lightgrey !important;
+  border-radius: 3px;
+}
+.date-button {
+  padding: 7px 10px 8px 10px;
+}
+.mar-r-5 {
+  margin-right: 5px;
+}
+.support {
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  z-index: 999;
+  background: #009bdc;
+  padding: 15px;
+  border-radius: 50px;
+  cursor: pointer;
+}
+.support img {
+  width: 2em;
+  height: 2em;
+  filter: brightness(0) invert(1);
+}
+// .date-picker-dp {
+//   width: 50% !important;
+// }

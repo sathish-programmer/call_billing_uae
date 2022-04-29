@@ -109,57 +109,36 @@
           type="button"
         ></button>
 
-        <div
-          class="collapse navbar-collapse pull-right text-right"
-          id="navbarCollapse"
-        >
+        <div class="hed-menu ml-auto col-4">
           <ul
-            class="navbar-nav ml-auto main-menu supportUl d-flex"
-            id="main"
-            menutoggledirective=""
+            class="navbar-nav main-menu list-unstyled d-flex justify-content-end align-items-center mb-0"
           >
-            <li class="needSupport" routerlinkactive="open">
-              <a
-                class="navbar-brand active-link"
-                routerlinkactive="active-link"
-                (click)="support()"
-              >
-                <img
-                  class="img-fluid"
-                  id="need_help_logo"
-                  height="37"
-                  src="assets/images/support-new.png"
-                  width="110"
-                />
-              </a>
-              <!--<button _ngcontent-msm-c52="" title="Need Support"  class="btn btn-sm  text-center col-md-12 supportButton"> 
-                                <i _ngcontent-msm-c52="" class="far fa-question-circle"></i>
-                            </button> -->
+            <li class="nav-item ml-3" title="Dashboard">
+              <a [routerLink]="['/admin/inaipi/dashboard']" class="nav-link"
+                ><i class="fas fa-tachometer-alt"></i
+              ></a>
             </li>
-
-            <li class="notificationIcon" routerlinkactive="open">
-              <a
-                class="navbar-brand active-link"
-                routerlinkactive="active-link"
-                (click)="notificationShow()"
-              >
-                <img
-                  *ngIf="userInfo.paymentGoingToExpire == 'false'"
-                  class="img-fluid"
-                  id="notification_logo"
-                  height="37"
-                  src="assets/images/notifications.png"
-                  width="110"
-                />
-                <img
+            <li class="nav-item ml-3" title="Support">
+              <a (click)="support()" class="nav-link"
+                ><i class="fas fa-headset"></i
+              ></a>
+            </li>
+            <li class="nav-item ml-3">
+              <a class="nav-link active-link" routerlinkactive="active-link">
+                <span
                   *ngIf="userInfo.paymentGoingToExpire == 'true'"
-                  class="img-fluid"
-                  id="notification_logo-1"
-                  height="37"
-                  src="assets/images/notifications-1.png"
-                  width="110"
-                />
-              </a>
+                  class="showAlertInNotifi"
+                  >1</span
+                >
+                <i
+                  *ngIf="userInfo.paymentGoingToExpire == 'true'"
+                  class="fas fa-bell"
+                ></i>
+                <i
+                  *ngIf="userInfo.paymentGoingToExpire == 'false'"
+                  class="fas fa-bell"
+                ></i
+              ></a>
               <ul class="sub-menu arrow-up" id="notifyDiv">
                 <li
                   class="nav-item padding-0 text-center text-transform-none"
@@ -176,7 +155,11 @@
                   id="showNotify"
                 >
                   Your payment goes to expire, Remaining credit from your
-                  account is <b>${{ userInfo.pendingAmount }}</b>
+                  account is
+                  <b
+                    >{{ userInfo.currencySymbol }}
+                    {{ userInfo.pendingAmount }}</b
+                  >
                 </li>
 
                 <li
@@ -189,16 +172,10 @@
                 </li>
               </ul>
             </li>
-
-            <li class="nav-item" menutogglelink="" routerlinkactive="open">
-              <a
-                class="nav-link"
-                href="javascript:void(0)"
-                menutoggle=""
-                routerlinkactive="active-link"
-              >
-                <img src="assets/images/user.png_" class="img-width-height" />
-              </a>
+            <li class="nav-item ml-3 mr-4">
+              <a href="javascript:void(0)" class="nav-link"
+                ><i class="fas fa-user"></i
+              ></a>
               <ul class="sub-menu arrow-up" id="showUserDetails">
                 <li
                   class="nav-item padding-20 text-center text-transform-none"
@@ -221,7 +198,8 @@
                   routerlinkactive="open"
                 >
                   <span class="font-bold"
-                    >Available Credit: ${{ userInfo.pendingAmount }}</span
+                    >Available Credit: {{ userInfo.currencySymbol }}
+                    {{ userInfo.pendingAmount }}</span
                   >
                 </li>
                 <li
@@ -236,19 +214,6 @@
                     Sign Out
                   </button>
                 </li>
-
-                <!-- <li
-                  class="nav-item text-center text-transform-none support"
-                  routerlinkactive="open"
-                >
-                  <button
-                    class="btn btn-sm btn-primary text-center col-md-12"
-                    (click)="support()"
-                    title="Need Support"
-                  >
-                    Need Support <i class="far fa-question-circle"></i>
-                  </button>
-                </li> -->
               </ul>
             </li>
           </ul>

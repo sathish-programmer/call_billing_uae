@@ -38,7 +38,14 @@ export class PaymentDashboardComponent implements OnInit {
   showPreviousMnthDataTwo: any;
   showPreviousMnthDataThree: any;
 
+  showFirstMonthPdf: Boolean = false;
+  showSecMonthPdf: Boolean = false;
+  showThirdMonthPdf: Boolean = false;
+  showFourthMonthPdf: Boolean = false;
+  showFivthtMonthPdf: Boolean = false;
+
   checkPayHistory: Boolean = false;
+  currencySymbol: any;
 
   startDate: any;
   endDate: any;
@@ -170,11 +177,26 @@ export class PaymentDashboardComponent implements OnInit {
       (res) => {
         let data = res['data'];
         this.allPayData = data;
-        this.showcurrentMnthData = res['data']['currentMonth'];
-        this.showPreviousMnthData = data['previousMonth'];
-        this.showPreviousMnthDataOne = data['thirdPreviousMonth'];
-        this.showPreviousMnthDataTwo = data['fourthPreviousMonth'];
-        this.showPreviousMnthDataThree = data['fifthPreviousMonth'];
+        if (res['data']['currentMonth']['costPaid'] > 0) {
+          this.showFirstMonthPdf = true;
+          this.showcurrentMnthData = res['data']['currentMonth'];
+        }
+        if (res['data']['previousMonth']['costPaid'] > 0) {
+          this.showSecMonthPdf = true;
+          this.showPreviousMnthData = data['previousMonth'];
+        }
+        if (res['data']['thirdPreviousMonth']['costPaid'] > 0) {
+          this.showThirdMonthPdf = true;
+          this.showPreviousMnthDataOne = data['thirdPreviousMonth'];
+        }
+        if (res['data']['fourthPreviousMonth']['costPaid'] > 0) {
+          this.showFourthMonthPdf = true;
+          this.showPreviousMnthDataTwo = data['fourthPreviousMonth'];
+        }
+        if (res['data']['fifthPreviousMonth']['costPaid'] > 0) {
+          this.showFivthtMonthPdf = true;
+          this.showPreviousMnthDataThree = data['fifthPreviousMonth'];
+        }
       },
       () => {
         this.toastr.error('Something went wrong', 'Error!');
@@ -187,7 +209,7 @@ export class PaymentDashboardComponent implements OnInit {
     this.getDataByDate = this.authService.getDataByDate(data).subscribe(
       (res) => {
         let data = res['data'];
-
+        this.currencySymbol = res['currencySymbol'];
         this.monthToDayData = data['totalMonthPeroid'].toFixed(2);
         this.forecastTotal = (
           (this.monthToDayData * 30) /

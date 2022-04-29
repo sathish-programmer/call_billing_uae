@@ -65,10 +65,10 @@
               >
                 <div class="mb-4">
                   <p class="font-weight-bold mb-0">
-                    ${{ monthToDayData || 00 }}
+                    {{ currencySymbol }} {{ monthToDayData || 00 }}
                   </p>
                   <!-- <small class="text-secondary"
-                    >includes $0.00 in credits</small
+                    >includes {{currencySymbol}} 0.00 in credits</small
                   > -->
                 </div>
                 <div class="d-flex flex-column mb-4">
@@ -85,7 +85,7 @@
                     >{{ percenValForPrev }}%</a
                   >
                   <small class="text-secondary">
-                    ${{ sumOfPrevCost }} over
+                    {{ currencySymbol }} {{ sumOfPrevCost }} over
                     {{ previousMonthFirstDate | date }} -
                     {{ previousMonthCurrentDate | date }}</small
                   >
@@ -104,10 +104,10 @@
               >
                 <div class="mb-4">
                   <p class="font-weight-bold mb-0">
-                    ${{ forecastTotal || 00 }}
+                    {{ currencySymbol }} {{ forecastTotal || 00 }}
                   </p>
                   <!-- <small class="text-secondary"
-                    >includes $0.00 in credits</small
+                    >includes {{currencySymbol}} 0.00 in credits</small
                   > -->
                 </div>
                 <div class="d-flex flex-column mb-4">
@@ -124,7 +124,8 @@
                     >{{ percenValForForcast }}%</a
                   >
                   <small class="text-secondary">
-                    ${{ sumOfForecastCost }} over {{ previousMonth }}</small
+                    {{ currencySymbol }} {{ sumOfForecastCost }} over
+                    {{ previousMonth }}</small
                   >
                 </div>
               </div>
@@ -138,11 +139,11 @@
                 class="amount-chart d-flex justify-content-between align-items-center"
               >
                 <div class="mb-4">
-                  <p class="font-weight-bold mb-0">
-                    ${{ availableAmount || 00 }}
+                  <p class="font-weight-bold mb-0 availableCredit">
+                    {{ currencySymbol }} {{ availableAmount || 00 }}
                   </p>
                   <!-- <small class="text-secondary"
-                    >includes $0.00 in credits</small
+                    >includes {{currencySymbol}} 0.00 in credits</small
                   > -->
                 </div>
               </div>

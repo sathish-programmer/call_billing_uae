@@ -114,15 +114,21 @@ exports.generatePdf = async (req, res) => {
   if (!fs.existsSync(DIR_FOR_PROCESSING)) {
     fs.mkdirSync(DIR_FOR_PROCESSING);
   }
+  let pdfFileName = orgName.trim();
   var csvFile =
     DIR_FOR_PROCESSING +
-    orgName +
+    pdfFileName +
     "_Reports" +
     "_" +
     new Date().getTime() +
     ".pdf";
   urlToSendBack =
-    "downloads/" + orgName + "_Reports" + "_" + new Date().getTime() + ".pdf";
+    "downloads/" +
+    pdfFileName +
+    "_Reports" +
+    "_" +
+    new Date().getTime() +
+    ".pdf";
   var document = {
     html: html,
     data: {
@@ -202,10 +208,17 @@ exports.lastMonthRecord = async (req, res) => {
     dateCheck.getMonth() - 3
   );
 
+  let currencySymbol;
+
+  let findCurrency = await paymentDB.findOne({
+    organization: params.orgId.trim(),
+    softDelete: false,
+  });
+
   // get current month cost
   let getLastMonthCost = await paymentHistory.find(
     {
-      organization: params.orgId,
+      organization: params.orgId.trim(),
       creationDate: {
         $gte: firstDay,
         $lt: currentDate,
@@ -354,6 +367,7 @@ exports.lastMonthRecord = async (req, res) => {
     success: true,
     data: results,
     costForMonth: resultNew,
+    currencySymbol: findCurrency.currencySymbol,
   });
 };
 
@@ -637,6 +651,7 @@ exports.generatePdfByMonth = async (req, res) => {
   let pendingPay = "00";
   let calculatedCost = "00";
   let getPaymentDet;
+  let currencySymbol;
   let startDate = new Date(moment(body["startDate"]).utc(true));
   let endDate = new Date(moment(body["endDate"]).utc(true));
 
@@ -687,7 +702,8 @@ exports.generatePdfByMonth = async (req, res) => {
     fullAmount = getPaymentDet.package;
     orgName = getPaymentDet.orgName;
     createdDate = getPaymentDet.createdDate;
-    pendingPay = getPaymentDet.availablePackage;
+    pendingPay = getMonthDocPayHis[0]["availablePackage"];
+    currencySymbol = getPaymentDet.currencySymbol;
 
     getMonthDocCallLog = await CALL_LOG.find({
       organization: body.orgId,
@@ -703,6 +719,7 @@ exports.generatePdfByMonth = async (req, res) => {
       .populate("department", "name")
       .populate("callerUser", "firstName lastName")
       .populate("calledUser", "firstName lastName")
+      .sort({ _id: -1 })
       .lean();
   }
 
@@ -717,19 +734,21 @@ exports.generatePdfByMonth = async (req, res) => {
     orgName +
     "</p><p>Generated Date: " +
     ceratedDate +
-    '</p> </div><div style="float: right"> <p>Available Credit : $' +
+    '</p> </div><div style="float: right"> <p>Available Credit : ' +
+    currencySymbol +
+    " " +
     pendingPay +
     "</p>";
 
   html +=
-    "</div><div style='clear:both'><hr><h2> Payment History ( " +
+    "</div><div style='clear:both'><hr><h2> Payment Utilization History from " +
     fromDate +
     " to " +
     toDate +
-    " )</h2></div>";
+    "</h2></div>";
 
   html +=
-    "<table style='width: 100%; text-align: left;border: 1px solid #000; border-collapse: separate;margin-bottom:10px'><thead><th style='border:1px solid #000;'>Branch</th><th style='border:1px solid #000;'>Department</th><th style='border:1px solid #000;'>Caller Number</th><th style='border:1px solid #000;'>Called Number</th><th style='border:1px solid #000;'>Call Duration</th><th style='border:1px solid #000;'>Call Time</th><th style='border:1px solid #000;'>Direction</th><th style='border:1px solid #000;'>Total Cycles</th><th style='border:1px solid #000;'>CostPerCycle</th><th style='border:1px solid #000;'>Calculated Cost</th></thead><tbody>";
+    "<table style='width: 100%; text-align: left;border: 1px solid #000; border-collapse: separate;margin-bottom:10px'><thead><th style='border:1px solid #000;'>Branch</th><th style='border:1px solid #000;'>Department</th><th style='border:1px solid #000;'>Caller Number</th><th style='border:1px solid #000;'>Called Number</th><th style='border:1px solid #000;'>Call Duration</th><th style='border:1px solid #000;'>Call Time</th><th style='border:1px solid #000;'>Direction</th><th style='border:1px solid #000;'>Payment Utilization</th><th style='border:1px solid #000;'>CostPerCycle</th><th style='border:1px solid #000;'>Paid Credit</th></thead><tbody>";
 
   let lastMonthCost = 0;
   let totalCost;
@@ -787,23 +806,29 @@ exports.generatePdfByMonth = async (req, res) => {
       index["TotalCycles"] +
       "</td><td style='border:1px solid #000;'>" +
       index["CostPerCycle"] +
-      "</td><td style='border:1px solid #000;'>$" +
+      "</td><td style='border:1px solid #000;'>" +
+      currencySymbol +
+      " " +
       index["CalculatedCost"] +
       "</td></tr>";
   }
 
   html +=
-    "</tbody><tfoot><tr><th id='total' style='text-align: right;' colspan='9'>Total :</th><th>$" +
+    "</tbody><tfoot><tr><th id='total' style='text-align: right;' colspan='9'>Total :</th><th>" +
+    currencySymbol +
+    " " +
     lastMonthCost.toFixed(2) +
     "</th></tr></tfoot>";
 
   html += "</table>";
 
   html +=
-    "<div style=clear:both;margin-top:10px'></div><div style='float: left;' >** Balance Credit = ( Available Credit - Total Calculated Cost)</div>";
+    "<div style=clear:both;margin-top:10px'></div><div style='float: left;' >** Balance Credit = ( Available Credit - Total Paid Credit )</div>";
 
   html +=
-    "<div style='float: right'><span>Balance Credit: $" +
+    "<div style='float: right'><span>Balance Credit: " +
+    currencySymbol +
+    " " +
     (pendingPay - lastMonthCost).toFixed(2);
   +"</span></div>";
 
@@ -816,7 +841,7 @@ exports.generatePdfByMonth = async (req, res) => {
     header: {
       height: "45mm",
       contents:
-        '<div style="text-align: center;font-size:30px">Payment Cycle</div>',
+        '<div style="text-align: center;font-size:30px">Payment Utilization Report</div>',
     },
     footer: {
       height: "10mm",
@@ -838,13 +863,12 @@ exports.generatePdfByMonth = async (req, res) => {
   }
   var csvFile =
     DIR_FOR_PROCESSING +
-    orgName +
-    "_Reports" +
+    "callBilling_report" +
     "_" +
     new Date().getTime() +
     ".pdf";
   urlToSendBack =
-    "downloads/" + orgName + "_Reports" + "_" + new Date().getTime() + ".pdf";
+    "downloads/" + "callBilling_report" + "_" + new Date().getTime() + ".pdf";
   var document = {
     html: html,
     data: {

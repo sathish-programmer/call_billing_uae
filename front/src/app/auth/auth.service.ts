@@ -167,6 +167,14 @@ export class AuthService {
       .pipe((res) => res);
   }
 
+  getEditPackageOptions(data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+
+    return this.http
+      .post(this.baseUrl + 'payment/getPackageUsingCurrency', data, headers)
+      .pipe((res) => res);
+  }
+
   updateOrganization(data, id) {
     let headers = { headers: { token: localStorage.getItem('token') } };
 

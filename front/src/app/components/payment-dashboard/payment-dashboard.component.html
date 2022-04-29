@@ -98,7 +98,9 @@
                       <a> <i class="fas fa-question-circle ml-3"></i></a>
                     </div>
                     <div class="amount">
-                      <p class="font-weight-bold">${{ monthToDayData }}</p>
+                      <p class="font-weight-bold">
+                        {{ currencySymbol }} {{ monthToDayData }}
+                      </p>
                     </div>
                   </div>
                   <div
@@ -111,7 +113,9 @@
                       <a> <i class="fas fa-question-circle ml-3"></i></a>
                     </div>
                     <div class="amount">
-                      <p class="font-weight-bold">${{ forecastTotal }}</p>
+                      <p class="font-weight-bold">
+                        {{ currencySymbol }} {{ forecastTotal }}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -144,7 +148,9 @@
                   <p class="text-capitalize">Your balance</p>
                 </div>
                 <div class="amount">
-                  <p class="font-weight-bolder">${{ availableAmount }}</p>
+                  <p class="font-weight-bolder">
+                    {{ currencySymbol }} {{ availableAmount }}
+                  </p>
                 </div>
               </div>
               <div
@@ -159,9 +165,8 @@
                   <div class="mr-3">
                     <p class="text-capitalize">
                       <i class="fas fa-calendar-alt mr-3"></i>Your last payment
-                      was on {{ (lastPaidDate | date) || "-" }} for ${{
-                        lastPaidAmount || "0"
-                      }}
+                      was on {{ (lastPaidDate | date) || "-" }} for
+                      {{ currencySymbol }} {{ lastPaidAmount || "0" }}
                     </p>
                   </div>
                 </div>
@@ -183,6 +188,7 @@
 
                 <div class="Transactions-details">
                   <div
+                    *ngIf="showFirstMonthPdf"
                     class="d-flex justify-content-between align-items-center mb-2"
                   >
                     <div class="text-primary">
@@ -191,7 +197,8 @@
                     </div>
                     <div class="d-flex">
                       <p class="text-dark mb-0" role="button">
-                        ${{ showcurrentMnthData.costPaid | number: "1.2-2" }}
+                        {{ currencySymbol }}
+                        {{ showcurrentMnthData.costPaid | number: "1.2-2" }}
                       </p>
 
                       <a
@@ -211,6 +218,7 @@
                   </div>
 
                   <div
+                    *ngIf="showSecMonthPdf"
                     class="d-flex justify-content-between align-items-center mb-2"
                   >
                     <div class="text-primary">
@@ -219,7 +227,8 @@
                     </div>
                     <div class="d-flex">
                       <p class="text-dark mb-0" role="button">
-                        ${{ showPreviousMnthData.costPaid | number: "1.2-2" }}
+                        {{ currencySymbol }}
+                        {{ showPreviousMnthData.costPaid | number: "1.2-2" }}
                       </p>
                       <a
                         (click)="
@@ -238,6 +247,7 @@
                   </div>
 
                   <div
+                    *ngIf="showThirdMonthPdf"
                     class="d-flex justify-content-between align-items-center mb-2"
                   >
                     <div class="text-primary">
@@ -246,9 +256,8 @@
                     </div>
                     <div class="d-flex">
                       <p class="text-dark mb-0" role="button">
-                        ${{
-                          showPreviousMnthDataOne.costPaid | number: "1.2-2"
-                        }}
+                        {{ currencySymbol }}
+                        {{ showPreviousMnthDataOne.costPaid | number: "1.2-2" }}
                       </p>
                       <a
                         (click)="
@@ -267,6 +276,7 @@
                   </div>
 
                   <div
+                    *ngIf="showFourthMonthPdf"
                     class="d-flex justify-content-between align-items-center mb-2"
                   >
                     <div class="text-primary">
@@ -275,9 +285,8 @@
                     </div>
                     <div class="d-flex">
                       <p class="text-dark mb-0" role="button">
-                        ${{
-                          showPreviousMnthDataTwo.costPaid | number: "1.2-2"
-                        }}
+                        {{ currencySymbol }}
+                        {{ showPreviousMnthDataTwo.costPaid | number: "1.2-2" }}
                       </p>
                       <a
                         (click)="
@@ -296,6 +305,7 @@
                   </div>
 
                   <div
+                    *ngIf="showFivthtMonthPdf"
                     class="d-flex justify-content-between align-items-center mb-2"
                   >
                     <div class="text-primary">
@@ -304,7 +314,8 @@
                     </div>
                     <div class="d-flex">
                       <p class="text-dark mb-0" role="button">
-                        ${{
+                        {{ currencySymbol }}
+                        {{
                           showPreviousMnthDataThree.costPaid | number: "1.2-2"
                         }}
                       </p>
