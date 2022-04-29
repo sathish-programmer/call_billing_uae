@@ -13,17 +13,11 @@
 //   urlForPhpApis: 'http://10.13.224.2/ticketing/public/index.php/',
 // };
 
-// export const environment = {
-//   production: true,
-//   baseUrl: 'http://callbilling.inaipi.in/api/',
-//   urlForFileDownload: 'http://callbilling.inaipi.in/',
-//   urlForPhpApis: 'http://94.200.215.133:3034/ticketing/public/index.php/',
-// };
-
+// aws
 export const environment = {
   production: true,
-  baseUrl: 'http://callbilling.inaipi.in/api/',
-  urlForFileDownload: 'http://callbilling.inaipi.in/',
+  baseUrl: 'http://65.0.47.59:8000/api/',
+  urlForFileDownload: 'http://65.0.47.59:8000/',
   urlForPhpApis: 'http://94.200.215.133:3034/ticketing/public/index.php/',
 };
 

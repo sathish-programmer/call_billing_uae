@@ -631,7 +631,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
   }
 });
 
-// findBranchInfoForCallLog.start();
+findBranchInfoForCallLog.start();
 
 // Find Department Name for the Call log
 var findDepartmentInfoForCallLog = new CronJob(
@@ -766,7 +766,7 @@ var findDepartmentInfoForCallLog = new CronJob(
   }
 );
 
-// findDepartmentInfoForCallLog.start();
+findDepartmentInfoForCallLog.start();
 
 // Find Caller Name for the Call log
 var findCallerNameInfoForCallLog = new CronJob(
@@ -853,7 +853,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCallerNameInfoForCallLog.start();
+findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -960,7 +960,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCalledNameInfoForCallLog.start();
+findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
