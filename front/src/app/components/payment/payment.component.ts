@@ -16,6 +16,7 @@ import { Roles } from '../../models/role.model';
 import { Subscription } from 'rxjs';
 import { ThrowStmt } from '@angular/compiler';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 declare let $: any;
 
 @Component({
@@ -40,6 +41,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   paymentId: any;
   paymentName: any;
   permissions: [] = [];
+
+  orgChangeCount: number = 0;
 
   optionSelectedVal: any;
 
@@ -77,7 +80,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private fb: FormBuilder,
     private sharingService: OrganizationIdSharingService,
-    private http: HttpClient
+    private http: HttpClient,
+    private ngxLoader: NgxUiLoaderService
   ) {}
 
   ngOnInit(): void {
@@ -224,6 +228,14 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   onChangeGetVal($event) {
+    console.log(this.orgChangeCount);
+    this.orgChangeCount++;
+    this.butSendOtp = true;
+    this.butVerifyOtp = false;
+    this.divTimer = false;
+    this.timeLeft = 60;
+    clearInterval(this.interval);
+    $('#addPackBtn').prop('disabled', true);
     let text = $event.target.options[$event.target.options.selectedIndex].text;
     console.log(text);
     this.OrganizationName = text;
@@ -371,19 +383,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.butVerifyOtp = true;
     $('.resend-otp').prop('disabled', true);
     $('.resend-otp').css('opacity', '0.6');
-    this.interval = setInterval(() => {
-      if (this.timeLeft > 0) {
-        this.timeLeft--;
-      } else {
-        this.timeLeft = 60;
-      }
-      if (this.timeLeft == 0) {
-        clearInterval(this.interval);
-        this.divTimer = false;
-        $('.resend-otp').removeAttr('Disabled');
-        $('.resend-otp').css('opacity', '1');
-      }
-    }, 1000);
+
+    this.startTimer();
+    this.ngxLoader.start();
 
     // let data = { email: this.orgAdminEmail };
     let mailOrganizationName = this.OrganizationName;
@@ -393,11 +395,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
       (res) => {
         if (res['success']) {
           this.toastr.success('OTP resent success', 'Success!');
+          this.ngxLoader.stop();
         } else {
           this.toastr.error(res['message'], 'Error!');
         }
       },
       () => {
+        this.ngxLoader.stop();
         this.toastr.error('Something went wrong', 'Error!');
       }
     );
@@ -409,19 +413,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.butSendOtp = false;
     this.butVerifyOtp = true;
 
-    this.interval = setInterval(() => {
-      if (this.timeLeft > 0) {
-        this.timeLeft--;
-      } else {
-        this.timeLeft = 60;
-      }
-      if (this.timeLeft == 0) {
-        clearInterval(this.interval);
-        this.divTimer = false;
-        $('.resend-otp').removeAttr('Disabled');
-        $('.resend-otp').css('opacity', '1');
-      }
-    }, 1000);
+    this.startTimer();
+    this.ngxLoader.start();
 
     let mailOrganizationName = this.OrganizationName;
     let data = { email: this.orgAdminEmail, orgName: mailOrganizationName };
@@ -431,11 +424,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
       (res) => {
         if (res['success']) {
           this.toastr.success(res['message'], 'Success!');
+          this.ngxLoader.stop();
         } else {
           this.toastr.error(res['message'], 'Error!');
         }
       },
       () => {
+        this.ngxLoader.stop();
         this.toastr.error('Something went wrong', 'Error!');
       }
     );
@@ -482,5 +477,21 @@ export class PaymentComponent implements OnInit, OnDestroy {
           this.toastr.error('Something went wrong', 'Error!');
         }
       );
+  }
+
+  startTimer() {
+    this.interval = setInterval(() => {
+      if (this.timeLeft > 0) {
+        this.timeLeft--;
+      } else {
+        this.timeLeft = 60;
+      }
+      if (this.timeLeft == 0) {
+        clearInterval(this.interval);
+        this.divTimer = false;
+        $('.resend-otp').removeAttr('Disabled');
+        $('.resend-otp').css('opacity', '1');
+      }
+    }, 1000);
   }
 }

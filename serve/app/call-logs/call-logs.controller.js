@@ -92,7 +92,7 @@ exports.uploadCallLog = async (req, res) => {
     console.log("dept findedddddd");
 
     let dataToAppend = {
-      // organizationCalculated: false,
+      organizationCalculated: true,
       organization: req.user.organization,
       softDelete: false,
       callCostCalculated: false,

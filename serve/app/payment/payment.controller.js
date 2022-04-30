@@ -51,7 +51,8 @@ exports.sendOtp = async (req, res) => {
         updateOTP(otp, userEmail);
         return res.json({
           success: true,
-          message: "OTP Sent to " + userEmail,
+          data: info,
+          message: "OTP Sent to " + userEmail + " and it's valid for 5 minutes",
         });
       }
     });

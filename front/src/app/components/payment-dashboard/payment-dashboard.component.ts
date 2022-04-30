@@ -44,6 +44,8 @@ export class PaymentDashboardComponent implements OnInit {
   showFourthMonthPdf: Boolean = false;
   showFivthtMonthPdf: Boolean = false;
 
+  showTransactionNotFound: Boolean = false;
+
   checkPayHistory: Boolean = false;
   currencySymbol: any;
 
@@ -244,6 +246,7 @@ export class PaymentDashboardComponent implements OnInit {
           this.lastPaidAmount = 0;
           // this.lastPaidDate = 0;
           // this.availableAmount = localStorage.getItem('pendingAmount');
+          this.showTransactionNotFound = true;
           this.toastr.info('No transaction found', 'Info!');
         } else {
           this.checkPayHistory = false;
