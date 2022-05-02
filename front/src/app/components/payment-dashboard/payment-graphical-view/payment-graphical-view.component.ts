@@ -159,29 +159,36 @@ export class PaymentGraphicalViewComponent implements OnInit {
           PreviousFifthMonthCost,
         ];
 
-        console.log(yValues);
+        console.log('yValues', yValues);
 
         let newXvalues = [];
 
         var xValues = this.lastFiveMonths;
 
-        if (yValues[0] > 0) {
-          newXvalues.push(xValues[0]);
-        }
-        if (yValues[1] > 0) {
-          newXvalues.push(xValues[1]);
-        }
-        if (yValues[2] > 0) {
-          newXvalues.push(xValues[2]);
-        }
-        if (yValues[3] > 0) {
-          newXvalues.push(xValues[3]);
-        }
-        if (yValues[4] > 0) {
-          newXvalues.push(xValues[4]);
-        }
+        // if (yValues[0] > 0) {
+        //   console.log('may');
+        newXvalues.push(xValues[0]);
+        // } else {
+        //   newXvalues.push(0.0);
+        // }
+        // if (yValues[1] > 0) {
+        //   console.log('march');
+        newXvalues.push(xValues[1]);
+        // }
+        // if (yValues[2] > 0) {
+        //   console.log('april');
+        newXvalues.push(xValues[2]);
+        // }
+        // if (yValues[3] > 0) {
+        //   console.log('feb');
+        newXvalues.push(xValues[3]);
+        // }
+        // if (yValues[4] > 0) {
+        //   console.log('jan');
+        newXvalues.push(xValues[4]);
+        // }
 
-        console.log(newXvalues);
+        console.log('xValues', newXvalues);
         // console.log('xvalues', yValues);
         var barColors = ['#b91d47', '#00aba9', '#2b5797', '#e8c3b9', '#1e7145'];
         let ctx = document.getElementById('myChart');
@@ -258,6 +265,9 @@ export class PaymentGraphicalViewComponent implements OnInit {
         this.sumOfForecastCost = sumOfForcastCost;
 
         console.log('check sum of forecast', sumOfForcastCost);
+        console.log(currentMnthForecast) +
+          '>=' +
+          parseFloat(previousForcastData);
 
         if (
           parseFloat(currentMnthForecast) >= parseFloat(previousForcastData)
@@ -270,6 +280,7 @@ export class PaymentGraphicalViewComponent implements OnInit {
           this.currentMnthForecastCostDec = true;
           this.currentMnthForcastCostInc = false;
         }
+        console.log('decccc', this.currentMnthForecastCostDec);
       },
       () => {
         this.toastr.error('Something went wrong', 'Error!');

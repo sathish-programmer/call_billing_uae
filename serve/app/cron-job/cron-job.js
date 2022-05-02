@@ -6,6 +6,7 @@ const USER = require("../user/user.model");
 const paymentDB = require("../payment/payment.model");
 const paymentHistory = require("../payment-history/paymentHistory.model");
 const nodemailer = require("nodemailer");
+const { v4: uuidv4 } = require("uuid");
 // Calculate Call Type for the Call log
 var calculateCallType = new CronJob("*/2 * * * *", async function () {
   console.log("Job triggered for calcualting call type");
@@ -474,6 +475,7 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
                 uniqueId: genUniqueId,
                 TotalCycles: totalCycles,
                 CostPerCycle: cost,
+                paymentTransactionId: genTransactionId(),
               };
 
               let dataToSave = new paymentHistory(updatePaymentHis);
@@ -1244,4 +1246,9 @@ function sendEmailToAdmin(recivers) {
       return;
     }
   });
+}
+
+function genTransactionId() {
+  const uniqueId = uuidv4();
+  return uniqueId;
 }

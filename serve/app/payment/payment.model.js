@@ -30,6 +30,8 @@ var paymentSchema = new Schema({
     type: Number,
     default: 0,
   },
+
+  paymentTransactionId: { type: String, required: true },
 });
 
 module.exports = mongoose.model("Payment", paymentSchema);

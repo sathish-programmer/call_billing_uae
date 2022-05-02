@@ -4,6 +4,8 @@ const ORG = require("../organization/organization.model");
 const USER = require("../user/user.model");
 const CURRENCY = require("../currency/currency.model");
 
+const { v4: uuidv4 } = require("uuid");
+
 const MASTER = require("../payment-master/master.model");
 
 function generateRandomNumber() {
@@ -251,6 +253,8 @@ exports.addPackage = async (req, res) => {
       packAmount = findCurrency["packageAmount"];
     }
 
+    let transactionId = genUniqueId();
+
     let packageObject = {
       otpSentEmail: "",
       OTP: body.otp,
@@ -260,6 +264,7 @@ exports.addPackage = async (req, res) => {
       availablePackage: packAmount,
       currencySymbol: currencySymbol,
       creationDate: new Date(),
+      paymentTransactionId: transactionId,
     };
     let org = await ORG.findOne({
       softDelete: false,
@@ -275,7 +280,12 @@ exports.addPackage = async (req, res) => {
     if (retDoc) {
       let showAmountInMail = currencySymbol + " " + packAmount;
       // send email to admins
-      sendEmailToAdminForSuccess(adminEmails, showAmountInMail, org.name);
+      sendEmailToAdminForSuccess(
+        adminEmails,
+        showAmountInMail,
+        org.name,
+        transactionId
+      );
       return res.json({
         success: true,
         data: retDoc["_id"],
@@ -358,6 +368,8 @@ exports.editPayment = async (req, res) => {
         availablePackage: body.pendingAmount,
       };
 
+      let transactionId = genUniqueId();
+
       let updateDoc = await paymentDB.findByIdAndUpdate(
         {
           _id: params.paymentId,
@@ -368,6 +380,7 @@ exports.editPayment = async (req, res) => {
             package: body.assignedAmount,
             availablePackage: body.pendingAmount,
             updationDate: new Date(),
+            paymentTransactionId: transactionId,
           },
         }
       );
@@ -489,7 +502,7 @@ function sendEmailToAdmin(recivers) {
   });
 }
 
-function sendEmailToAdminForSuccess(recivers, package, orgName) {
+function sendEmailToAdminForSuccess(recivers, package, orgName, transactionId) {
   let transporter = nodemailer.createTransport({
     host: "smtp.office365.com",
     port: 587,
@@ -511,7 +524,9 @@ function sendEmailToAdminForSuccess(recivers, package, orgName) {
       package +
       " </b> to <b>" +
       orgName +
-      "</b> Organization added successfully. Any clarification contact us.<br><br> Thanks,<br>Call Billing Support",
+      "</b> Organization added successfully. Any clarification contact us.<br><br>Payment Transaction Id: " +
+      transactionId +
+      "<br><br>Thanks,<br>Call Billing Support",
   };
 
   transporter.sendMail(options, function (err, info) {
@@ -595,3 +610,8 @@ exports.getPackageUsingCurrency = async (req, res) => {
     });
   }
 };
+
+function genUniqueId() {
+  const uniqueId = uuidv4();
+  return uniqueId;
+}
