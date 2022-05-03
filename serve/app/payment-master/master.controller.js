@@ -19,27 +19,52 @@ exports.addpackage = async (req, res) => {
     if (findCurrency) {
       currencySymbol = findCurrency["symbol"];
     }
-    let packageObject = {
-      packageAmount: packageAmount,
-      packageName: "Package( " + currencySymbol + " " + packageAmount + " )",
-      currency: currency,
-      currencySymbol: currencySymbol,
-      creationDate: new Date(),
-    };
 
-    let docToSave = new MASTER(packageObject);
-    let saveDoc = await docToSave.save();
-
-    if (saveDoc) {
-      return res.json({
-        success: true,
-        data: "Package added successfully",
-      });
-    } else {
+    if (
+      await MASTER.findOne({
+        packageAmount: packageAmount,
+        currency: currency,
+        softDelete: false,
+      })
+    ) {
+      let findCurrency = await CURRENCY.findOne(
+        {
+          _id: currency,
+        },
+        "symbol"
+      );
       return res.json({
         success: false,
-        data: "Package added failed",
+        data: "",
+        message:
+          "Package of " +
+          findCurrency["symbol"] +
+          packageAmount +
+          " already exists",
       });
+    } else {
+      let packageObject = {
+        packageAmount: packageAmount,
+        packageName: "Package( " + currencySymbol + " " + packageAmount + " )",
+        currency: currency,
+        currencySymbol: currencySymbol,
+        creationDate: new Date(),
+      };
+
+      let docToSave = new MASTER(packageObject);
+      let saveDoc = await docToSave.save();
+
+      if (saveDoc) {
+        return res.json({
+          success: true,
+          data: "Package added successfully",
+        });
+      } else {
+        return res.json({
+          success: false,
+          data: "Package added failed",
+        });
+      }
     }
   } catch (e) {
     return res.json({

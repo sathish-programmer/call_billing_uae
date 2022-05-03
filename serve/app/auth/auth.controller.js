@@ -16,24 +16,27 @@ exports.login = async (req, res) => {
     let user = await fetchUser(body.email);
     let checkUserRole = await checkRole(body.email);
 
-    let userPayment = await paymentDB.findOne(
+    
+
+    // return false;
+    if (user) {
+      let userPayment = await paymentDB.findOne(
       { organization: user.organization._id, softDelete: false },
       "availablePackage package orgName currencySymbol"
     );
 
-    let pendingAmmountPer;
-    let totalAmt;
-    let availableAmt;
-    let paymentGoingToExpire;
-    let currencySymbol;
-
-    // return false;
-    if (user) {
+    let pendingAmmountPer = 0;
+    let totalAmt = 0;
+    let availableAmt = 0;
+    let paymentGoingToExpire = false;
+    let currencySymbol = '$';
+    let availPackage = 0;
       if (bcrypt.compareSync(body.password, user["password"])) {
         // If exists , createe token for the user
         let token = await createAndSaveToken(user);
         // Send token and other things to FE.
         if (userPayment) {
+          availPackage =userPayment["availablePackage"]
           totalAmt = userPayment["package"];
           currencySymbol = userPayment["currencySymbol"];
           availableAmt = userPayment["availablePackage"];
@@ -56,7 +59,7 @@ exports.login = async (req, res) => {
             isSU: user.type == "root" ? true : false,
             loginType: user.loginType,
             organization: user.organization,
-            availableAmount: userPayment["availablePackage"],
+            availableAmount: availPackage,
             totalAmount: totalAmt,
             availablePayment: availableAmt,
             checkPercentage: pendingAmmountPer,
