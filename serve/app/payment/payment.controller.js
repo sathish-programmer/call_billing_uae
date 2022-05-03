@@ -70,11 +70,15 @@ exports.sendOtp = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
   let verifyOtp = req.body.otp;
   let adminEmail = "admin@inaipi.com";
-  const checkOtp = await paymentDB.findOne({
-    otpSentEmail: adminEmail,
-    OTP: verifyOtp,
-    otpExpired: false,
-  });
+  let checkOtp = await paymentDB.findOne(
+    {
+      otpSentEmail: adminEmail,
+      OTP: verifyOtp,
+      otpExpired: false,
+    },
+    "_id"
+  );
+  console.log(checkOtp);
   if (checkOtp) {
     let updateDoc = await paymentDB.findByIdAndUpdate(
       {
@@ -149,6 +153,8 @@ let insertData = async function (adminEmail) {
     typeOfPayment: 2,
     package: 00,
     type: "OTP - Admin",
+    otpExpired: false,
+    otpVerified: false,
   };
 
   let docToSave = new paymentDB(paymentObject);
@@ -577,7 +583,7 @@ exports.getPaymentDetails = async (req, res) => {
   let paymentGoingToExpire;
   let currencySymbol;
 
-  if (user) {
+  if (userPayment) {
     totalAmt = userPayment["package"];
     availableAmt = userPayment["availablePackage"];
     pendingAmmountPer = Math.round((availableAmt / totalAmt) * 100);
