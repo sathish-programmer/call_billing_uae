@@ -172,7 +172,7 @@
               *ngIf="butVerifyOtp"
               type="button"
               class="send-otp-verify-otp"
-              (click)="verifyOtp()"
+              (click)="verifyOtp('add')"
             >
               Verify OTP
             </button>
@@ -278,6 +278,49 @@
               required
               disabled
             />
+          </div>
+
+          <div style="margin-top: 5px">
+            <label class="required">OTP</label
+            ><span *ngIf="divCodeSentTo" class="code-sent-to"
+              >( code is sent to {{ paymentEmail }} )</span
+            >
+
+            <input
+              type="text"
+              class="input-field verify-icon"
+              placeholder="Enter OTP"
+              formControlName="otp_edit"
+              id="otp_valEdit"
+              maxlength="6"
+              required
+            />
+            <!-- <span class="otp-error">The code you entered was incorrect</span> -->
+            <button
+              type="button"
+              *ngIf="butSendOtp"
+              class="send-otp-verify"
+              (click)="sendOtpEdit()"
+            >
+              Send OTP
+            </button>
+            <button
+              *ngIf="butVerifyOtp"
+              type="button"
+              class="send-otp-verify-otp"
+              (click)="verifyOtp('edit')"
+            >
+              Verify OTP
+            </button>
+            <span class="resend-optSpan">Didn't Receive code?</span
+            ><button
+              type="button"
+              disabled
+              class="resend-otp"
+              (click)="resendotp()"
+            >
+              Request again</button
+            ><span *ngIf="divTimer" class="timer-otp">( {{ timeLeft }} )</span>
           </div>
 
           <hr />

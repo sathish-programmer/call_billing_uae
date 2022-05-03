@@ -200,6 +200,7 @@ exports.addPackage = async (req, res) => {
       return res.json({
         success: true,
         data: "Id already available",
+
         // adminEmails: adminEmails,
         message:
           "Package for " +
@@ -275,9 +276,30 @@ exports.addPackage = async (req, res) => {
       packageObject["orgName"] = org.name;
     }
 
+    let checkOTPVerified = await paymentDB.findOne({
+      type: "OTP - Admin",
+      softDelete: false,
+    });
     let docToSave = new paymentDB(packageObject);
-    let retDoc = await docToSave.save();
+    let retDoc;
+    if (checkOTPVerified.otpVerified == true) {
+      retDoc = await docToSave.save();
+    } else {
+      return res.json({
+        success: false,
+        data: "",
+        message: "Check OTP",
+      });
+    }
+
     if (retDoc) {
+      let updateDoc = await paymentDB.findOneAndUpdate(
+        {
+          type: "OTP - Admin",
+          softDelete: false,
+        },
+        { $set: { otpVerified: false, updationDate: new Date() } }
+      );
       let showAmountInMail = currencySymbol + " " + packAmount;
       // send email to admins
       sendEmailToAdminForSuccess(
@@ -290,6 +312,7 @@ exports.addPackage = async (req, res) => {
         success: true,
         data: retDoc["_id"],
         adminEmails: adminEmails,
+        OTPVerified: checkOTPVerified.otpVerified,
         message: "Packaged Added to - " + "' " + org.name + " '",
       });
     } else {
