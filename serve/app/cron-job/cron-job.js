@@ -633,7 +633,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
   }
 });
 
-findBranchInfoForCallLog.start();
+// findBranchInfoForCallLog.start();
 
 // Find Department Name for the Call log
 var findDepartmentInfoForCallLog = new CronJob(
@@ -768,7 +768,7 @@ var findDepartmentInfoForCallLog = new CronJob(
   }
 );
 
-findDepartmentInfoForCallLog.start();
+// findDepartmentInfoForCallLog.start();
 
 // Find Caller Name for the Call log
 var findCallerNameInfoForCallLog = new CronJob(

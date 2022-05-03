@@ -177,3 +177,4 @@ serve/public/downloads/undefined_Reports_1650951214417.pdf
 serve/public/downloads/undefined_Reports_1650951294466.pdf
 serve/public/downloads/undefined_Reports_1651042989599.pdf
 .gitignore
+serve/app/cron-job/cron-job.js
