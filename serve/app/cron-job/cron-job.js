@@ -855,7 +855,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCallerNameInfoForCallLog.start();
+findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -962,7 +962,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCalledNameInfoForCallLog.start();
+findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
