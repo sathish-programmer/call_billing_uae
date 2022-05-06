@@ -4,8 +4,9 @@ const PDFDocument = require("pdfkit");
 const paymentHistory = require("./paymentHistory.model");
 const paymentDB = require("../payment/payment.model");
 const moment = require("moment");
-
+const inlineCSS = require("inlinecss");
 const CALL_LOG = require("../call-logs/call-logs.model");
+const htmtToPdf = require("html-pdf");
 
 var pdf = require("pdf-creator-node");
 var fs = require("fs");
@@ -75,7 +76,7 @@ exports.generatePdf = async (req, res) => {
   let ceratedDate = new Date().toLocaleDateString();
   // Read HTML Template
   var html =
-    '<html><head><meta charset="utf-8"/></head><body style="padding:0 200px"><div style="float: left"> <p>Organization Name: ' +
+    '<html><head><meta charset="utf-8"/></head><body style="padding:0 200px"><div style="float: left"> <p style="text-transform: capitalize;">Organization Name: ' +
     orgName +
     "</p><p>Date: " +
     ceratedDate +
@@ -208,12 +209,16 @@ exports.lastMonthRecord = async (req, res) => {
     dateCheck.getMonth() - 3
   );
 
-  let currencySymbol;
+  let currencySymbolShow;
 
   let findCurrency = await paymentDB.findOne({
     organization: params.orgId.trim(),
     softDelete: false,
   });
+
+  if (findCurrency) {
+    currencySymbolShow = findCurrency.currencySymbol;
+  }
 
   // get current month cost
   let getLastMonthCost = await paymentHistory.find(
@@ -367,7 +372,7 @@ exports.lastMonthRecord = async (req, res) => {
     success: true,
     data: results,
     costForMonth: resultNew,
-    currencySymbol: findCurrency.currencySymbol,
+    currencySymbol: currencySymbolShow,
   });
 };
 
@@ -729,33 +734,75 @@ exports.generatePdfByMonth = async (req, res) => {
   let todayDate = new Date();
   let ceratedDate = moment(todayDate).utc().format("L");
   // Read HTML Template
-  html =
-    '<html><head><meta charset="utf-8"/></head><body style="padding:0 200px;font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"; font-size: 1rem; line-height: 1.5; color: #212529;"><div style="float: left"> <p>Organization Name: ' +
-    orgName +
-    "</p><p>Generated Date: " +
-    ceratedDate +
-    '</p> </div><div style="float: right"> <p>Available Credit : ' +
-    currencySymbol +
-    " " +
-    pendingPay +
-    "</p>";
+  // html =
+  //   '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title></title> <script defer src="/static/fontawesome/fontawesome-all.js"></script></head> <body style="padding: 0; margin: 0; background-repeat: repeat; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;"><h2 style="text-align:center">Payment Utilization Cycle</h2> <p>Organization Name: ' +
+  //   orgName +
+  //   "</p><p>Generated Date: " +
+  //   ceratedDate +
+  //   '</p> </div><div style="float: right"> <p>Available Credit : ' +
+  //   currencySymbol +
+  //   " " +
+  //   pendingPay +
+  //   "</p>";
+
+  // html +=
+  //   "</div><div style='clear:both'><hr><h2> Payment Utilization History from " +
+  //   fromDate +
+  //   " to " +
+  //   toDate +
+  //   "</h2></div>";
+
+  html = `<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+     <title></title>
+     <script defer src="/static/fontawesome/fontawesome-all.js"></script>
+  </head>
+  <body style="padding: 0; margin: 0; background-repeat: repeat; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;"><table width="1100" cellspacing="0" cellpadding="0" align="center" style="background:#fff;font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-style: normal;font-weight: normal;line-height: 22px;word-break: break-word;color: #444;text-align: left;border-bottom:1px solid #666">
+  <tbody>
+     <tr>
+        <td colspan="6" style="padding: 15px 0 10px;font-size: 22px;font-weight: bold; text-align: center;">
+        Payment Utilization Cycle
+        </td>
+     </tr>
+     <tr>
+        <td style="padding: 25px 0 10px;font-size: 16px;font-weight: bold;">
+        Organization Name: 
+           <span style="font-weight: normal;padding-left: 5px;">
+           ${orgName}
+           </span>
+        </td>     
+        
+        <td style="padding: 25px 0px 0 200px;font-size: 16px;font-weight: bold;">
+        Available Credit : 
+           <span style="font-weight: normal;padding-left: 5px;">
+           ${currencySymbol} ${pendingPay}
+           </span>
+        </td>
+     </tr>
+     <tr >
+        <td style="padding: 25px 0 10px;font-size: 16px;font-weight: bold;">
+        Payment Utilization History from     
+           ${fromDate} to ${toDate}
+        </td>    
+        
+        <td style="padding: 25px 0px 0 200px;font-size: 16px;font-weight: bold;">
+        Printed On : 
+           <span style="font-weight: normal;padding-left: 5px;">
+           ${ceratedDate}
+           </span>
+        </td>
+     </tr>
+  </tbody>
+</table><br/>`;
 
   html +=
-    "</div><div style='clear:both'><hr><h2> Payment Utilization History from " +
-    fromDate +
-    " to " +
-    toDate +
-    "</h2></div>";
-
-  html +=
-    "<table style='width: 100%; text-align: left;border: 1px solid #000; border-collapse: separate;margin-bottom:10px'><thead><th style='border:1px solid #000;'>Branch</th><th style='border:1px solid #000;'>Department</th><th style='border:1px solid #000;'>Caller Number</th><th style='border:1px solid #000;'>Called Number</th><th style='border:1px solid #000;'>Call Duration</th><th style='border:1px solid #000;'>Call Time</th><th style='border:1px solid #000;'>Direction</th><th style='border:1px solid #000;'>Payment Utilization</th><th style='border:1px solid #000;'>CostPerCycle</th><th style='border:1px solid #000;'>Paid Credit</th></thead><tbody>";
+    "<table width='1100' border='0' cellspacing='0' cellpadding='0' align='center' style='background:#fff;font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-style: normal;font-weight: normal;line-height: 22px;word-break: break-word;color: #333;text-align: center;   border: 1px solid #999;   border-collapse: collapse;'><tbody><tr style='background:#ddd;'><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Branch</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Department</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Caller Number</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Called Number</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Call Duration</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Call Time</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Direction</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Total Cycle</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>CostPerCycle</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Paid Credit</td></tr><tbody>";
 
   let lastMonthCost = 0;
   let totalCost;
 
   for (let index of getMonthDocCallLog) {
-    // console.log(index);
-
     let branchName = index["branch"] ? index["branch"]["name"] : "";
 
     let deptName = index["department"] ? index["department"]["name"] : "";
@@ -788,55 +835,82 @@ exports.generatePdfByMonth = async (req, res) => {
     }
 
     html +=
-      "<tr><td style='border:1px solid #000;'>" +
+      "<tr style='background:#fff;'><td style='padding:10px 5px;'>" +
       branchName +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       deptName +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       index["Callernumber"] +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       index["Callednumber"] +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       CallDuration +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       callTimeShow +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       direction +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       index["TotalCycles"] +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       index["CostPerCycle"] +
-      "</td><td style='border:1px solid #000;'>" +
+      "</td><td style='padding:10px 5px;'>" +
       currencySymbol +
       " " +
       index["CalculatedCost"] +
       "</td></tr>";
   }
 
-  html +=
-    "</tbody><tfoot><tr><th id='total' style='text-align: right;' colspan='9'>Total :</th><th>" +
-    currencySymbol +
-    " " +
-    lastMonthCost.toFixed(2) +
-    "</th></tr></tfoot>";
+  // html +=
+  //   "</tbody><tfoot><tr><th id='total' style='text-align: right;' colspan='9'>Total :</th><th>" +
+  //   currencySymbol +
+  //   " " +
+  //   lastMonthCost.toFixed(2) +
+  //   "</th></tr></tfoot>";
 
-  html += "</table>";
+  html += `<tr style="background:#fff;"><td colspan="10" style="padding:10px 20px;border-top: 1px solid #666;border-collapse: collapse; text-align:right;">
+  <b>Total Amount : </b>
+  <span> ${currencySymbol} ${lastMonthCost.toFixed(2)}</span>
+</td></tr>`;
 
-  html +=
-    "<div style=clear:both;margin-top:10px'></div><div style='float: left;' >** Balance Credit = ( Available Credit - Total Paid Credit )</div>";
+  html += "</tbody></table>";
 
-  html +=
-    "<div style='float: right'><span>Balance Credit: " +
-    currencySymbol +
-    " " +
-    (pendingPay - lastMonthCost).toFixed(2);
-  +"</span></div>";
+  // html +=
+  //   "<div style=clear:both;margin-top:10px'></div><div style='float: left;' >** Balance Credit = ( Available Credit - Total Paid Credit )</div>";
+
+  // html +=
+  //   "<div style='float: right'><span>Balance Credit: " +
+  //   currencySymbol +
+  //   " " +
+  //   (pendingPay - lastMonthCost).toFixed(2);
+  // +"</span></div>";
+
+  html += `<br/>
+  <table width="1100" border="0" cellspacing="0" cellpadding="0" align="center" style="background:#fff;font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-style: normal;font-weight: normal;line-height: 10px;word-break: break-word;color: #333;text-align: left;   ">
+    <tbody>
+       <tr>
+          <td style="padding: 25px 0 10px;font-size: 16px;font-weight: bold;">
+            
+             <span style="font-weight: normal;padding-left: 5px;">
+             ** Balance Credit = ( Available Credit - Total Paid Credit )
+             </span>
+          </td>
+          <td style="padding: 25px 0px 0 400px;font-size: 16px;font-weight: bold;">
+          Balance Credit : 
+           <span style="font-weight: normal;padding-left: 5px;">
+           ${currencySymbol} ${(pendingPay - lastMonthCost).toFixed(2)}
+           </span>
+        </td>
+       </tr>
+       
+    </tbody>
+ </table> `;
 
   html += "</body></html>";
 
   var options = {
     format: "A3",
-    orientation: "portrait",
+    orientation: "landscape",
+    width: "1300px",
     border: "10mm",
     header: {
       height: "45mm",
@@ -861,7 +935,7 @@ exports.generatePdfByMonth = async (req, res) => {
   if (!fs.existsSync(DIR_FOR_PROCESSING)) {
     fs.mkdirSync(DIR_FOR_PROCESSING);
   }
-  var csvFile =
+  var pdfFileToSave =
     DIR_FOR_PROCESSING +
     "callBilling_report" +
     "_" +
@@ -869,31 +943,55 @@ exports.generatePdfByMonth = async (req, res) => {
     ".pdf";
   urlToSendBack =
     "downloads/" + "callBilling_report" + "_" + new Date().getTime() + ".pdf";
-  var document = {
-    html: html,
-    data: {
-      users: "test",
-    },
-    path: csvFile,
-    type: "",
-  };
-  pdf
-    .create(document, options)
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-
-  return res.json({
-    success: true,
-    pdfUrl: urlToSendBack,
-    data: "",
-    paymentDetails: getPaymentDet,
-    paymentHistory: getMonthDocPayHis,
-    calllogs: getMonthDocCallLog,
+  inlineCSS.inlineHtml(html, function (userinlineHtml) {
+    htmtToPdf
+      .create(userinlineHtml, {
+        format: "A3",
+        orientation: "landscape",
+        type: "pdf",
+        width: "1300px",
+      })
+      .toFile(pdfFileToSave, function (err, response) {
+        if (err) {
+          console.log("Err", err);
+          return res.json({
+            success: false,
+            data: "",
+            message: "Not able to create PDF " + err,
+          });
+        } else {
+          console.log("Response", response);
+          return res.json({
+            success: true,
+            pdfUrl: urlToSendBack,
+            data: "",
+            paymentDetails: getPaymentDet,
+            paymentHistory: getMonthDocPayHis,
+            calllogs: getMonthDocCallLog,
+          });
+        }
+      });
   });
+  // var document = {
+  //   html: html,
+  //   data: {
+  //     users: "test",
+  //   },
+  //   path: csvFile,
+  //   type: "pdf",
+  // };
+  // await pdf
+  //   .create(document, options)
+  //   .then((res) => {
+  //     console.log(res);
+  //   })
+  //   .catch((error) => {
+  //     return res.json({
+  //       success: false,
+  //       data: "",
+  //       message: "Not able to create PDF " + error,
+  //     });
+  //   });
 };
 
 //Convert Seconds to Day Hours Minute Seconds

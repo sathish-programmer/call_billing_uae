@@ -233,6 +233,11 @@ export class PaymentGraphicalViewComponent implements OnInit {
           ((currentMonthCost - previousMonthCost) * 100) / currentMonthCost;
         this.percenValForPrev = percenForPrev.toFixed(2);
 
+        this.percenValForPrev = this.percenValForPrev.replace(
+          'Infinity',
+          '100'
+        );
+
         let sumOfPrevCost = (currentMonthCost - previousMonthCost).toFixed(2);
         this.sumOfPrevCost = sumOfPrevCost;
 
@@ -255,6 +260,11 @@ export class PaymentGraphicalViewComponent implements OnInit {
           ((currentMnthForecast - previousForcastData) * 100) /
           currentMnthForecast;
         this.percenValForForcast = percenForForcast.toFixed(2);
+
+        this.percenValForForcast = this.percenValForForcast.replace(
+          'Infinity',
+          '100'
+        );
 
         console.log(previousMonthCost, 'previous mnth forecast');
 
