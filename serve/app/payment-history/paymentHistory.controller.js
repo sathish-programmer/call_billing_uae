@@ -648,111 +648,111 @@ let getLastFiveMonths = () => {
 getLastFiveMonths();
 
 exports.generatePdfByMonth = async (req, res) => {
-  let body = req.body;
+  try {
+    let body = req.body;
 
-  let orgName = "-";
-  let fullAmount = "00";
-  let createdDate = "0-0";
-  let pendingPay = "00";
-  let calculatedCost = "00";
-  let getPaymentDet;
-  let currencySymbol;
-  let startDate = new Date(moment(body["startDate"]).utc(true));
-  let endDate = new Date(moment(body["endDate"]).utc(true));
+    let orgName = "-";
+    let fullAmount = "00";
+    let createdDate = "0-0";
+    let pendingPay = "00";
+    let calculatedCost = "00";
+    let getPaymentDet;
+    let currencySymbol;
+    let startDate = new Date(moment(body["startDate"]).utc(true));
+    let endDate = new Date(moment(body["endDate"]).utc(true));
 
-  let pdfStartDate = startDate;
-  let pdfEndDate = endDate;
+    let dateFrom =
+      moment(startDate).utc().format("L") +
+      " " +
+      moment(startDate).utc().format("LT");
+    let dateTo =
+      moment(endDate).utc().format("L") +
+      " " +
+      moment(endDate).utc().format("LT");
 
-  let formatter = Intl.DateTimeFormat(
-    "default", // a locale name; "default" chooses automatically
-    {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      // hour: "numeric",
-      // minute: "numeric",
+    let pdfStartDate = startDate;
+    let pdfEndDate = endDate;
+
+    let formatter = Intl.DateTimeFormat(
+      "default", // a locale name; "default" chooses automatically
+      {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        // hour: "numeric",
+        // minute: "numeric",
+      }
+    );
+
+    let formatterTime = Intl.DateTimeFormat(
+      "default", // a locale name; "default" chooses automatically
+      {
+        // year: "numeric",
+        // month: "short",
+        // day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+      }
+    );
+
+    let fromDate = formatter.format(startDate);
+    let toDate = formatter.format(endDate);
+
+    let getMonthDocPayHis = await paymentHistory
+      .find({
+        organization: body.orgId,
+        softDelete: false,
+        creationDate: {
+          $gte: pdfStartDate,
+          $lte: pdfEndDate,
+        },
+      })
+      .sort({ _id: -1 });
+    let getMonthDocCallLog;
+    if (getMonthDocPayHis) {
+      getPaymentDet = await paymentDB.findOne({
+        organization: body.orgId,
+        softDelete: false,
+      });
+      fullAmount = getPaymentDet.package;
+      orgName = getPaymentDet.orgName;
+      createdDate = getPaymentDet.createdDate;
+      // if (getMonthDocPayHis[0]["availablePackage"] != undefined) {
+      if (
+        getMonthDocPayHis[0]["availablePackage"] !== undefined ||
+        getMonthDocPayHis[0]["availablePackage"] !== null
+      ) {
+        pendingPay = getMonthDocPayHis[0]["availablePackage"];
+      }
+
+      // }
+      currencySymbol = getPaymentDet.currencySymbol;
+
+      getMonthDocCallLog = await CALL_LOG.find({
+        organization: body.orgId,
+        softDelete: false,
+        paymentFromPackage: true,
+        callCostCalculated: true,
+        creationDate: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      })
+        .populate("branch", "name")
+        .populate("department", "name")
+        .populate("callerUser", "firstName lastName")
+        .populate("calledUser", "firstName lastName")
+        .sort({ _id: -1 })
+        .lean();
     }
-  );
 
-  let formatterTime = Intl.DateTimeFormat(
-    "default", // a locale name; "default" chooses automatically
-    {
-      // year: "numeric",
-      // month: "short",
-      // day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-    }
-  );
+    //pdf gen start
+    let dateToShow;
+    var html;
+    let ceratedDate = moment().format("L") + " " + moment().format("LT");
+    // Read HTML Template
 
-  let fromDate = formatter.format(startDate);
-  let toDate = formatter.format(endDate);
-
-  let getMonthDocPayHis = await paymentHistory
-    .find({
-      organization: body.orgId,
-      softDelete: false,
-      creationDate: {
-        $gte: pdfStartDate,
-        $lte: pdfEndDate,
-      },
-    })
-    .sort({ _id: -1 });
-  let getMonthDocCallLog;
-  if (getMonthDocPayHis) {
-    getPaymentDet = await paymentDB.findOne({
-      organization: body.orgId,
-      softDelete: false,
-    });
-    fullAmount = getPaymentDet.package;
-    orgName = getPaymentDet.orgName;
-    createdDate = getPaymentDet.createdDate;
-    pendingPay = getMonthDocPayHis[0]["availablePackage"];
-    currencySymbol = getPaymentDet.currencySymbol;
-
-    getMonthDocCallLog = await CALL_LOG.find({
-      organization: body.orgId,
-      softDelete: false,
-      paymentFromPackage: true,
-      callCostCalculated: true,
-      creationDate: {
-        $gte: startDate,
-        $lte: endDate,
-      },
-    })
-      .populate("branch", "name")
-      .populate("department", "name")
-      .populate("callerUser", "firstName lastName")
-      .populate("calledUser", "firstName lastName")
-      .sort({ _id: -1 })
-      .lean();
-  }
-
-  //pdf gen start
-  let dateToShow;
-  var html;
-  let todayDate = new Date();
-  let ceratedDate = moment(todayDate).utc().format("L");
-  // Read HTML Template
-  // html =
-  //   '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title></title> <script defer src="/static/fontawesome/fontawesome-all.js"></script></head> <body style="padding: 0; margin: 0; background-repeat: repeat; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;"><h2 style="text-align:center">Payment Utilization Cycle</h2> <p>Organization Name: ' +
-  //   orgName +
-  //   "</p><p>Generated Date: " +
-  //   ceratedDate +
-  //   '</p> </div><div style="float: right"> <p>Available Credit : ' +
-  //   currencySymbol +
-  //   " " +
-  //   pendingPay +
-  //   "</p>";
-
-  // html +=
-  //   "</div><div style='clear:both'><hr><h2> Payment Utilization History from " +
-  //   fromDate +
-  //   " to " +
-  //   toDate +
-  //   "</h2></div>";
-
-  html = `<html xmlns="http://www.w3.org/1999/xhtml">
+    html = `<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
      <title></title>
@@ -783,7 +783,7 @@ exports.generatePdfByMonth = async (req, res) => {
      <tr >
         <td style="padding: 25px 0 10px;font-size: 16px;font-weight: bold;">
         Payment Utilization History from     
-           ${fromDate} to ${toDate}
+           ${dateFrom} to ${dateTo}
         </td>    
         
         <td style="padding: 25px 0px 0 200px;font-size: 16px;font-weight: bold;">
@@ -796,95 +796,78 @@ exports.generatePdfByMonth = async (req, res) => {
   </tbody>
 </table><br/>`;
 
-  html +=
-    "<table width='1100' border='0' cellspacing='0' cellpadding='0' align='center' style='background:#fff;font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-style: normal;font-weight: normal;line-height: 22px;word-break: break-word;color: #333;text-align: center;   border: 1px solid #999;   border-collapse: collapse;'><tbody><tr style='background:#ddd;'><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Branch</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Department</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Caller Number</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Called Number</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Call Duration</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Call Time</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Direction</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Total Cycle</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>CostPerCycle</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Paid Credit</td></tr><tbody>";
+    html +=
+      "<table width='1100' border='0' cellspacing='0' cellpadding='0' align='center' style='background:#fff;font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-style: normal;font-weight: normal;line-height: 22px;word-break: break-word;color: #333;text-align: center;   border: 1px solid #999;   border-collapse: collapse;'><tbody><tr style='background:#ddd;'><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Branch</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Department</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Caller Number</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Called Number</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Call Duration</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Call Time</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Direction</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Total Cycle</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>CostPerCycle</td><td style='padding:10px 5px;border: 1px solid #999;border-collapse: collapse;'>Paid Credit</td></tr><tbody>";
 
-  let lastMonthCost = 0;
-  let totalCost;
+    let lastMonthCost = 0;
+    let totalCost;
 
-  for (let index of getMonthDocCallLog) {
-    let branchName = index["branch"] ? index["branch"]["name"] : "";
+    for (let index of getMonthDocCallLog) {
+      let branchName = index["branch"] ? index["branch"]["name"] : "";
 
-    let deptName = index["department"] ? index["department"]["name"] : "";
-    let callerName = index["callerUser"]
-      ? index["callerUser"]["firstName"]
-      : "";
-    let CalledName = index["calledUser"]
-      ? index["calledUser"]["firstName"]
-      : "";
+      let deptName = index["department"] ? index["department"]["name"] : "";
+      let callerName = index["callerUser"]
+        ? index["callerUser"]["firstName"]
+        : "";
+      let CalledName = index["calledUser"]
+        ? index["calledUser"]["firstName"]
+        : "";
 
-    totalCost = lastMonthCost + parseFloat(index["CalculatedCost"]);
-    lastMonthCost = totalCost;
+      totalCost = lastMonthCost + parseFloat(index["CalculatedCost"]);
+      lastMonthCost = totalCost;
 
-    let direction;
-    let paymentDate = new Date(moment(index["creationDate"]).utc(true));
-    let callTime = new Date(moment(index["creationDate"]).utc(true));
-    // let callTimeShow = formatterTime.format(callTime);
-    let showdate = formatter.format(paymentDate);
-    let CallDuration = secondsToDHMS(index["CallDuration"]);
+      let direction;
+      let paymentDate = new Date(moment(index["creationDate"]).utc(true));
+      let callTime = new Date(moment(index["creationDate"]).utc(true));
+      // let callTimeShow = formatterTime.format(callTime);
+      let showdate = formatter.format(paymentDate);
+      let CallDuration = secondsToDHMS(index["CallDuration"]);
 
-    let callTimeShow =
-      moment(index["CallTime"]).utc().format("L") +
-      " " +
-      moment(index["CallTime"]).utc().format("LT");
+      let callTimeShow =
+        moment(index["CallTime"]).utc().format("L") +
+        " " +
+        moment(index["CallTime"]).utc().format("LT");
 
-    if (index["Direction"] == "O") {
-      direction = "Outgoing";
-    } else {
-      direction = "Incoming";
+      if (index["Direction"] == "O") {
+        direction = "Outgoing";
+      } else {
+        direction = "Incoming";
+      }
+
+      html +=
+        "<tr style='background:#fff;'><td style='padding:10px 5px;'>" +
+        branchName +
+        "</td><td style='padding:10px 5px;'>" +
+        deptName +
+        "</td><td style='padding:10px 5px;'>" +
+        index["Callernumber"] +
+        "</td><td style='padding:10px 5px;'>" +
+        index["Callednumber"] +
+        "</td><td style='padding:10px 5px;'>" +
+        CallDuration +
+        "</td><td style='padding:10px 5px;'>" +
+        callTimeShow +
+        "</td><td style='padding:10px 5px;'>" +
+        direction +
+        "</td><td style='padding:10px 5px;'>" +
+        index["TotalCycles"] +
+        "</td><td style='padding:10px 5px;'>" +
+        index["CostPerCycle"] +
+        "</td><td style='padding:10px 5px;'>" +
+        currencySymbol +
+        " " +
+        index["CalculatedCost"] +
+        "</td></tr>";
     }
 
-    html +=
-      "<tr style='background:#fff;'><td style='padding:10px 5px;'>" +
-      branchName +
-      "</td><td style='padding:10px 5px;'>" +
-      deptName +
-      "</td><td style='padding:10px 5px;'>" +
-      index["Callernumber"] +
-      "</td><td style='padding:10px 5px;'>" +
-      index["Callednumber"] +
-      "</td><td style='padding:10px 5px;'>" +
-      CallDuration +
-      "</td><td style='padding:10px 5px;'>" +
-      callTimeShow +
-      "</td><td style='padding:10px 5px;'>" +
-      direction +
-      "</td><td style='padding:10px 5px;'>" +
-      index["TotalCycles"] +
-      "</td><td style='padding:10px 5px;'>" +
-      index["CostPerCycle"] +
-      "</td><td style='padding:10px 5px;'>" +
-      currencySymbol +
-      " " +
-      index["CalculatedCost"] +
-      "</td></tr>";
-  }
-
-  // html +=
-  //   "</tbody><tfoot><tr><th id='total' style='text-align: right;' colspan='9'>Total :</th><th>" +
-  //   currencySymbol +
-  //   " " +
-  //   lastMonthCost.toFixed(2) +
-  //   "</th></tr></tfoot>";
-
-  html += `<tr style="background:#fff;"><td colspan="10" style="padding:10px 20px;border-top: 1px solid #666;border-collapse: collapse; text-align:right;">
+    html += `<tr style="background:#fff;"><td colspan="10" style="padding:10px 20px;border-top: 1px solid #666;border-collapse: collapse; text-align:right;">
   <b>Total Amount : </b>
   <span> ${currencySymbol} ${lastMonthCost.toFixed(2)}</span>
 </td></tr>`;
 
-  html += "</tbody></table>";
+    html += "</tbody></table>";
 
-  // html +=
-  //   "<div style=clear:both;margin-top:10px'></div><div style='float: left;' >** Balance Credit = ( Available Credit - Total Paid Credit )</div>";
-
-  // html +=
-  //   "<div style='float: right'><span>Balance Credit: " +
-  //   currencySymbol +
-  //   " " +
-  //   (pendingPay - lastMonthCost).toFixed(2);
-  // +"</span></div>";
-
-  html += `<br/>
+    html += `<br/>
   <table width="1100" border="0" cellspacing="0" cellpadding="0" align="center" style="background:#fff;font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-style: normal;font-weight: normal;line-height: 10px;word-break: break-word;color: #333;text-align: left;   ">
     <tbody>
        <tr>
@@ -905,93 +888,57 @@ exports.generatePdfByMonth = async (req, res) => {
     </tbody>
  </table> `;
 
-  html += "</body></html>";
+    html += "</body></html>";
 
-  var options = {
-    format: "A3",
-    orientation: "landscape",
-    width: "1300px",
-    border: "10mm",
-    header: {
-      height: "45mm",
-      contents:
-        '<div style="text-align: center;font-size:30px">Payment Utilization Report</div>',
-    },
-    footer: {
-      height: "10mm",
-      contents: {
-        first: "Page 1",
-        2: "Page 2", // Any page number is working. 1-based index
-        default:
-          '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
-        last: "Last Page",
-      },
-    },
-  };
-
-  var dir_process = "files/";
-  var urlToSendBack;
-  var DIR_FOR_PROCESSING = global.globalPath + "/public/downloads/";
-  if (!fs.existsSync(DIR_FOR_PROCESSING)) {
-    fs.mkdirSync(DIR_FOR_PROCESSING);
+    var dir_process = "files/";
+    var urlToSendBack;
+    var DIR_FOR_PROCESSING = global.globalPath + "/public/downloads/";
+    if (!fs.existsSync(DIR_FOR_PROCESSING)) {
+      fs.mkdirSync(DIR_FOR_PROCESSING);
+    }
+    var pdfFileToSave =
+      DIR_FOR_PROCESSING +
+      "callBilling_report" +
+      "_" +
+      new Date().getTime() +
+      ".pdf";
+    urlToSendBack =
+      "downloads/" + "callBilling_report" + "_" + new Date().getTime() + ".pdf";
+    inlineCSS.inlineHtml(html, function (userinlineHtml) {
+      htmtToPdf
+        .create(userinlineHtml, {
+          format: "A3",
+          orientation: "landscape",
+          type: "pdf",
+          width: "1300px",
+        })
+        .toFile(pdfFileToSave, function (err, response) {
+          if (err) {
+            console.log("Err", err);
+            return res.json({
+              success: false,
+              data: "",
+              message: "Not able to create PDF " + err,
+            });
+          } else {
+            console.log("Response", response);
+            return res.json({
+              success: true,
+              pdfUrl: urlToSendBack,
+              data: "",
+              paymentDetails: getPaymentDet,
+              paymentHistory: getMonthDocPayHis,
+              calllogs: getMonthDocCallLog,
+            });
+          }
+        });
+    });
+  } catch (e) {
+    return res.json({
+      success: false,
+      data: "Try again Later",
+    });
   }
-  var pdfFileToSave =
-    DIR_FOR_PROCESSING +
-    "callBilling_report" +
-    "_" +
-    new Date().getTime() +
-    ".pdf";
-  urlToSendBack =
-    "downloads/" + "callBilling_report" + "_" + new Date().getTime() + ".pdf";
-  inlineCSS.inlineHtml(html, function (userinlineHtml) {
-    htmtToPdf
-      .create(userinlineHtml, {
-        format: "A3",
-        orientation: "landscape",
-        type: "pdf",
-        width: "1300px",
-      })
-      .toFile(pdfFileToSave, function (err, response) {
-        if (err) {
-          console.log("Err", err);
-          return res.json({
-            success: false,
-            data: "",
-            message: "Not able to create PDF " + err,
-          });
-        } else {
-          console.log("Response", response);
-          return res.json({
-            success: true,
-            pdfUrl: urlToSendBack,
-            data: "",
-            paymentDetails: getPaymentDet,
-            paymentHistory: getMonthDocPayHis,
-            calllogs: getMonthDocCallLog,
-          });
-        }
-      });
-  });
-  // var document = {
-  //   html: html,
-  //   data: {
-  //     users: "test",
-  //   },
-  //   path: csvFile,
-  //   type: "pdf",
-  // };
-  // await pdf
-  //   .create(document, options)
-  //   .then((res) => {
-  //     console.log(res);
-  //   })
-  //   .catch((error) => {
-  //     return res.json({
-  //       success: false,
-  //       data: "",
-  //       message: "Not able to create PDF " + error,
-  //     });
-  //   });
 };
 
 //Convert Seconds to Day Hours Minute Seconds

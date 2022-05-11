@@ -571,4 +571,10 @@ export class PaymentComponent implements OnInit, OnDestroy {
       }
     }, 1000);
   }
+
+  numericOnly(event): boolean {
+    let patt = /^([0-9])$/;
+    let result = patt.test(event.key);
+    return result;
+  }
 }

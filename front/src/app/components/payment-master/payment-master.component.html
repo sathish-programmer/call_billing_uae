@@ -102,6 +102,7 @@
               id="packageAmount"
               class="input-field required"
               placeholder="Enter package"
+              (keypress)="numericOnly($event)"
               formControlName="packageVal"
             />
             <!-- <span class="notice"
@@ -173,6 +174,7 @@
               class="input-field"
               placeholder="Enter Package"
               formControlName="packageVal"
+              (keypress)="numericOnly($event)"
               required
             />
           </div>
