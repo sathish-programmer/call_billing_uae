@@ -10,6 +10,9 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { User } from '../../models/user.model';
+
+import * as feather from 'feather-icons';
+
 declare var $: any;
 
 @Component({
@@ -45,6 +48,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     };
 
     this.getSubsData = localStorage.getItem('subs_ends');
+  }
+
+  ngAfterViewInit() {
+    feather.replace();
   }
 
   ngOnDestroy() {}
