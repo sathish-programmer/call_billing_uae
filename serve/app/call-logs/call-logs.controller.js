@@ -11,13 +11,8 @@ exports.uploadCallLog = async (req, res) => {
     let reqBranchName = req.body.branch;
     let reqOrgName = req.user.organization;
     let callLogs = req.body;
-
-    // delete branch req name from api
-    // delete callLogs.branch;
-
     let userDetailsFind;
     let branchNameFindedNew;
-
     let userDetailsFindDept;
     let deptFindNew;
 
@@ -74,8 +69,6 @@ exports.uploadCallLog = async (req, res) => {
       branchNameFindedNew = branchArr[1];
     }
 
-    console.log("branch finded");
-
     if (userDetailsFindDept) {
       let deptArr = []; //initializing array
       userDetailsFindDept.forEach((elements) => {
@@ -89,20 +82,15 @@ exports.uploadCallLog = async (req, res) => {
       console.log(deptFindNew);
     }
 
-    console.log("dept findedddddd");
-
     let dataToAppend = {
-      organizationCalculated: true,
-      organization: req.user.organization,
+      organizationCalculated: false,
       softDelete: false,
       callCostCalculated: false,
       callTypeCalculated: false,
       callerNameCalculated: false,
       calledNameCalculated: false,
-      branch: branchNameFindedNew,
-      branchCalculated: true,
-      department: deptFindNew,
-      departmentCalculated: true,
+      branchCalculated: false,
+      departmentCalculated: false,
       transferCallCalculated: false,
       parentTransferCallLog: false,
       creationDate: new Date(),
