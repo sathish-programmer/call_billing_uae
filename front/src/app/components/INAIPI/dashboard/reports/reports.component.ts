@@ -294,8 +294,9 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   getSavedFilterList(orgId) {
+    console.log('org check', orgId);
     this.savedFilterListSubscription = this.authService
-      .getSavedListFilterList()
+      .getSavedListFilterList(orgId)
       .subscribe(
         (res) => {
           if (res['success']) {

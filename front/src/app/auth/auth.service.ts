@@ -643,10 +643,10 @@ export class AuthService {
       .pipe((res) => res);
   }
 
-  getSavedListFilterList() {
+  getSavedListFilterList(orgId) {
     let headers = { headers: { token: localStorage.getItem('token') } };
     return this.http
-      .get(this.baseUrl + 'call-report-template', headers)
+      .get(this.baseUrl + 'call-report-template/' + orgId, headers)
       .pipe((res) => res);
   }
 
