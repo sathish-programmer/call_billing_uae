@@ -78,11 +78,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
         let userRole = localStorage.getItem('userRole');
         // add manange payment role for admin
         if (localStorage.getItem('email') == 'admin@inaipi.com') {
+          res['data']['list'].push('canManageAllSettings');
           res['data']['list'].push('canManagePayment');
         } else {
           res['data']['list'].push('canManagePaymentAmount');
         }
-        res['data']['list'].push('canManageAllSettings');
+
         res['data']['list'].push(userRole);
         this.menuItems = PRODUCT_ROUTES.paths(res['data']['list']);
         localStorage.setItem(

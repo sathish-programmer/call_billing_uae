@@ -68,9 +68,7 @@ export var PRODUCT_ROUTES = {
           {
             title: 'Settings',
             routerLink: '/admin/settings',
-            // checkpermission:
-            //   permissions.indexOf('canManagePaymentAmount') >= 0 &&
-            //   permissions.indexOf('admin') >= 0,
+            checkpermission: permissions.indexOf('canManageAllSettings') >= 0,
           },
         ],
       },
