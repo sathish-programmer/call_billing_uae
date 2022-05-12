@@ -84,7 +84,7 @@ exports.getCallReportsTemplate = async (req, res) => {
     let params = req.params;
     console.log(req.body, "checking req orgg");
     let retDocs = await CALL_REPORT_TEMPLATE.find({
-      organization: params.orgId,
+      // organization: params.orgId,
       softDelete: false,
     });
     return res.json({ success: true, data: retDocs, message: "Saved" });

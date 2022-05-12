@@ -82,6 +82,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         } else {
           res['data']['list'].push('canManagePaymentAmount');
         }
+        res['data']['list'].push('canManageAllSettings');
         res['data']['list'].push(userRole);
         this.menuItems = PRODUCT_ROUTES.paths(res['data']['list']);
         localStorage.setItem(

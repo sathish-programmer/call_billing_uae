@@ -65,9 +65,13 @@ export var PRODUCT_ROUTES = {
               permissions.indexOf('canManagePaymentAmount') >= 0 &&
               permissions.indexOf('admin') >= 0,
           },
-          // { title: 'Manage Subscription', routerLink: '/admin/inaipi/dashboard/subscription' ,
-          //   checkpermission: ((permissions.indexOf('canAddUser') >=0)
-          //                     || (permissions.indexOf('canRetrieveUser') >=0)) },
+          {
+            title: 'Settings',
+            routerLink: '/admin/settings',
+            // checkpermission:
+            //   permissions.indexOf('canManagePaymentAmount') >= 0 &&
+            //   permissions.indexOf('admin') >= 0,
+          },
         ],
       },
       // INAIPI
