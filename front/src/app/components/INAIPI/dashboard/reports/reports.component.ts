@@ -30,6 +30,9 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   downloadCSVSubscription: Subscription;
   downloadPDFSubscription: Subscription;
 
+  getUserEmail: any;
+  roleAccess: boolean;
+
   orgId: string;
   permissions: any = [];
   isSU = localStorage.getItem('isSU');
@@ -193,6 +196,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.permissions = JSON.parse(localStorage.getItem('permissions'));
+    this.getUserEmail = localStorage.getItem('email');
   }
 
   ngOnDestroy(): void {
@@ -301,6 +305,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         (res) => {
           if (res['success']) {
             this.savedFilter = res['data'];
+            console.log(res['data'], 'test check');
           } else {
             this.toastr.error(res['message'], 'Error!');
           }
@@ -430,7 +435,18 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     this.searchData = '';
   }
 
-  fillFormValue(savedFilterDataId) {
+  fillFormValue(savedFilterDataId, event) {
+    let selectedIndex: any = event.target['selectedIndex'];
+    let setRole =
+      event.target.options[selectedIndex].getAttribute('data-editrole');
+    console.log(setRole);
+
+    if (setRole == 'superAdmin' && this.getUserEmail != 'admin@inaipi.com') {
+      this.roleAccess = false;
+    } else {
+      this.roleAccess = true;
+    }
+
     this._zone.run(() => {
       let savedFilterData = _.findWhere(this.savedFilter, {
         _id: savedFilterDataId,

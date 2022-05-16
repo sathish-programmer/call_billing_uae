@@ -4,7 +4,19 @@ const CALL_REPORT_TEMPLATE = require("./call-report-template.model");
 exports.saveCallReportsTemplate = async (req, res) => {
   try {
     let body = req.body;
+    let addedByName;
+    if (req.user.type == "root") {
+      addedByName = "superAdmin";
+    } else {
+      addedByName = "orgAdmin";
+    }
+
     if (body.organization && body.startDate && body.endDate && body.fileName) {
+      // let findFileName = CALL_REPORT_TEMPLATE.findOne({
+      //   softDelete: false,
+      //   fileName: body.fileName,
+      // });
+
       let dataToSave = new CALL_REPORT_TEMPLATE({
         organization: body.organization,
         user: req.user._id,
@@ -22,11 +34,28 @@ exports.saveCallReportsTemplate = async (req, res) => {
         searchByNumber: body.searchByNumber,
         costEnabled: body.costEnabled,
         softDelete: false,
+        addedBy: addedByName,
       });
+      if (
+        await CALL_REPORT_TEMPLATE.findOne({
+          fileName: body.fileName,
+          softDelete: false,
+        })
+      ) {
+        return res.json({
+          success: false,
+          data: "",
+          message: "File name already exists",
+        });
+      } else {
+        let retDoc = await dataToSave.save();
 
-      let retDoc = await dataToSave.save();
-
-      return res.json({ success: true, data: retDoc["_id"], message: "Saved" });
+        return res.json({
+          success: true,
+          data: retDoc["_id"],
+          message: "Saved",
+        });
+      }
     } else {
       return res.json({ success: false, data: "", message: "Missing data" });
     }
@@ -41,6 +70,13 @@ exports.updateCallReportTemplate = async (req, res) => {
   try {
     let body = req.body;
     let params = req.params;
+
+    let addedByName;
+    if (req.user.type == "root") {
+      addedByName = "superAdmin";
+    } else {
+      addedByName = "orgAdmin";
+    }
 
     if (body.organization && body.startDate && body.endDate && body.fileName) {
       let retDoc = await CALL_REPORT_TEMPLATE.findByIdAndUpdate(
@@ -64,6 +100,7 @@ exports.updateCallReportTemplate = async (req, res) => {
             orderBy: body.orderBy,
             searchByNumber: body.searchByNumber,
             costEnabled: body.costEnabled,
+            addedBy: addedByName,
           },
         }
       );
@@ -82,12 +119,26 @@ exports.updateCallReportTemplate = async (req, res) => {
 exports.getCallReportsTemplate = async (req, res) => {
   try {
     let params = req.params;
+    console.log("checking user id for get temp ", req.user._id);
     console.log(req.body, "checking req orgg");
     let retDocs = await CALL_REPORT_TEMPLATE.find({
       // organization: params.orgId,
+      addedBy: "superAdmin",
       softDelete: false,
     });
-    return res.json({ success: true, data: retDocs, message: "Saved" });
+
+    //get record based on org
+    let orgRec = await CALL_REPORT_TEMPLATE.find({
+      organization: params.orgId,
+      addedBy: "orgAdmin",
+      softDelete: false,
+    });
+
+    retDocs.push(orgRec);
+
+    let ressss = retDocs.flat();
+
+    return res.json({ success: true, data: ressss, message: "Saved" });
   } catch (err) {
     console.log("Error while saving reports filter", err);
     return res.json({ succes: false, data: "", message: err });

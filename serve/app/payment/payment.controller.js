@@ -4,6 +4,9 @@ const ORG = require("../organization/organization.model");
 const USER = require("../user/user.model");
 const CURRENCY = require("../currency/currency.model");
 
+const OTPmodel = require("../email-template/otp-template/otp-model");
+const ExpireTempmodel = require("../email-template/credits-expire-template/expire.model");
+
 const { v4: uuidv4 } = require("uuid");
 
 const MASTER = require("../payment-master/master.model");
@@ -31,17 +34,54 @@ exports.sendOtp = async (req, res) => {
       },
     });
 
-    const options = {
-      from: "sathish@imperiumapp.com", // sender address
-      to: "sathishkumarksk007@gmail.com", // list of receivers
-      subject: "Call Billing - Payment Verification OTP", // Subject line
-      html:
-        "Dear Admin, <br><br>You have requested to Initiate payment credit for organization '<b> " +
+    let options;
+    let chkTemp = await OTPmodel.findOne(
+      {
+        type: 1,
+        softDelete: false,
+      },
+      "to title body signature subject"
+    );
+
+    if (chkTemp) {
+      let htmlContent = "";
+
+      htmlContent += chkTemp["title"] + "<br><br>";
+
+      htmlContent += chkTemp["body"].replaceAll("\n", "<br>") + "<br><br>";
+
+      htmlContent +=
+        "OTP for adding payment credit to the organization <b>" +
         orgName +
-        " </b>' from call billing. Your OTP for this request is " +
+        "</b> is <b>" +
         otp +
-        " and it is valid for Five Minutes.<br><br> Thanks,<br>Call Billing Support ",
-    };
+        " </b> and its valid for only five minutes.<br>";
+
+      // htmlContent += "<b>Your OTP for this request is : " + otp + "</b>";
+
+      htmlContent += "<br><br>";
+
+      htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
+
+      options = {
+        from: "sathish@imperiumapp.com", // sender address
+        to: chkTemp["to"], // list of receivers
+        subject: chkTemp["subject"], // Subject line
+        html: htmlContent,
+      };
+    } else {
+      options = {
+        from: "sathish@imperiumapp.com", // sender address
+        to: "sathishkumarksk007@gmail.com", // list of receivers
+        subject: "Call Billing - Payment Verification OTP", // Subject line
+        html:
+          "Dear Admin, <br><br>You have requested to Initiate payment credit for organization '<b> " +
+          orgName +
+          " </b>' from call billing. Your OTP for this request is " +
+          otp +
+          " and it is valid for Five Minutes.<br><br> Thanks,<br>Call Billing Support ",
+      };
+    }
 
     transporter.sendMail(options, function (err, info) {
       if (err) {
@@ -503,7 +543,8 @@ exports.notifyPaymentExpire = async (req, res) => {
 };
 
 // send email function
-function sendEmailToAdmin(recivers) {
+let sendEmailToAdmin = async (recivers) => {
+  console.log(recivers, "testttt");
   let transporter = nodemailer.createTransport({
     host: "smtp.office365.com",
     port: 587,
@@ -516,12 +557,37 @@ function sendEmailToAdmin(recivers) {
 
   let admiEmail = recivers;
 
-  const options = {
-    from: "sathish@imperiumapp.com", // sender address
-    to: admiEmail, // list of receivers
-    subject: "Call Billing - Notify for Payment", // Subject line
-    html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
-  };
+  let options;
+  let chkTemp = await ExpireTempmodel.findOne(
+    {
+      type: 1,
+      softDelete: false,
+    },
+    "title body signature subject"
+  );
+  if (chkTemp) {
+    let htmlContent = "";
+
+    htmlContent += chkTemp["title"] + "<br><br>";
+
+    htmlContent += chkTemp["body"].replaceAll("\n", "<br>") + "<br><br>";
+
+    htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
+
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: chkTemp["subject"], // Subject line
+      html: htmlContent,
+    };
+  } else {
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: "Call Billing - Notify for Payment", // Subject line
+      html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
+    };
+  }
 
   transporter.sendMail(options, function (err, info) {
     if (err) {
@@ -529,7 +595,7 @@ function sendEmailToAdmin(recivers) {
       return;
     }
   });
-}
+};
 
 function sendEmailToAdminForSuccess(recivers, package, orgName, transactionId) {
   let transporter = nodemailer.createTransport({

@@ -232,6 +232,37 @@ export class AuthService {
       .pipe((res) => res);
   }
 
+  //temp
+  setOTPTemp(data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+
+    return this.http
+      .post(this.baseUrl + 'createOTPTemplate/save', data, headers)
+      .pipe((res) => res);
+  }
+
+  setExpireTemp(data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+
+    return this.http
+      .post(this.baseUrl + 'paymentExpireTemplate/save', data, headers)
+      .pipe((res) => res);
+  }
+
+  getOTPTempRec() {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .get(this.baseUrl + 'createOTPTemplate/getTemplate', headers)
+      .pipe((res) => res);
+  }
+
+  getExpireTempRec() {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .get(this.baseUrl + 'paymentExpireTemplate/getTemplate', headers)
+      .pipe((res) => res);
+  }
+
   addPackage(data) {
     let headers = { headers: { token: localStorage.getItem('token') } };
 
