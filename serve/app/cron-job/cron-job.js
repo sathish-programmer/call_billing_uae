@@ -8,6 +8,8 @@ const paymentHistory = require("../payment-history/paymentHistory.model");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
 
+const ExpireTempmodel = require("../email-template/credits-expire-template/expire.model");
+
 // Find org Name for the Call log
 var findOrgInfoForCallLog = new CronJob("*/05 * * * * *", async function () {
   let callLogs = await CALL_LOGS.find(
@@ -1037,7 +1039,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCallerNameInfoForCallLog.start();
+findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -1145,7 +1147,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCalledNameInfoForCallLog.start();
+findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
@@ -1403,7 +1405,7 @@ var checkAndSendMail = new CronJob("*/2 * * * *", async function () {
 
 checkAndSendMail.start();
 
-function sendEmailToAdmin(recivers) {
+let sendEmailToAdmin = async (recivers) => {
   let transporter = nodemailer.createTransport({
     host: "smtp.office365.com",
     port: 587,
@@ -1416,12 +1418,38 @@ function sendEmailToAdmin(recivers) {
 
   let admiEmail = recivers;
 
-  const options = {
-    from: "sathish@imperiumapp.com", // sender address
-    to: admiEmail, // list of receivers
-    subject: "Call Billing - Notify for Payment", // Subject line
-    html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
-  };
+  let options;
+  let chkTemp = await ExpireTempmodel.findOne(
+    {
+      type: 1,
+      softDelete: false,
+    },
+    "title body signature subject"
+  );
+
+  if (chkTemp) {
+    let htmlContent = "";
+
+    htmlContent += chkTemp["title"] + "<br><br>";
+
+    htmlContent += chkTemp["body"].replaceAll("\n", "<br>") + "<br><br>";
+
+    htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
+
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: chkTemp["subject"], // Subject line
+      html: htmlContent,
+    };
+  } else {
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: "Call Billing - Notify for Payment", // Subject line
+      html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
+    };
+  }
 
   transporter.sendMail(options, function (err, info) {
     if (err) {
@@ -1429,7 +1457,7 @@ function sendEmailToAdmin(recivers) {
       return;
     }
   });
-}
+};
 
 function genTransactionId() {
   const uniqueId = uuidv4();

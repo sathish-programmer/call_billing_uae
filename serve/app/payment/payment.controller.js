@@ -544,7 +544,7 @@ exports.notifyPaymentExpire = async (req, res) => {
 
 // send email function
 let sendEmailToAdmin = async (recivers) => {
-  console.log(recivers, "testttt");
+  // console.log(recivers, "testttt");
   let transporter = nodemailer.createTransport({
     host: "smtp.office365.com",
     port: 587,
