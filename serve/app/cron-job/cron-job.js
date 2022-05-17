@@ -12,184 +12,6 @@ const ExpireTempmodel = require("../email-template/credits-expire-template/expir
 
 const ExpiredTempmodel = require("../email-template/credits-over-template/expired-model");
 
-// Find org Name for the Call log
-var findOrgInfoForCallLog = new CronJob("*/05 * * * * *", async function () {
-  let callLogs = await CALL_LOGS.find(
-    { organizationCalculated: false },
-    "Callernumber organization Callednumber DialedNumber _id Direction",
-    { limit: 5000, sort: { creationDate: -1 } }
-  ).lean();
-
-  try {
-    if (callLogs && callLogs.length) {
-      let groupedCallLogs = _.groupBy(callLogs, "organization");
-      let keys = Object.keys(groupedCallLogs);
-      for (let kI in keys) {
-        callLogs = groupedCallLogs[keys[kI]];
-        let extensions = [];
-        // Get Exensions from the call logs
-        {
-          extensions = _.union(
-            _.pluck(callLogs, "Callernumber"),
-            _.pluck(callLogs, "Callednumber"),
-            _.pluck(callLogs, "DialedNumber")
-          );
-          extensions = _.uniq(
-            _.difference(
-              _.map(extensions, function (se) {
-                se = String(se);
-
-                if (se.length <= 6 && !isNaN(parseInt(se))) {
-                  return se;
-                } else {
-                  return null;
-                }
-              }),
-              [undefined, null, ""]
-            )
-          );
-        }
-        console.log("checkingg org name" + extensions);
-        // Get User extensions
-        let userDetails = await USER.find(
-          {
-            softDelete: false,
-            extension: { $in: extensions },
-          },
-          "organization extension",
-          { limit: 1, sort: { _id: -1 } }
-        ).lean();
-
-        // Tie org with call log
-        {
-          let updateData;
-          for (let index in callLogs) {
-            updateData = {};
-            let number,
-              foundOrgDetail = {};
-            if (callLogs[index]["Direction"] == "I") {
-              number = String(callLogs[index]["Callednumber"]);
-              let number1 = String(callLogs[index]["Callernumber"]);
-              if (number1.length >= 5) {
-                // foundOrgDetail = _.findWhere(userDetails, {
-                //   extension: parseInt(number),
-                // });
-                foundOrgDetail = await USER.findOne(
-                  {
-                    softDelete: false,
-                    extension: parseInt(number),
-                  },
-                  "organization extension"
-                ).lean();
-                if (foundOrgDetail) {
-                  updateData = {
-                    organization: foundOrgDetail.organization,
-                    organizationCalculated: true,
-                  };
-                }
-              }
-
-              if (number.length <= 6) {
-                // foundOrgDetail = _.findWhere(userDetails, {
-                //   extension: parseInt(number),
-                // });
-                foundOrgDetail = await USER.findOne(
-                  {
-                    softDelete: false,
-                    extension: parseInt(number),
-                  },
-                  "organization extension"
-                ).lean();
-                if (foundOrgDetail) {
-                  updateData = {
-                    organization: foundOrgDetail.organization,
-                    organizationCalculated: true,
-                  };
-                }
-              }
-              if (!updateData["organization"]) {
-                number = String(callLogs[index]["Callednumber"]);
-
-                if (number.length <= 6) {
-                  foundOrgDetail = await USER.findOne(
-                    {
-                      softDelete: false,
-                      extension: parseInt(number),
-                    },
-                    "organization extension"
-                  ).lean();
-
-                  if (foundOrgDetail) {
-                    updateData = {
-                      organization: foundOrgDetail.organization,
-                      organizationCalculated: true,
-                    };
-                  }
-                }
-              }
-            } else if (callLogs[index]["Direction"] == "O") {
-              number = String(callLogs[index]["Callernumber"]);
-              let number1 = String(callLogs[index]["Callednumber"]);
-
-              if (number1.length <= 6) {
-                // console.log("printing con 1", number1);
-                // foundOrgDetail = _.findWhere(userDetails, {
-                //   extension: parseInt(number1),
-                // });
-                foundOrgDetail = await USER.findOne(
-                  {
-                    softDelete: false,
-                    extension: parseInt(number),
-                  },
-                  "organization extension"
-                ).lean();
-
-                if (foundOrgDetail) {
-                  updateData = {
-                    organization: foundOrgDetail.organization,
-                    organizationCalculated: true,
-                  };
-                }
-              }
-              if (number.length <= 6) {
-                console.log("printing con 2", number);
-
-                foundOrgDetail = await USER.findOne(
-                  {
-                    softDelete: false,
-                    extension: parseInt(number),
-                  },
-                  "organization extension"
-                ).lean();
-                console.log("check result", foundOrgDetail);
-                if (foundOrgDetail) {
-                  updateData = {
-                    organization: foundOrgDetail.organization,
-                    organizationCalculated: true,
-                  };
-                }
-              }
-            }
-            //Updating org with the call log
-            if (updateData && Object.keys(updateData).length) {
-              await CALL_LOGS.findByIdAndUpdate(
-                { _id: callLogs[index]["_id"] },
-                { $set: updateData }
-              );
-            }
-            number = foundOrgDetail = null;
-          }
-        }
-      }
-      callLogs = keys = groupedCallLogs = null;
-    }
-  } catch (err) {
-    console.log("Error in figuring organization", err);
-  }
-});
-
-findOrgInfoForCallLog.start();
-
 // Calculate Call Type for the Call log
 var calculateCallType = new CronJob("*/2 * * * *", async function () {
   console.log("Job triggered for calcualting call type");
@@ -689,6 +511,184 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
 
 calculateCallCostJob.start();
 
+// Find org Name for the Call log
+var findOrgInfoForCallLog = new CronJob("*/05 * * * * *", async function () {
+  let callLogs = await CALL_LOGS.find(
+    { organizationCalculated: false },
+    "Callernumber organization Callednumber DialedNumber _id Direction",
+    { limit: 5000, sort: { creationDate: -1 } }
+  ).lean();
+
+  try {
+    if (callLogs && callLogs.length) {
+      let groupedCallLogs = _.groupBy(callLogs, "organization");
+      let keys = Object.keys(groupedCallLogs);
+      for (let kI in keys) {
+        callLogs = groupedCallLogs[keys[kI]];
+        let extensions = [];
+        // Get Exensions from the call logs
+        {
+          extensions = _.union(
+            _.pluck(callLogs, "Callernumber"),
+            _.pluck(callLogs, "Callednumber"),
+            _.pluck(callLogs, "DialedNumber")
+          );
+          extensions = _.uniq(
+            _.difference(
+              _.map(extensions, function (se) {
+                se = String(se);
+
+                if (se.length <= 6 && !isNaN(parseInt(se))) {
+                  return se;
+                } else {
+                  return null;
+                }
+              }),
+              [undefined, null, ""]
+            )
+          );
+        }
+        console.log("checkingg org name" + extensions);
+        // Get User extensions
+        let userDetails = await USER.find(
+          {
+            softDelete: false,
+            extension: { $in: extensions },
+          },
+          "organization extension",
+          { limit: 1, sort: { _id: -1 } }
+        ).lean();
+
+        // Tie org with call log
+        {
+          let updateData;
+          for (let index in callLogs) {
+            updateData = {};
+            let number,
+              foundOrgDetail = {};
+            if (callLogs[index]["Direction"] == "I") {
+              number = String(callLogs[index]["Callednumber"]);
+              let number1 = String(callLogs[index]["Callernumber"]);
+              if (number1.length >= 5) {
+                // foundOrgDetail = _.findWhere(userDetails, {
+                //   extension: parseInt(number),
+                // });
+                foundOrgDetail = await USER.findOne(
+                  {
+                    softDelete: false,
+                    extension: parseInt(number),
+                  },
+                  "organization extension"
+                ).lean();
+                if (foundOrgDetail) {
+                  updateData = {
+                    organization: foundOrgDetail.organization,
+                    organizationCalculated: true,
+                  };
+                }
+              }
+
+              if (number.length <= 6) {
+                // foundOrgDetail = _.findWhere(userDetails, {
+                //   extension: parseInt(number),
+                // });
+                foundOrgDetail = await USER.findOne(
+                  {
+                    softDelete: false,
+                    extension: parseInt(number),
+                  },
+                  "organization extension"
+                ).lean();
+                if (foundOrgDetail) {
+                  updateData = {
+                    organization: foundOrgDetail.organization,
+                    organizationCalculated: true,
+                  };
+                }
+              }
+              if (!updateData["organization"]) {
+                number = String(callLogs[index]["Callednumber"]);
+
+                if (number.length <= 6) {
+                  foundOrgDetail = await USER.findOne(
+                    {
+                      softDelete: false,
+                      extension: parseInt(number),
+                    },
+                    "organization extension"
+                  ).lean();
+
+                  if (foundOrgDetail) {
+                    updateData = {
+                      organization: foundOrgDetail.organization,
+                      organizationCalculated: true,
+                    };
+                  }
+                }
+              }
+            } else if (callLogs[index]["Direction"] == "O") {
+              number = String(callLogs[index]["Callernumber"]);
+              let number1 = String(callLogs[index]["Callednumber"]);
+
+              if (number1.length <= 6) {
+                // console.log("printing con 1", number1);
+                // foundOrgDetail = _.findWhere(userDetails, {
+                //   extension: parseInt(number1),
+                // });
+                foundOrgDetail = await USER.findOne(
+                  {
+                    softDelete: false,
+                    extension: parseInt(number),
+                  },
+                  "organization extension"
+                ).lean();
+
+                if (foundOrgDetail) {
+                  updateData = {
+                    organization: foundOrgDetail.organization,
+                    organizationCalculated: true,
+                  };
+                }
+              }
+              if (number.length <= 6) {
+                console.log("printing con 2", number);
+
+                foundOrgDetail = await USER.findOne(
+                  {
+                    softDelete: false,
+                    extension: parseInt(number),
+                  },
+                  "organization extension"
+                ).lean();
+                console.log("check result", foundOrgDetail);
+                if (foundOrgDetail) {
+                  updateData = {
+                    organization: foundOrgDetail.organization,
+                    organizationCalculated: true,
+                  };
+                }
+              }
+            }
+            //Updating org with the call log
+            if (updateData && Object.keys(updateData).length) {
+              await CALL_LOGS.findByIdAndUpdate(
+                { _id: callLogs[index]["_id"] },
+                { $set: updateData }
+              );
+            }
+            number = foundOrgDetail = null;
+          }
+        }
+      }
+      callLogs = keys = groupedCallLogs = null;
+    }
+  } catch (err) {
+    console.log("Error in figuring organization", err);
+  }
+});
+
+findOrgInfoForCallLog.start();
+
 // Find Branch Name for the Call log
 var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
   console.log("Job triggered for finding branch details for call log");
@@ -1041,7 +1041,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCallerNameInfoForCallLog.start();
+findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -1149,7 +1149,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCalledNameInfoForCallLog.start();
+findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
