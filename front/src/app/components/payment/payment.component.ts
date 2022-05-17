@@ -16,8 +16,6 @@ import { Roles } from '../../models/role.model';
 import { Subscription } from 'rxjs';
 import { ThrowStmt } from '@angular/compiler';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { threadId } from 'worker_threads';
 declare let $: any;
 
 @Component({
@@ -42,8 +40,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
   paymentId: any;
   paymentName: any;
   permissions: [] = [];
-  showOrgName: any;
-  orgChangeCount: number = 0;
 
   optionSelectedVal: any;
 
@@ -81,8 +77,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private fb: FormBuilder,
     private sharingService: OrganizationIdSharingService,
-    private http: HttpClient,
-    private ngxLoader: NgxUiLoaderService
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -130,7 +125,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
     });
 
     this.paymentEditForm = this.fb.group({
-      otp_edit: ['', Validators.required],
       packageEditName: ['', Validators.required],
       assignedAmount: ['', Validators.required],
       organizationEdit: ['', Validators.required],
@@ -205,7 +199,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   editPayment(paymentData: Payment) {
-    this.showOrgName = paymentData['orgName'];
+    // console.log(paymentData);
     let sendData = { currency: paymentData['currencySymbol'] };
     this.authService.getEditPackageOptions(sendData).subscribe((res) => {
       if (res['success']) {
@@ -230,17 +224,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   onChangeGetVal($event) {
-    console.log(this.orgChangeCount);
-    this.orgChangeCount++;
-    this.butSendOtp = true;
-    this.butVerifyOtp = false;
-    this.divTimer = false;
-    this.timeLeft = 60;
-    clearInterval(this.interval);
-    $('#addPackBtn').prop('disabled', true);
-    // $('.verify-icon').prop('disabled', false);
-    // $('.verify-icon').prop('disabled', true);
-    // $('.verify-icon').css('background-color', '#fff');
     let text = $event.target.options[$event.target.options.selectedIndex].text;
     console.log(text);
     this.OrganizationName = text;
@@ -257,19 +240,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
       .subscribe(
         (res) => {
           if (res['success']) {
-            this.paymentEditForm.reset();
-            $('.verify-icon').removeAttr('Disabled');
-            $('.verify-icon').css('background-color', '#fff');
-            this.butSendOtp = true;
-            this.butVerifyOtp = false;
-            $('#addPackBtn').prop('disabled', true);
             this.toastr.success('Payment Updated', 'Success!');
             $('#editPaymentModal').modal('hide');
-
+            this.paymentEditForm.reset();
             this.getPaymentOrgList(1);
             this.changeOrgList();
-
-            this.paymentForm.reset();
           } else {
             this.toastr.error(res['message'], 'Error!');
           }
@@ -343,24 +318,14 @@ export class PaymentComponent implements OnInit, OnDestroy {
     $('#addOrgModal').modal('show');
   }
 
-  verifyOtp(val: String) {
-    console.log(val);
-    let data;
-    if (val == 'add') {
-      var otp_value = $('#otp_val').val();
-      data = { otp: otp_value };
-      if (otp_value == '' || otp_value == undefined) {
-        this.toastr.error('Please enter OTP', 'Error!');
-        return;
-      }
-    } else {
-      var otp_valueEdit = $('#otp_valEdit').val();
-      data = { otp: otp_valueEdit };
-      if (otp_valueEdit == '' || otp_valueEdit == undefined) {
-        this.toastr.error('Please enter OTP', 'Error!');
-        return;
-      }
+  verifyOtp() {
+    // $('.verify-icon').css('background-size', '15px');
+    var otp_value = $('#otp_val').val();
+    if (otp_value == '' || otp_value == undefined) {
+      this.toastr.error('Please enter OTP', 'Error!');
+      return;
     }
+    let data = { otp: otp_value };
 
     this.verifyOtpPayment = this.authService.verifyOtpPayment(data).subscribe(
       (res) => {
@@ -406,9 +371,19 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.butVerifyOtp = true;
     $('.resend-otp').prop('disabled', true);
     $('.resend-otp').css('opacity', '0.6');
-
-    this.startTimer();
-    this.ngxLoader.start();
+    this.interval = setInterval(() => {
+      if (this.timeLeft > 0) {
+        this.timeLeft--;
+      } else {
+        this.timeLeft = 60;
+      }
+      if (this.timeLeft == 0) {
+        clearInterval(this.interval);
+        this.divTimer = false;
+        $('.resend-otp').removeAttr('Disabled');
+        $('.resend-otp').css('opacity', '1');
+      }
+    }, 1000);
 
     // let data = { email: this.orgAdminEmail };
     let mailOrganizationName = this.OrganizationName;
@@ -417,48 +392,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.sendOtpPayment = this.authService.sendOtpPayment(data).subscribe(
       (res) => {
         if (res['success']) {
-          $('.verify-icon').prop('disabled', false);
-          $('.verify-icon').css('background-color', '#fff');
           this.toastr.success('OTP resent success', 'Success!');
-          this.ngxLoader.stop();
         } else {
           this.toastr.error(res['message'], 'Error!');
         }
       },
       () => {
-        this.ngxLoader.stop();
-        this.toastr.error('Something went wrong', 'Error!');
-      }
-    );
-  }
-
-  sendOtpEdit() {
-    let orgName = this.showOrgName;
-    this.divTimer = true;
-    this.divCodeSentTo = true;
-    this.butSendOtp = false;
-    this.butVerifyOtp = true;
-    $('.resend-optSpan').css('display', 'inline');
-    $('.resend-otp').css('display', 'inline');
-    this.timeLeft = 60;
-    clearInterval(this.interval);
-    this.startTimer();
-    this.ngxLoader.start();
-
-    let data = { email: this.orgAdminEmail, orgName: orgName };
-    this.sendOtpPayment = this.authService.sendOtpPayment(data).subscribe(
-      (res) => {
-        if (res['success']) {
-          $('.verify-icon').prop('disabled', false);
-          $('.verify-icon').css('background-color', '#fff');
-          this.toastr.success(res['message'], 'Success!');
-          this.ngxLoader.stop();
-        } else {
-          this.toastr.error(res['message'], 'Error!');
-        }
-      },
-      () => {
-        this.ngxLoader.stop();
         this.toastr.error('Something went wrong', 'Error!');
       }
     );
@@ -469,12 +408,20 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.divCodeSentTo = true;
     this.butSendOtp = false;
     this.butVerifyOtp = true;
-    $('.resend-optSpan').css('display', 'inline');
-    $('.resend-otp').css('display', 'inline');
-    this.timeLeft = 60;
-    clearInterval(this.interval);
-    this.startTimer();
-    this.ngxLoader.start();
+
+    this.interval = setInterval(() => {
+      if (this.timeLeft > 0) {
+        this.timeLeft--;
+      } else {
+        this.timeLeft = 60;
+      }
+      if (this.timeLeft == 0) {
+        clearInterval(this.interval);
+        this.divTimer = false;
+        $('.resend-otp').removeAttr('Disabled');
+        $('.resend-otp').css('opacity', '1');
+      }
+    }, 1000);
 
     let mailOrganizationName = this.OrganizationName;
     let data = { email: this.orgAdminEmail, orgName: mailOrganizationName };
@@ -483,16 +430,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.sendOtpPayment = this.authService.sendOtpPayment(data).subscribe(
       (res) => {
         if (res['success']) {
-          $('.verify-icon').prop('disabled', false);
-          $('.verify-icon').css('background-color', '#fff');
           this.toastr.success(res['message'], 'Success!');
-          this.ngxLoader.stop();
         } else {
           this.toastr.error(res['message'], 'Error!');
         }
       },
       () => {
-        this.ngxLoader.stop();
         this.toastr.error('Something went wrong', 'Error!');
       }
     );
@@ -509,32 +452,17 @@ export class PaymentComponent implements OnInit, OnDestroy {
       .addPackageCredit(this.paymentForm.value)
       .subscribe(
         (res) => {
-          if (
-            res['success'] &&
-            res['OTPVerified'] &&
-            res['data'] != 'Id already available'
-          ) {
+          if (res['success'] && res['data'] != 'Id already available') {
             $('#addOrgModal').modal('hide');
             $('.verify-icon').removeAttr('Disabled');
             $('.verify-icon').css('background-color', '#fff');
             this.butSendOtp = true;
             this.butVerifyOtp = false;
             this.paymentForm.reset();
-            this.paymentEditForm.reset();
-            // this.paymentForm.reset();
             this.getPaymentOrgList(1);
             this.changeOrgList();
             $('#addPackBtn').prop('disabled', true);
             this.toastr.success(res['message'], 'Success!');
-          } else if (
-            res['success'] &&
-            !res['OTPVerified'] &&
-            res['data'] != 'Id already available'
-          ) {
-            this.toastr.error(
-              'You have entered invalid OTP, Please check',
-              'Error!'
-            );
           } else if (res['success'] && res['data'] == 'Id already available') {
             $('#addOrgModal').modal('hide');
             $('.verify-icon').removeAttr('Disabled');
@@ -554,27 +482,5 @@ export class PaymentComponent implements OnInit, OnDestroy {
           this.toastr.error('Something went wrong', 'Error!');
         }
       );
-  }
-
-  startTimer() {
-    this.interval = setInterval(() => {
-      if (this.timeLeft > 0) {
-        this.timeLeft--;
-      } else {
-        this.timeLeft = 60;
-      }
-      if (this.timeLeft == 0) {
-        clearInterval(this.interval);
-        this.divTimer = false;
-        $('.resend-otp').removeAttr('Disabled');
-        $('.resend-otp').css('opacity', '1');
-      }
-    }, 1000);
-  }
-
-  numericOnly(event): boolean {
-    let patt = /^([0-9])$/;
-    let result = patt.test(event.key);
-    return result;
   }
 }

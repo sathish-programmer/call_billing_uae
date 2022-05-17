@@ -1,12 +1,12 @@
 <div class="container-fluid">
-  <h4 class="text-uppercase header">PACKAGE ASSIGNED ORGANIZATIONS</h4>
+  <h4 class="text-uppercase header">PAYMENT LIST</h4>
   <div class="addPackage">
     <button
       [routerLink]="['/admin/payment-master']"
       class="btn add-btn"
       title="Add Package"
     >
-      Package Master
+      Add Package
     </button>
   </div>
   <div class="rel-action" (click)="openPaymentPopUp()">
@@ -18,10 +18,10 @@
     <table class="table table-bordered">
       <thead>
         <tr>
-          <th scope="col">Assinged Credit</th>
+          <th scope="col">Assinged Amount</th>
           <th scope="col" style="width: 20%">Organization</th>
-          <th scope="col">Available Credit</th>
-          <th scope="col">Added Date</th>
+          <th scope="col">Available Amount</th>
+          <th scope="col">Generated Date</th>
           <th scope="col">Updated Date</th>
           <th scope="col">Activity</th>
           <th scope="col" class="text-right pull-right">Actions</th>
@@ -51,7 +51,7 @@
             <div *ngIf="data.paymentGoingToExpire">
               <span id="showLimitExpire">Limit going to Expire</span
               ><span id="sendNotiBtn" (click)="notifyAlertMail(data)"
-                >Send notification to mail</span
+                >Send notification via Mail</span
               >
             </div>
           </td>
@@ -99,7 +99,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="container">
-        <h6 class="heading">Assign the Package</h6>
+        <h6 class="heading">Assign the Payment</h6>
         <button
           type="button"
           class="close"
@@ -155,7 +155,6 @@
               class="input-field verify-icon"
               placeholder="Enter OTP"
               formControlName="otp"
-              (keypress)="numericOnly($event)"
               id="otp_val"
               maxlength="6"
               required
@@ -173,7 +172,7 @@
               *ngIf="butVerifyOtp"
               type="button"
               class="send-otp-verify-otp"
-              (click)="verifyOtp('add')"
+              (click)="verifyOtp()"
             >
               Verify OTP
             </button>
@@ -248,10 +247,10 @@
             </select>
           </div>
           <div style="margin-top: 5px">
-            <label class="required">Assigned Credit</label>
+            <label class="required">Assigned Amount</label>
             <input
               class="input-field"
-              placeholder="Enter Credit"
+              placeholder="Enter Amount"
               formControlName="assignedAmount"
               id="avilAmt"
               required
@@ -259,10 +258,10 @@
             />
           </div>
           <div style="margin-top: 5px">
-            <label class="required">Available Credit</label>
+            <label class="required">Available Amount</label>
             <input
               class="input-field"
-              placeholder="Enter Pending Credit"
+              placeholder="Enter Pending Amount"
               formControlName="pendingAmount"
               id="pendAmt"
               required
@@ -280,8 +279,8 @@
               disabled
             />
           </div>
-
-          <div style="margin-top: 5px">
+          <!-- div otp for edit pack-->
+          <div style="margin-top: 5px; display: none">
             <label class="required">OTP</label
             ><span *ngIf="divCodeSentTo" class="code-sent-to"
               >( code is sent to {{ paymentEmail }} )</span
@@ -291,18 +290,17 @@
               type="text"
               class="input-field verify-icon"
               placeholder="Enter OTP"
-              (keypress)="numericOnly($event)"
-              formControlName="otp_edit"
-              id="otp_valEdit"
+              formControlName="otp"
+              id="otp_val"
               maxlength="6"
               required
             />
             <!-- <span class="otp-error">The code you entered was incorrect</span> -->
             <button
-              type="button"
+              type="submit"
               *ngIf="butSendOtp"
               class="send-otp-verify"
-              (click)="sendOtpEdit()"
+              (click)="sendOtp()"
             >
               Send OTP
             </button>
@@ -310,7 +308,7 @@
               *ngIf="butVerifyOtp"
               type="button"
               class="send-otp-verify-otp"
-              (click)="verifyOtp('edit')"
+              (click)="verifyOtp()"
             >
               Verify OTP
             </button>
@@ -324,7 +322,6 @@
               Request again</button
             ><span *ngIf="divTimer" class="timer-otp">( {{ timeLeft }} )</span>
           </div>
-
           <hr />
           <button
             type="submit"

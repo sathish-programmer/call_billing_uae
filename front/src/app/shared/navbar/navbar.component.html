@@ -32,11 +32,7 @@
 
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <ul class="navbar-nav main-menu" id="main" menutoggledirective="">
-            <li
-              class="nav-item menu-icons"
-              menutogglelink=""
-              routerlinkactive="open"
-            >
+            <li class="nav-item" menutogglelink="" routerlinkactive="open">
               <a
                 class="nav-link hideOldMenu"
                 href="javascript:void(0)"
@@ -45,12 +41,11 @@
                 >PRODUCTS&nbsp;
                 <i class="fa fa-caret-down"></i>
               </a>
-              <!-- <div class="main_menubar">
+              <div class="main_menubar">
                 <div class="bar1 menu_new"></div>
                 <div class="bar2 menu_new"></div>
                 <div class="bar3 menu_new"></div>
-              </div> -->
-              <i data-feather="align-left" class="main_menubar"></i>
+              </div>
               <ul class="sub-menu arrow-up list-unstyled">
                 <li
                   class="nav-item"
@@ -120,12 +115,12 @@
           >
             <li class="nav-item ml-3" title="Dashboard">
               <a [routerLink]="['/admin/inaipi/dashboard']" class="nav-link"
-                ><i data-feather="grid"></i
+                ><i class="fas fa-tachometer-alt"></i
               ></a>
             </li>
             <li class="nav-item ml-3" title="Support">
               <a (click)="support()" class="nav-link"
-                ><i data-feather="help-circle"></i
+                ><i class="fas fa-headset"></i
               ></a>
             </li>
             <li class="nav-item ml-3">
@@ -136,13 +131,12 @@
                   >1</span
                 >
                 <i
-                  data-feather="bell"
                   *ngIf="userInfo.paymentGoingToExpire == 'true'"
+                  class="fas fa-bell"
                 ></i>
-
                 <i
                   *ngIf="userInfo.paymentGoingToExpire == 'false'"
-                  data-feather="bell"
+                  class="fas fa-bell"
                 ></i
               ></a>
               <ul class="sub-menu arrow-up" id="notifyDiv">
@@ -180,7 +174,7 @@
             </li>
             <li class="nav-item ml-3 mr-4">
               <a href="javascript:void(0)" class="nav-link"
-                ><i data-feather="user"></i
+                ><i class="fas fa-user"></i
               ></a>
               <ul class="sub-menu arrow-up" id="showUserDetails">
                 <li
