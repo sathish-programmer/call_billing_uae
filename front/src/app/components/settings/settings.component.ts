@@ -14,11 +14,15 @@ declare let $: any;
 export class SettingsComponent implements OnInit {
   otpTemplate: FormGroup;
   expireTemplate: FormGroup;
+  expiredTemplate: FormGroup;
   saveTemp: Subscription;
   getTemp: Subscription;
 
   saveExpireTemp: Subscription;
+  saveExpiredTemp: Subscription;
   getExpireTemp: Subscription;
+
+  getExpiredTemp: Subscription;
 
   showData: any;
 
@@ -33,6 +37,11 @@ export class SettingsComponent implements OnInit {
   body1: any;
   signature1: any;
 
+  subject2: any;
+  title2: any;
+  body2: any;
+  signature2: any;
+
   constructor(
     private authService: AuthService,
     private toastr: ToastrService,
@@ -44,6 +53,7 @@ export class SettingsComponent implements OnInit {
     this.formInit();
     this.getOTPTemp();
     this.getExpireEmailTemp();
+    this.getExpiredEmailTemp();
   }
 
   ngOnDestroy(): void {
@@ -52,6 +62,7 @@ export class SettingsComponent implements OnInit {
 
     this.saveExpireTemp?.unsubscribe();
     this.getExpireTemp?.unsubscribe();
+    this.getExpiredTemp?.unsubscribe();
   }
 
   formInit() {
@@ -69,6 +80,14 @@ export class SettingsComponent implements OnInit {
       name1: ['', Validators.required],
       body1: ['', Validators.required],
       signature1: ['', Validators.required],
+    });
+
+    this.expiredTemplate = this.fb.group({
+      // to: ['', Validators.required],
+      subject2: ['', Validators.required],
+      name2: ['', Validators.required],
+      body2: ['', Validators.required],
+      signature2: ['', Validators.required],
     });
   }
 
@@ -98,9 +117,22 @@ export class SettingsComponent implements OnInit {
           this.subject1 = data.subject;
           this.body1 = data.body.replace('</b>', '\n');
           this.signature1 = data.signature.replace('</b>', '\n');
-          // this.signature.replaceAll('<br>', '\n');
-          console.log(this.showData);
-          // this.toastr.success('OTP Template Saved', 'Success!');
+        }
+      });
+  }
+
+  getExpiredEmailTemp() {
+    this.getExpiredTemp = this.authService
+      .getExpiredTempRec()
+      .subscribe((res) => {
+        if (res['success']) {
+          let data = res['data'];
+          console.log('cjedsdd', data);
+          this.title2 = data.title;
+          this.subject2 = data.subject;
+          this.body2 = data.body.replace('</b>', '\n');
+          console.log(this.body2);
+          this.signature2 = data.signature.replace('</b>', '\n');
         }
       });
   }
@@ -191,7 +223,7 @@ export class SettingsComponent implements OnInit {
     }
     // console.log(formValue);
     // return;
-    this.saveTemp = this.authService.setExpireTemp(data).subscribe(
+    this.saveExpireTemp = this.authService.setExpireTemp(data).subscribe(
       (res) => {
         if (res['success']) {
           console.log(res['data']);
@@ -199,6 +231,53 @@ export class SettingsComponent implements OnInit {
           this.toastr.success(res['message'], 'Success!');
           // this.clearPacktForm();
           // this.getPackList(this.packPaginator.skip);
+        } else {
+          // this.clearPacktForm();
+          this.toastr.error(res['message'], 'Error!');
+        }
+      },
+      () => {
+        // this.clearPacktForm();
+        this.toastr.error('Something went wrong', 'Error!');
+      }
+    );
+  }
+
+  setExpiredTemp(formValue) {
+    if (formValue.name2 == '') {
+      formValue['name2'] = this.title2;
+    }
+    if (formValue.body2 == '') {
+      formValue['body2'] = this.body2;
+    }
+    if (formValue.subject2 == '') {
+      formValue['subject2'] = this.subject2;
+    }
+    if (formValue.signature2 == '') {
+      formValue['signature2'] = this.signature2;
+    }
+
+    let data = {
+      subject: formValue['subject2'],
+      name: formValue['name2'],
+      body: formValue['body2'],
+      signature: formValue['signature2'],
+    };
+
+    let subj = $('#subject2').val();
+    let body = $('#body2').val();
+    let title = $('#title2').val();
+    let sign = $('#sign2').val();
+    if (subj == '' || body == '' || title == '' || sign == '') {
+      alert('Please enter required fields');
+      return;
+    }
+    this.saveExpiredTemp = this.authService.setExpiredTemp(data).subscribe(
+      (res) => {
+        if (res['success']) {
+          console.log(res['data']);
+          this.getExpireEmailTemp();
+          this.toastr.success(res['message'], 'Success!');
         } else {
           // this.clearPacktForm();
           this.toastr.error(res['message'], 'Error!');

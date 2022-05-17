@@ -54,8 +54,8 @@ module.exports = function (app) {
   );
 
   // payment over temp
-  // app.use(
-  //   "/api/paymentOver",
-  //   require("./app/email-template/credits-over-template")
-  // );
+  app.use(
+    "/api/paymentOver",
+    require("./app/email-template/credits-over-template")
+  );
 };

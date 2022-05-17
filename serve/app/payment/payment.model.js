@@ -31,6 +31,11 @@ var paymentSchema = new Schema({
     default: 0,
   },
 
+  notifiedPaymentExpiredMail: {
+    type: Number,
+    default: 0,
+  },
+
   paymentTransactionId: { type: String },
 });
 

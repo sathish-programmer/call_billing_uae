@@ -32,7 +32,7 @@
               >Template 2</a
             >
           </li>
-          <!-- <li class="nav-item" role="presentation">
+          <li class="nav-item" role="presentation">
             <a
               class="nav-link"
               id="pills-contact-tab"
@@ -43,7 +43,7 @@
               aria-selected="false"
               >Template 3</a
             >
-          </li> -->
+          </li>
         </ul>
         <div class="tab-content" id="pills-tabContent">
           <div
@@ -225,8 +225,8 @@
             <h1 class="mb-3">Template for Credits Expired</h1>
             <div class="form col-6 m-4">
               <form
-                [formGroup]="expireTemplate"
-                (ngSubmit)="setExpireTemp(expireTemplate.value)"
+                [formGroup]="expiredTemplate"
+                (ngSubmit)="setExpiredTemp(expiredTemplate.value)"
               >
                 <div class="form-group">
                   <label class="required" for="exampleFormControlInput2"
@@ -235,10 +235,10 @@
                   <input
                     type="text"
                     class="form-control"
-                    formControlName="subject1"
-                    id="subject1"
+                    formControlName="subject2"
+                    id="subject2"
                     placeholder="Enter Subject.. (eg) Call Billing - Payment Expired"
-                    value=""
+                    value="{{ subject2 }}"
                   />
                 </div>
                 <div class="form-group">
@@ -247,11 +247,11 @@
                   >
                   <input
                     type="text"
-                    formControlName="name1"
+                    formControlName="name2"
                     class="form-control"
                     placeholder="Enter Name.. (eg) Dear Admin,"
-                    id="title1"
-                    value=""
+                    id="title2"
+                    value="{{ title2 }}"
                   />
                 </div>
 
@@ -263,10 +263,10 @@
                     class="form-control"
                     id="exampleFormControlTextarea1"
                     rows="3"
-                    formControlName="body1"
+                    formControlName="body2"
                     placeholder="Enter some message"
-                    id="body1"
-                    value=""
+                    id="body2"
+                    value="{{ body2 }}"
                   ></textarea>
                 </div>
                 <div class="form-group">
@@ -278,9 +278,9 @@
                     id="exampleFormControlTextarea1"
                     rows="3"
                     placeholder="Enter Signature"
-                    value=""
-                    formControlName="signature1"
-                    id="sign1"
+                    value="{{ signature2 }}"
+                    formControlName="signature2"
+                    id="sign2"
                   ></textarea>
                 </div>
                 <div>

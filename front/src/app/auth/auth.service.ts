@@ -249,6 +249,14 @@ export class AuthService {
       .pipe((res) => res);
   }
 
+  setExpiredTemp(data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+
+    return this.http
+      .post(this.baseUrl + 'paymentOver/save', data, headers)
+      .pipe((res) => res);
+  }
+
   getOTPTempRec() {
     let headers = { headers: { token: localStorage.getItem('token') } };
     return this.http
@@ -260,6 +268,13 @@ export class AuthService {
     let headers = { headers: { token: localStorage.getItem('token') } };
     return this.http
       .get(this.baseUrl + 'paymentExpireTemplate/getTemplate', headers)
+      .pipe((res) => res);
+  }
+
+  getExpiredTempRec() {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .get(this.baseUrl + 'paymentOver/getTemplate', headers)
       .pipe((res) => res);
   }
 

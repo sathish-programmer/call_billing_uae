@@ -10,6 +10,8 @@ const { v4: uuidv4 } = require("uuid");
 
 const ExpireTempmodel = require("../email-template/credits-expire-template/expire.model");
 
+const ExpiredTempmodel = require("../email-template/credits-over-template/expired-model");
+
 // Find org Name for the Call log
 var findOrgInfoForCallLog = new CronJob("*/05 * * * * *", async function () {
   let callLogs = await CALL_LOGS.find(
@@ -1039,7 +1041,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-findCallerNameInfoForCallLog.start();
+// findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -1147,7 +1149,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-findCalledNameInfoForCallLog.start();
+// findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
@@ -1403,7 +1405,7 @@ var checkAndSendMail = new CronJob("*/2 * * * *", async function () {
   }
 });
 
-checkAndSendMail.start();
+// checkAndSendMail.start();
 
 let sendEmailToAdmin = async (recivers) => {
   let transporter = nodemailer.createTransport({
@@ -1448,6 +1450,134 @@ let sendEmailToAdmin = async (recivers) => {
       to: admiEmail, // list of receivers
       subject: "Call Billing - Notify for Payment", // Subject line
       html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
+    };
+  }
+
+  transporter.sendMail(options, function (err, info) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+  });
+};
+
+// send mail automatically if amount expired
+var checkPaymentExpiredAndSendMail = new CronJob(
+  "*/2 * * * *",
+  async function () {
+    console.log("sending email if amount = 0 to org admins");
+    let findPayment = await paymentDB
+      .find(
+        {
+          softDelete: false,
+          notifiedPaymentExpiredMail: 0,
+          type: "normal",
+        },
+        "organization availablePackage"
+      )
+      .lean();
+    let paymentId;
+    var payIds;
+    let orgId;
+    let availPackage;
+    if (findPayment) {
+      findPayment.forEach(async (elements) => {
+        paymentId = elements["_id"];
+        payIds = elements["_id"];
+
+        orgId = elements["organization"];
+        console.log(payIds);
+
+        availPackage = elements["availablePackage"];
+
+        if (availPackage <= 0) {
+          // update notification sent, dont resend automatically
+          await paymentDB.findByIdAndUpdate(
+            {
+              _id: payIds,
+              softDelete: false,
+            },
+            {
+              $set: { notifiedPaymentExpiredMail: 1 },
+            }
+          );
+
+          let userDetails = await USER.find(
+            {
+              organization: orgId,
+              softDelete: false,
+            },
+            "email"
+          ).populate("role", "name");
+
+          if (userDetails.email != "" || userDetails.email != null) {
+            userEmail = userDetails["email"];
+          }
+
+          let adminEmails = [];
+          let findArr;
+          // var colData = [];
+          for (let index in userDetails) {
+            findArr = userDetails.filter(function (admin) {
+              return admin.role.name == "admin";
+            })[index];
+            if (findArr !== undefined) {
+              adminEmails.push(findArr.email);
+            }
+          }
+          // send email
+          // sendEmailToAdminForPaymentExpired(adminEmails);
+        }
+      });
+    }
+  }
+);
+
+// checkPaymentExpiredAndSendMail.start();
+
+let sendEmailToAdminForPaymentExpired = async (recivers) => {
+  let transporter = nodemailer.createTransport({
+    host: "smtp.office365.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: "sathish@imperiumapp.com", // username
+      pass: "NewPassword@#april", // password
+    },
+  });
+
+  let admiEmail = recivers;
+
+  let options;
+  let chkTemp = await ExpiredTempmodel.findOne(
+    {
+      type: 1,
+      softDelete: false,
+    },
+    "title body signature subject"
+  );
+
+  if (chkTemp) {
+    let htmlContent = "";
+
+    htmlContent += chkTemp["title"] + "<br><br>";
+
+    htmlContent += chkTemp["body"].replaceAll("\n", "<br>") + "<br><br>";
+
+    htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
+
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: chkTemp["subject"], // Subject line
+      html: htmlContent,
+    };
+  } else {
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: "Call Billing - Credits Over", // Subject line
+      html: "Dear Admin, <br><brWe noticed that payment credits for your organization expired, please recharge immediately for make calls.<br><br> Thanks,<br>Call Billing Support ",
     };
   }
 
