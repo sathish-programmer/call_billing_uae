@@ -38,11 +38,15 @@ export class PaymentDashboardComponent implements OnInit {
   showPreviousMnthDataTwo: any;
   showPreviousMnthDataThree: any;
 
+  showTransMsg: boolean;
+
   showFirstMonthPdf: Boolean = false;
   showSecMonthPdf: Boolean = false;
   showThirdMonthPdf: Boolean = false;
   showFourthMonthPdf: Boolean = false;
   showFivthtMonthPdf: Boolean = false;
+
+  showTransactionNotFound: Boolean = false;
 
   checkPayHistory: Boolean = false;
   currencySymbol: any;
@@ -177,6 +181,7 @@ export class PaymentDashboardComponent implements OnInit {
       (res) => {
         let data = res['data'];
         this.allPayData = data;
+
         if (res['data']['currentMonth']['costPaid'] > 0) {
           this.showFirstMonthPdf = true;
           this.showcurrentMnthData = res['data']['currentMonth'];
@@ -244,6 +249,8 @@ export class PaymentDashboardComponent implements OnInit {
           this.lastPaidAmount = 0;
           // this.lastPaidDate = 0;
           // this.availableAmount = localStorage.getItem('pendingAmount');
+          this.showTransactionNotFound = true;
+          this.showTransMsg = true;
           this.toastr.info('No transaction found', 'Info!');
         } else {
           this.checkPayHistory = false;

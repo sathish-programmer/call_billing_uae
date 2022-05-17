@@ -19,6 +19,7 @@ import { SubscriptionComponent } from './components/subscription/subscription.co
 import { PaymentComponent } from './components/payment/payment.component';
 import { PaymentDashboardComponent } from './components/payment-dashboard/payment-dashboard.component';
 import { PaymentMasterComponent } from './components/payment-master/payment-master.component';
+import { SettingsComponent } from './components/settings/settings.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -29,6 +30,7 @@ import { PaymentMasterComponent } from './components/payment-master/payment-mast
     PaymentComponent,
     PaymentDashboardComponent,
     PaymentMasterComponent,
+    SettingsComponent,
   ],
   imports: [
     BrowserModule,

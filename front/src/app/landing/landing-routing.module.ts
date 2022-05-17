@@ -1,3 +1,4 @@
+import { SettingsModule } from './../components/settings/settings.module';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LandingComponent } from './landing.component';
@@ -57,6 +58,13 @@ const routes: Routes = [
         loadChildren: () =>
           import('../components/payment-dashboard/payment.module').then(
             (m) => m.PaymentModule
+          ),
+      },
+      {
+        path: 'settings',
+        loadChildren: () =>
+          import('../components/settings/settings.module').then(
+            (m) => m.SettingsModule
           ),
       },
       {
