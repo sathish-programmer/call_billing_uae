@@ -19,7 +19,6 @@ var paymentHistorySchema = new Schema({
   uniqueId: { type: String, required: true },
   costPaidDate: { type: Date },
   isCostCalculated: { type: Boolean, required: true, default: false },
-  paymentTransactionId: { type: String, required: true },
 });
 
 module.exports = mongoose.model("paymentHistory", paymentHistorySchema);

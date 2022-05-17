@@ -10,9 +10,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { User } from '../../models/user.model';
-
-import * as feather from 'feather-icons';
-
 declare var $: any;
 
 @Component({
@@ -50,10 +47,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.getSubsData = localStorage.getItem('subs_ends');
   }
 
-  ngAfterViewInit() {
-    feather.replace();
-  }
-
   ngOnDestroy() {}
 
   getAllPaymentDetails() {
@@ -78,12 +71,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
         let userRole = localStorage.getItem('userRole');
         // add manange payment role for admin
         if (localStorage.getItem('email') == 'admin@inaipi.com') {
-          res['data']['list'].push('canManageAllSettings');
           res['data']['list'].push('canManagePayment');
         } else {
           res['data']['list'].push('canManagePaymentAmount');
         }
-
         res['data']['list'].push(userRole);
         this.menuItems = PRODUCT_ROUTES.paths(res['data']['list']);
         localStorage.setItem(
