@@ -11,7 +11,7 @@ declare let $: any;
 @Component({
   selector: 'app-create-role',
   templateUrl: './manage-role.component.html',
-  styleUrls: ['./manage-role.component.scss'],
+  styleUrls: ['./manage-role.component.scss']
 })
 export class ManageRoleComponent implements OnInit {
   sharingSubscription: Subscription;
@@ -27,29 +27,26 @@ export class ManageRoleComponent implements OnInit {
   list: any;
   roleDataToEdit: any;
 
-  constructor(
-    private authService: AuthService,
+  constructor(private authService: AuthService,
     private toastr: ToastrService,
     private fb: FormBuilder,
     private sharingService: OrganizationIdSharingService,
-    private router: Router
-  ) {
-    $('#org-dropdown-navbar').prop('disabled', true);
+    private router: Router) {
+
+    $("#org-dropdown-navbar").prop("disabled", true);
     this.formInit('');
-    this.sharingSubscription = this.sharingService.currentOrgId.subscribe(
-      (orgId) => {
-        this.orgId = orgId;
-        this.formInit(orgId);
-        this.setFormValues();
-      }
-    );
+    this.sharingSubscription = this.sharingService.currentOrgId.subscribe(orgId => {
+      this.orgId = orgId;
+      this.formInit(orgId);
+      this.setFormValues();
+    });
   }
 
   ngAfterViewInit(): void {
     let that = this;
 
     setTimeout(function () {
-      that.orgId = $('#org-dropdown-navbar').attr('value');
+      that.orgId = $("#org-dropdown-navbar").attr('value');
 
       if (that.orgId) {
         that.formInit(that.orgId);
@@ -59,16 +56,16 @@ export class ManageRoleComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.permissions = JSON.parse(localStorage.getItem('permissions'));
-    this.roleAction = localStorage.getItem('roleAction');
+    this.permissions = JSON.parse(localStorage.getItem("permissions"));
+    this.roleAction = localStorage.getItem("roleAction");
     if (this.roleAction == 'edit') {
-      this.roleDataToEdit = JSON.parse(localStorage.getItem('roleToEdit'));
+      this.roleDataToEdit = JSON.parse(localStorage.getItem("roleToEdit"));
     }
 
     this.getMasterRoleList();
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy():void {
     this.sharingSubscription.unsubscribe();
     this.masterRoleListSubscription.unsubscribe();
     this.addRoleSubscription?.unsubscribe();
@@ -80,38 +77,33 @@ export class ManageRoleComponent implements OnInit {
       organization: [organization, Validators.required],
       name: ['', Validators.required],
       description: [''],
-      list: ['', Validators.required],
+      list: ['', Validators.required]
     });
   }
 
   setFormValues() {
     if (this.roleAction == 'edit') {
-      this.roleDataToEdit = JSON.parse(localStorage.getItem('roleToEdit'));
+      this.roleDataToEdit = JSON.parse(localStorage.getItem("roleToEdit"));
 
       this.roleForm.patchValue({
         name: this.roleDataToEdit['name'],
         description: this.roleDataToEdit['description'],
-        organization: this.roleDataToEdit['organization']['_id'],
+        organization: this.roleDataToEdit['organization']['_id']
       });
     }
   }
 
   getMasterRoleList() {
-    this.masterRoleListSubscription = this.authService
-      .getMasterRoleList()
-      .subscribe(
-        (res) => {
-          if (res['success']) {
-            this.list = res['data'];
-            this.setSelectedValue(this.roleDataToEdit, this.roleAction);
-          } else {
-            this.toastr.error(res['message'], 'Error!');
-          }
-        },
-        () => {
-          this.toastr.error('Something went wrong', 'Error!');
-        }
-      );
+    this.masterRoleListSubscription = this.authService.getMasterRoleList().subscribe(res => {
+      if(res['success']){
+        this.list = res['data'];
+        this.setSelectedValue(this.roleDataToEdit, this.roleAction);
+      } else {
+        this.toastr.error(res['message'], 'Error!')
+      }
+      }, () => {
+      this.toastr.error('Something went wrong', 'Error!')
+    });
   }
 
   setSelectedValue(roleDataToEdit, roleAction) {
@@ -119,6 +111,7 @@ export class ManageRoleComponent implements OnInit {
       let data = { name: val.name, permissions: '' };
 
       data.permissions = val.permissions.map(function (permission) {
+
         if (roleAction == 'edit') {
           if (_.contains(roleDataToEdit['list'], permission)) {
             return { name: permission, selected: true };
@@ -135,62 +128,41 @@ export class ManageRoleComponent implements OnInit {
   }
 
   createUpdateRole(formValue) {
-    console.log(formValue);
-    this.roleList = _.chain(this.masterRoleList)
-      .pluck('permissions')
-      .reduceRight(function (a, b) {
-        return a.concat(b);
-      }, [])
-      .where({ selected: true })
-      .pluck('name')
-      .value();
+    console.log(formValue)
+    this.roleList = _.chain(this.masterRoleList).pluck('permissions').reduceRight(function (a, b) { return a.concat(b); }, []).where({ selected: true }).pluck('name').value();
     formValue['list'] = this.roleList;
-    console.log(this.roleList);
-    console.log(formValue);
+    console.log(this.roleList)
+    console.log(formValue)
     if (this.roleAction == 'add') {
-      this.addRoleSubscription = this.authService.addRole(formValue).subscribe(
-        (res) => {
-          this.clearRoleForm();
-          if (res['success']) {
-            this.toastr.success(res['message'], 'Success!');
-          } else {
-            this.toastr.error(res['message'], 'Error!');
-          }
-        },
-        () => {
-          this.clearRoleForm();
-          this.toastr.error('Something went wrong', 'Error!');
+      this.addRoleSubscription = this.authService.addRole(formValue).subscribe(res => {
+        this.clearRoleForm();
+        if (res['success']) {
+          this.toastr.success(res['message'], 'Success!');
+        } else {
+          this.toastr.error(res['message'], 'Error!')
         }
-      );
+      }, () => {
+        this.clearRoleForm();
+        this.toastr.error('Something went wrong', 'Error!')
+      });
     } else {
-      this.editRoleSubscription = this.authService
-        .editRole(formValue, this.roleDataToEdit['_id'])
-        .subscribe(
-          (res) => {
-            this.clearRoleForm();
-            if (res['success']) {
-              this.toastr.success(res['message'], 'Success!');
-            } else {
-              this.toastr.error(res['message'], 'Error!');
-            }
-          },
-          () => {
-            this.clearRoleForm();
-            this.toastr.error('Something went wrong', 'Error!');
-          }
-        );
+      this.editRoleSubscription = this.authService.editRole(formValue, this.roleDataToEdit['_id']).subscribe(res => {
+        this.clearRoleForm();
+        if (res['success']) {
+          this.toastr.success(res['message'], 'Success!');
+        } else {
+          this.toastr.error(res['message'], 'Error!')
+        }
+      }, () => {
+        this.clearRoleForm();
+        this.toastr.error('Something went wrong', 'Error!')
+      });
     }
   }
 
   clearRoleForm() {
     this.roleForm.reset();
     this.formInit(this.orgId);
-    this.router.navigate(['admin/role']);
-  }
-
-  alphaOnly(event): boolean {
-    let patt = /^[A-Z]+$/i;
-    let result = patt.test(event.key);
-    return result;
+    this.router.navigate(['admin/role'])
   }
 }

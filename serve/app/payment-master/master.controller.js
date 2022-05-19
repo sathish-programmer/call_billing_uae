@@ -58,13 +58,11 @@ exports.addpackage = async (req, res) => {
         return res.json({
           success: true,
           data: "Package added successfully",
-          message: "Package added successfully",
         });
       } else {
         return res.json({
           success: false,
           data: "Package added failed",
-          message: "Package added failed",
         });
       }
     }

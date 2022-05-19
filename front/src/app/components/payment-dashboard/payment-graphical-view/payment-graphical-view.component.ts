@@ -170,10 +170,16 @@ export class PaymentGraphicalViewComponent implements OnInit {
           PreviousFifthMonthCost,
         ];
 
+<<<<<<< HEAD
+=======
+        console.log(yValues);
+
+>>>>>>> 87b4d8ec9b58565f57c9a70bc29314034a7b676a
         let newXvalues = [];
 
         var xValues = this.lastFiveMonths;
 
+<<<<<<< HEAD
         newXvalues.push(xValues[0]);
 
         newXvalues.push(xValues[1]);
@@ -194,6 +200,26 @@ export class PaymentGraphicalViewComponent implements OnInit {
           this.showGraph = true;
         }
 
+=======
+        if (yValues[0] > 0) {
+          newXvalues.push(xValues[0]);
+        }
+        if (yValues[1] > 0) {
+          newXvalues.push(xValues[1]);
+        }
+        if (yValues[2] > 0) {
+          newXvalues.push(xValues[2]);
+        }
+        if (yValues[3] > 0) {
+          newXvalues.push(xValues[3]);
+        }
+        if (yValues[4] > 0) {
+          newXvalues.push(xValues[4]);
+        }
+
+        console.log(newXvalues);
+        // console.log('xvalues', yValues);
+>>>>>>> 87b4d8ec9b58565f57c9a70bc29314034a7b676a
         var barColors = ['#b91d47', '#00aba9', '#2b5797', '#e8c3b9', '#1e7145'];
         let ctx = document.getElementById('myChart');
         let chart = new Chart('myChart', {
@@ -237,6 +263,7 @@ export class PaymentGraphicalViewComponent implements OnInit {
           ((currentMonthCost - previousMonthCost) * 100) / currentMonthCost;
         this.percenValForPrev = percenForPrev.toFixed(2);
 
+<<<<<<< HEAD
         this.percenValForPrev = this.percenValForPrev.replace(
           'Infinity',
           '100'
@@ -244,6 +271,8 @@ export class PaymentGraphicalViewComponent implements OnInit {
 
         this.percenValForPrev = this.percenValForPrev.replace('NaN', '0');
 
+=======
+>>>>>>> 87b4d8ec9b58565f57c9a70bc29314034a7b676a
         let sumOfPrevCost = (currentMonthCost - previousMonthCost).toFixed(2);
         this.sumOfPrevCost = sumOfPrevCost;
 
@@ -267,6 +296,7 @@ export class PaymentGraphicalViewComponent implements OnInit {
           currentMnthForecast;
         this.percenValForForcast = percenForForcast.toFixed(2);
 
+<<<<<<< HEAD
         this.percenValForForcast = this.percenValForForcast.replace(
           'Infinity',
           '100'
@@ -274,6 +304,8 @@ export class PaymentGraphicalViewComponent implements OnInit {
 
         this.percenValForForcast = this.percenValForForcast.replace('NaN', '0');
 
+=======
+>>>>>>> 87b4d8ec9b58565f57c9a70bc29314034a7b676a
         console.log(previousMonthCost, 'previous mnth forecast');
 
         let sumOfForcastCost = (
@@ -283,9 +315,6 @@ export class PaymentGraphicalViewComponent implements OnInit {
         this.sumOfForecastCost = sumOfForcastCost;
 
         console.log('check sum of forecast', sumOfForcastCost);
-        console.log(currentMnthForecast) +
-          '>=' +
-          parseFloat(previousForcastData);
 
         if (
           parseFloat(currentMnthForecast) >= parseFloat(previousForcastData)
@@ -298,7 +327,6 @@ export class PaymentGraphicalViewComponent implements OnInit {
           this.currentMnthForecastCostDec = true;
           this.currentMnthForcastCostInc = false;
         }
-        console.log('decccc', this.currentMnthForecastCostDec);
       },
       () => {
         this.toastr.error('Something went wrong', 'Error!');

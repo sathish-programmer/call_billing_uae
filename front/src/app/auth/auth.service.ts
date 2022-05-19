@@ -232,52 +232,6 @@ export class AuthService {
       .pipe((res) => res);
   }
 
-  //temp
-  setOTPTemp(data) {
-    let headers = { headers: { token: localStorage.getItem('token') } };
-
-    return this.http
-      .post(this.baseUrl + 'createOTPTemplate/save', data, headers)
-      .pipe((res) => res);
-  }
-
-  setExpireTemp(data) {
-    let headers = { headers: { token: localStorage.getItem('token') } };
-
-    return this.http
-      .post(this.baseUrl + 'paymentExpireTemplate/save', data, headers)
-      .pipe((res) => res);
-  }
-
-  setExpiredTemp(data) {
-    let headers = { headers: { token: localStorage.getItem('token') } };
-
-    return this.http
-      .post(this.baseUrl + 'paymentOver/save', data, headers)
-      .pipe((res) => res);
-  }
-
-  getOTPTempRec() {
-    let headers = { headers: { token: localStorage.getItem('token') } };
-    return this.http
-      .get(this.baseUrl + 'createOTPTemplate/getTemplate', headers)
-      .pipe((res) => res);
-  }
-
-  getExpireTempRec() {
-    let headers = { headers: { token: localStorage.getItem('token') } };
-    return this.http
-      .get(this.baseUrl + 'paymentExpireTemplate/getTemplate', headers)
-      .pipe((res) => res);
-  }
-
-  getExpiredTempRec() {
-    let headers = { headers: { token: localStorage.getItem('token') } };
-    return this.http
-      .get(this.baseUrl + 'paymentOver/getTemplate', headers)
-      .pipe((res) => res);
-  }
-
   addPackage(data) {
     let headers = { headers: { token: localStorage.getItem('token') } };
 
@@ -689,10 +643,10 @@ export class AuthService {
       .pipe((res) => res);
   }
 
-  getSavedListFilterList(orgId) {
+  getSavedListFilterList() {
     let headers = { headers: { token: localStorage.getItem('token') } };
     return this.http
-      .get(this.baseUrl + 'call-report-template/' + orgId, headers)
+      .get(this.baseUrl + 'call-report-template', headers)
       .pipe((res) => res);
   }
 

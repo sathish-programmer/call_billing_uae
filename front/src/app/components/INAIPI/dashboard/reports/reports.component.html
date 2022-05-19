@@ -32,16 +32,12 @@
                   [(ngModel)]="savedTemplateId"
                   [ngModelOptions]="{ standalone: true }"
                   #ST
-                  (change)="fillFormValue(savedTemplateId, $event)"
+                  (change)="fillFormValue(savedTemplateId)"
                 >
                   <option value="" disabled selected>
                     Select Saved Template
                   </option>
-                  <option
-                    *ngFor="let data of savedFilter"
-                    [value]="data._id"
-                    [attr.data-editrole]="data.addedBy"
-                  >
+                  <option *ngFor="let data of savedFilter" [value]="data._id">
                     {{ data.fileName }}
                   </option>
                 </select>
@@ -382,7 +378,7 @@
           <button
             [disabled]="!callReportForm.valid"
             type="button"
-            *ngIf="ST.value && roleAccess"
+            *ngIf="ST.value"
             class="btn btn-sm btn-warning margin-left-5"
             (click)="editCallReportFilter(orgId, ST.value)"
           >
@@ -390,7 +386,7 @@
           </button>
           <button
             type="button"
-            *ngIf="ST.value && roleAccess"
+            *ngIf="ST.value"
             class="btn btn-sm btn-primary margin-left-5"
             (click)="delete(ST.value)"
           >

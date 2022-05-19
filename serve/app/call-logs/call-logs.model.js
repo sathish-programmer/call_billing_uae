@@ -20,7 +20,7 @@ var callLogsSchema = new Schema({
   HoldTime: { type: Number }, //"0",
   ParkTime: { type: Number }, //"0",
   AuthValid: { type: Number }, //"",
-  AuthCode: { type: String }, //"",
+  AuthCode: { type: Number }, //"",
   UserCharged: { type: Number }, //"",
   CallCharge: { type: Number }, //"",
   Currency: { type: String }, //"",
