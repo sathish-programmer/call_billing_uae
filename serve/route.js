@@ -40,4 +40,22 @@ module.exports = function (app) {
   app.use("/api/call-logs", require("./app/call-logs"));
   app.use("/api/call-report-template", require("./app/call-report-template"));
   app.use("/api/call-report", require("./app/call-report"));
+
+  // email template fot otp
+  app.use(
+    "/api/createOTPTemplate",
+    require("./app/email-template/otp-template")
+  );
+
+  // payment goes to expire temp
+  app.use(
+    "/api/paymentExpireTemplate",
+    require("./app/email-template/credits-expire-template")
+  );
+
+  // payment over temp
+  app.use(
+    "/api/paymentOver",
+    require("./app/email-template/credits-over-template")
+  );
 };

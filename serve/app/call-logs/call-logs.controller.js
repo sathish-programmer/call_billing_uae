@@ -5,19 +5,16 @@ const DEPARTMENT = require("../department/department.model");
 const USER = require("../user/user.model");
 const moment = require("moment");
 
+const CALL_LOGS = require("../call-logs/call-logs.model");
+
 // Upload call log from the Avaya system to this Backend platform database
 exports.uploadCallLog = async (req, res) => {
   try {
     let reqBranchName = req.body.branch;
     let reqOrgName = req.user.organization;
     let callLogs = req.body;
-
-    // delete branch req name from api
-    // delete callLogs.branch;
-
     let userDetailsFind;
     let branchNameFindedNew;
-
     let userDetailsFindDept;
     let deptFindNew;
 
@@ -74,8 +71,6 @@ exports.uploadCallLog = async (req, res) => {
       branchNameFindedNew = branchArr[1];
     }
 
-    console.log("branch finded");
-
     if (userDetailsFindDept) {
       let deptArr = []; //initializing array
       userDetailsFindDept.forEach((elements) => {
@@ -89,20 +84,15 @@ exports.uploadCallLog = async (req, res) => {
       console.log(deptFindNew);
     }
 
-    console.log("dept findedddddd");
-
     let dataToAppend = {
-      organizationCalculated: true,
-      organization: req.user.organization,
+      organizationCalculated: false,
       softDelete: false,
       callCostCalculated: false,
       callTypeCalculated: false,
       callerNameCalculated: false,
       calledNameCalculated: false,
-      branch: branchNameFindedNew,
-      branchCalculated: true,
-      department: deptFindNew,
-      departmentCalculated: true,
+      branchCalculated: false,
+      departmentCalculated: false,
       transferCallCalculated: false,
       parentTransferCallLog: false,
       creationDate: new Date(),
@@ -347,7 +337,7 @@ exports.getAllCallLogs = async (req, res) => {
       }
 
       let retDocs = await CALL_LOG.find(
-        { organization: params.orgId },
+        { organization: params.orgId, softDelete: false },
         null,
         filterQuery
       )
@@ -409,6 +399,8 @@ exports.getCallListForDashboard = async (req, res) => {
         callLogQuery["branch"] = body["branchId"];
       }
 
+      callLogQuery["softDelete"] = false;
+
       if (parseInt(body.skip) && parseInt(body.limit)) {
         filterQuery["skip"] = (parseInt(body.skip) - 1) * parseInt(body.limit);
         filterQuery["limit"] = parseInt(body.limit);
@@ -457,6 +449,7 @@ exports.getCallSummaryForDashboard = async (req, res) => {
     if (params && params.orgId) {
       var dataToFind = {
         organization: params["orgId"],
+        softDelete: false,
         // CallTime: {
         //   $gte: new Date(body["startDate"]),
         //   $lte: new Date(body["endDate"]),
@@ -489,5 +482,28 @@ exports.getCallSummaryForDashboard = async (req, res) => {
   } catch (err) {
     console.log("Error while getting call logs", err);
     return res.json({ success: false, data: "", message: err });
+  }
+};
+
+// delete empty call-log
+
+exports.deleteCallLog = async (req, res) => {
+  try {
+    let delTableCount = await CALL_LOGS.find({
+      organization: "6273d2c5327a6a49b3f1b347",
+      softDelete: false,
+      Callernumber: 2336,
+      // branch: { $ne: "6273d39a327a6a49b3f1b34b" },
+    }).count();
+    let delTable = await CALL_LOGS.find({
+      organization: "6273d2c5327a6a49b3f1b347",
+      softDelete: false,
+      Callernumber: 2336,
+      // branch: { $ne: "6273d39a327a6a49b3f1b34b" },
+    });
+    // console.log(delTable, "delTable");
+    return res.json({ success: true, data: delTableCount, message: delTable });
+  } catch (e) {
+    return res.json({ success: false, data: "", message: e });
   }
 };

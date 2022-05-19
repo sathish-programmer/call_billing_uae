@@ -1,66 +1,86 @@
-<div class="container-fluid" style="height: 100vh">
-  <div class="row">
-    <div
-      class="col-md-8 login-banner d-flex align-items-center justify-content-center"
-      style="padding: 0"
-    >
-      <img src="../../assets/images/cover-image.png" class="cover-image" />
-    </div>
-    <div class="col-md-4" style="padding-left: 20px">
-      <div class="d-flex justify-content-center">
-        <img
-          src="../../assets/images/INAIPI_Logo-blue.png"
-          class="logo-image"
-        />
-      </div>
-      <!-- <img src="../../assets/images/INAIPI_Logo-blue.png" class="logo-image"> -->
-      <br />
-      <h4 class="heading">Sign In</h4>
-      <hr />
+<section class="banner set-bg">
+  <div class="login-welcome">
+    <div class="container-fluid">
+      <div class="row p-0 m-0">
+        <div class="col-6 p-0 m-0 no-gutters">
+          <div class="hero__caption inaipi-welcome">
+            <div>
+              <div class="logo">
+                <img src="assets/images/Inaipi Logo.png" alt="" />
+              </div>
+              <div class="welcome">
+                <p>Welcome to</p>
+                <h1>inaipi</h1>
+              </div>
+              <div class="form">
+                <form #f (submit)="signIn()">
+                  <div class="form-group">
+                    <input
+                      type="email"
+                      class="form-control"
+                      (keydown.space)="$event.preventDefault()"
+                      pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,3}$"
+                      id="email"
+                      name="email"
+                      ngModel
+                      #emailref="ngModel"
+                      [(ngModel)]="email"
+                      required
+                      placeholder="Enter your email address"
+                    />
 
-      <form #f (submit)="signIn()">
-        <div>
-          <input
-            type="email"
-            class="input-field"
-            placeholder="Email address"
-            (keydown.space)="$event.preventDefault()"
-            pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,3}$"
-            id="email"
-            name="email"
-            ngModel
-            #emailref="ngModel"
-            [(ngModel)]="email"
-            required
-          />
-
-          <div
-            *ngIf="emailref.errors && (emailref.touched || emailref.dirty)"
-            class="aler alert-danger"
-          >
-            <div [hidden]="!emailref.errors?.pattern">Invalid Email Format</div>
+                    <div
+                      *ngIf="
+                        emailref.errors && (emailref.touched || emailref.dirty)
+                      "
+                      class="email-alert"
+                    >
+                      <div [hidden]="!emailref.errors?.pattern">
+                        Invalid Email Format
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group input-pass">
+                    <input
+                      type="password"
+                      class="form-control"
+                      name="password"
+                      required
+                      [(ngModel)]="password"
+                      placeholder="Enter your password"
+                    />
+                  </div>
+                  <!-- <a href="#" class="forgot">Forget Password?</a> -->
+                  <button
+                    type="submit"
+                    class="btn btn-blue-primary"
+                    [disabled]="!emailref.valid || !password"
+                  >
+                    Login
+                  </button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
+        <div class="img-banner-main col-6 p-0 m-0 no-gutters position-relative">
+          <ul class="ul-list list-unstyled d-flex">
+            <li>Connect</li>
+            <li>Converse</li>
+            <li>Colloborate</li>
+          </ul>
+          <div class="banner-sub">
+            <!-- <div class="round">
+                <div class="round-sub">
 
-        <div>
-          <input
-            type="password"
-            class="input-field"
-            placeholder="Password"
-            name="password"
-            required
-            [(ngModel)]="password"
-            style="margin-top: 15px"
-          />
+                    <img src="assets/images/Heart Icon.png" alt="" class="heart">
+                    <img src="assets/images/Like Icon.png" alt="" class="like">
+                    <img src="assets/images/Message Icon.png" alt="" class="message">
+                </div>
+            </div> -->
+          </div>
         </div>
-
-        <button
-          class="btn btn-sm btn-dark mar-10-top"
-          [disabled]="!emailref.valid || !password"
-        >
-          Sign In
-        </button>
-      </form>
+      </div>
     </div>
   </div>
-</div>
+</section>
