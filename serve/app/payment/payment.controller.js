@@ -4,6 +4,11 @@ const ORG = require("../organization/organization.model");
 const USER = require("../user/user.model");
 const CURRENCY = require("../currency/currency.model");
 
+const OTPmodel = require("../email-template/otp-template/otp-model");
+const ExpireTempmodel = require("../email-template/credits-expire-template/expire.model");
+
+const { v4: uuidv4 } = require("uuid");
+
 const MASTER = require("../payment-master/master.model");
 
 function generateRandomNumber() {
@@ -29,17 +34,54 @@ exports.sendOtp = async (req, res) => {
       },
     });
 
-    const options = {
-      from: "sathish@imperiumapp.com", // sender address
-      to: "sathishkumarksk007@gmail.com", // list of receivers
-      subject: "Call Billing - Payment Verification OTP", // Subject line
-      html:
-        "Dear Admin, <br><br>You have requested to Initiate payment credit for organization '<b> " +
+    let options;
+    let chkTemp = await OTPmodel.findOne(
+      {
+        type: 1,
+        softDelete: false,
+      },
+      "to title body signature subject"
+    );
+
+    if (chkTemp) {
+      let htmlContent = "";
+
+      htmlContent += chkTemp["title"] + "<br><br>";
+
+      htmlContent += chkTemp["body"].replaceAll("\n", "<br>") + "<br><br>";
+
+      htmlContent +=
+        "OTP for adding payment credit to the organization <b>" +
         orgName +
-        " </b>' from call billing. Your OTP for this request is " +
+        "</b> is <b>" +
         otp +
-        " and it is valid for Five Minutes.<br><br> Thanks,<br>Call Billing Support ",
-    };
+        " </b> and its valid for only five minutes.<br>";
+
+      // htmlContent += "<b>Your OTP for this request is : " + otp + "</b>";
+
+      htmlContent += "<br><br>";
+
+      htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
+
+      options = {
+        from: "sathish@imperiumapp.com", // sender address
+        to: chkTemp["to"], // list of receivers
+        subject: chkTemp["subject"], // Subject line
+        html: htmlContent,
+      };
+    } else {
+      options = {
+        from: "sathish@imperiumapp.com", // sender address
+        to: "sathishkumarksk007@gmail.com", // list of receivers
+        subject: "Call Billing - Payment Verification OTP", // Subject line
+        html:
+          "Dear Admin, <br><br>You have requested to Initiate payment credit for organization '<b> " +
+          orgName +
+          " </b>' from call billing. Your OTP for this request is " +
+          otp +
+          " and it is valid for Five Minutes.<br><br> Thanks,<br>Call Billing Support ",
+      };
+    }
 
     transporter.sendMail(options, function (err, info) {
       if (err) {
@@ -51,7 +93,8 @@ exports.sendOtp = async (req, res) => {
         updateOTP(otp, userEmail);
         return res.json({
           success: true,
-          message: "OTP Sent to " + userEmail,
+          data: info,
+          message: "OTP Sent to " + userEmail + " and it's valid for 5 minutes",
         });
       }
     });
@@ -67,11 +110,15 @@ exports.sendOtp = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
   let verifyOtp = req.body.otp;
   let adminEmail = "admin@inaipi.com";
-  const checkOtp = await paymentDB.findOne({
-    otpSentEmail: adminEmail,
-    OTP: verifyOtp,
-    otpExpired: false,
-  });
+  let checkOtp = await paymentDB.findOne(
+    {
+      otpSentEmail: adminEmail,
+      OTP: verifyOtp,
+      otpExpired: false,
+    },
+    "_id"
+  );
+  console.log(checkOtp);
   if (checkOtp) {
     let updateDoc = await paymentDB.findByIdAndUpdate(
       {
@@ -146,6 +193,8 @@ let insertData = async function (adminEmail) {
     typeOfPayment: 2,
     package: 00,
     type: "OTP - Admin",
+    otpExpired: false,
+    otpVerified: false,
   };
 
   let docToSave = new paymentDB(paymentObject);
@@ -197,6 +246,7 @@ exports.addPackage = async (req, res) => {
       return res.json({
         success: true,
         data: "Id already available",
+
         // adminEmails: adminEmails,
         message:
           "Package for " +
@@ -250,6 +300,8 @@ exports.addPackage = async (req, res) => {
       packAmount = findCurrency["packageAmount"];
     }
 
+    let transactionId = genUniqueId();
+
     let packageObject = {
       otpSentEmail: "",
       OTP: body.otp,
@@ -259,6 +311,7 @@ exports.addPackage = async (req, res) => {
       availablePackage: packAmount,
       currencySymbol: currencySymbol,
       creationDate: new Date(),
+      paymentTransactionId: transactionId,
     };
     let org = await ORG.findOne({
       softDelete: false,
@@ -269,16 +322,43 @@ exports.addPackage = async (req, res) => {
       packageObject["orgName"] = org.name;
     }
 
+    let checkOTPVerified = await paymentDB.findOne({
+      type: "OTP - Admin",
+      softDelete: false,
+    });
     let docToSave = new paymentDB(packageObject);
-    let retDoc = await docToSave.save();
+    let retDoc;
+    if (checkOTPVerified.otpVerified == true) {
+      retDoc = await docToSave.save();
+    } else {
+      return res.json({
+        success: false,
+        data: "",
+        message: "Check OTP",
+      });
+    }
+
     if (retDoc) {
+      let updateDoc = await paymentDB.findOneAndUpdate(
+        {
+          type: "OTP - Admin",
+          softDelete: false,
+        },
+        { $set: { otpVerified: false, updationDate: new Date() } }
+      );
       let showAmountInMail = currencySymbol + " " + packAmount;
       // send email to admins
-      sendEmailToAdminForSuccess(adminEmails, showAmountInMail, org.name);
+      sendEmailToAdminForSuccess(
+        adminEmails,
+        showAmountInMail,
+        org.name,
+        transactionId
+      );
       return res.json({
         success: true,
         data: retDoc["_id"],
         adminEmails: adminEmails,
+        OTPVerified: checkOTPVerified.otpVerified,
         message: "Packaged Added to - " + "' " + org.name + " '",
       });
     } else {
@@ -357,6 +437,8 @@ exports.editPayment = async (req, res) => {
         availablePackage: body.pendingAmount,
       };
 
+      let transactionId = genUniqueId();
+
       let updateDoc = await paymentDB.findByIdAndUpdate(
         {
           _id: params.paymentId,
@@ -367,6 +449,7 @@ exports.editPayment = async (req, res) => {
             package: body.assignedAmount,
             availablePackage: body.pendingAmount,
             updationDate: new Date(),
+            paymentTransactionId: transactionId,
           },
         }
       );
@@ -460,7 +543,8 @@ exports.notifyPaymentExpire = async (req, res) => {
 };
 
 // send email function
-function sendEmailToAdmin(recivers) {
+let sendEmailToAdmin = async (recivers) => {
+  // console.log(recivers, "testttt");
   let transporter = nodemailer.createTransport({
     host: "smtp.office365.com",
     port: 587,
@@ -473,12 +557,37 @@ function sendEmailToAdmin(recivers) {
 
   let admiEmail = recivers;
 
-  const options = {
-    from: "sathish@imperiumapp.com", // sender address
-    to: admiEmail, // list of receivers
-    subject: "Call Billing - Notify for Payment", // Subject line
-    html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
-  };
+  let options;
+  let chkTemp = await ExpireTempmodel.findOne(
+    {
+      type: 1,
+      softDelete: false,
+    },
+    "title body signature subject"
+  );
+  if (chkTemp) {
+    let htmlContent = "";
+
+    htmlContent += chkTemp["title"] + "<br><br>";
+
+    htmlContent += chkTemp["body"].replaceAll("\n", "<br>") + "<br><br>";
+
+    htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
+
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: chkTemp["subject"], // Subject line
+      html: htmlContent,
+    };
+  } else {
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: "Call Billing - Notify for Payment", // Subject line
+      html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
+    };
+  }
 
   transporter.sendMail(options, function (err, info) {
     if (err) {
@@ -486,9 +595,9 @@ function sendEmailToAdmin(recivers) {
       return;
     }
   });
-}
+};
 
-function sendEmailToAdminForSuccess(recivers, package, orgName) {
+function sendEmailToAdminForSuccess(recivers, package, orgName, transactionId) {
   let transporter = nodemailer.createTransport({
     host: "smtp.office365.com",
     port: 587,
@@ -510,7 +619,9 @@ function sendEmailToAdminForSuccess(recivers, package, orgName) {
       package +
       " </b> to <b>" +
       orgName +
-      "</b> Organization added successfully. Any clarification contact us.<br><br> Thanks,<br>Call Billing Support",
+      "</b> Organization added successfully. Any clarification contact us.<br><br>Payment Transaction Id: " +
+      transactionId +
+      "<br><br>Thanks,<br>Call Billing Support",
   };
 
   transporter.sendMail(options, function (err, info) {
@@ -538,7 +649,7 @@ exports.getPaymentDetails = async (req, res) => {
   let paymentGoingToExpire;
   let currencySymbol;
 
-  if (user) {
+  if (userPayment) {
     totalAmt = userPayment["package"];
     availableAmt = userPayment["availablePackage"];
     pendingAmmountPer = Math.round((availableAmt / totalAmt) * 100);
@@ -594,3 +705,8 @@ exports.getPackageUsingCurrency = async (req, res) => {
     });
   }
 };
+
+function genUniqueId() {
+  const uniqueId = uuidv4();
+  return uniqueId;
+}

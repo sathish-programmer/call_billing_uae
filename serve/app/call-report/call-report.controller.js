@@ -382,6 +382,7 @@ async function toGetReportData(body, params, filterRequired) {
 
   let dataToFind = {
     organization: params["orgId"],
+    softDelete: false,
     CallTime: { $gte: startDate, $lte: endDate },
   };
 

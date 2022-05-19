@@ -1,0 +1,66 @@
+<div class="container-fluid" style="height: 100vh">
+  <div class="row">
+    <div
+      class="col-md-8 login-banner d-flex align-items-center justify-content-center"
+      style="padding: 0"
+    >
+      <img src="../../assets/images/cover-image.png" class="cover-image" />
+    </div>
+    <div class="col-md-4" style="padding-left: 20px">
+      <div class="d-flex justify-content-center">
+        <img
+          src="../../assets/images/INAIPI_Logo-blue.png"
+          class="logo-image"
+        />
+      </div>
+      <!-- <img src="../../assets/images/INAIPI_Logo-blue.png" class="logo-image"> -->
+      <br />
+      <h4 class="heading">Sign In</h4>
+      <hr />
+
+      <form #f (submit)="signIn()">
+        <div>
+          <input
+            type="email"
+            class="input-field"
+            placeholder="Email address"
+            (keydown.space)="$event.preventDefault()"
+            pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,3}$"
+            id="email"
+            name="email"
+            ngModel
+            #emailref="ngModel"
+            [(ngModel)]="email"
+            required
+          />
+
+          <div
+            *ngIf="emailref.errors && (emailref.touched || emailref.dirty)"
+            class="aler alert-danger"
+          >
+            <div [hidden]="!emailref.errors?.pattern">Invalid Email Format</div>
+          </div>
+        </div>
+
+        <div>
+          <input
+            type="password"
+            class="input-field"
+            placeholder="Password"
+            name="password"
+            required
+            [(ngModel)]="password"
+            style="margin-top: 15px"
+          />
+        </div>
+
+        <button
+          class="btn btn-sm btn-dark mar-10-top"
+          [disabled]="!emailref.valid || !password"
+        >
+          Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

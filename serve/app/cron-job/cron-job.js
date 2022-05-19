@@ -6,6 +6,12 @@ const USER = require("../user/user.model");
 const paymentDB = require("../payment/payment.model");
 const paymentHistory = require("../payment-history/paymentHistory.model");
 const nodemailer = require("nodemailer");
+const { v4: uuidv4 } = require("uuid");
+
+const ExpireTempmodel = require("../email-template/credits-expire-template/expire.model");
+
+const ExpiredTempmodel = require("../email-template/credits-over-template/expired-model");
+
 // Calculate Call Type for the Call log
 var calculateCallType = new CronJob("*/2 * * * *", async function () {
   console.log("Job triggered for calcualting call type");
@@ -443,7 +449,11 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
             "availablePackage"
           );
           let callCostForLog = parseFloat(cost * totalCycles).toFixed(2);
-          let availableCost = checkAvailableAmt["availablePackage"];
+          let availableCost = 0;
+          if (checkAvailableAmt) {
+            availableCost = checkAvailableAmt["availablePackage"];
+          }
+
           let newAvailPackage = availableCost - callCostForLog;
           // console.log("new availabele amount = " + newAvailPackage);
           if (availableCost > 0) {
@@ -474,6 +484,7 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
                 uniqueId: genUniqueId,
                 TotalCycles: totalCycles,
                 CostPerCycle: cost,
+                paymentTransactionId: genTransactionId(),
               };
 
               let dataToSave = new paymentHistory(updatePaymentHis);
@@ -501,6 +512,184 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
 });
 
 calculateCallCostJob.start();
+
+// Find org Name for the Call log
+var findOrgInfoForCallLog = new CronJob("*/05 * * * * *", async function () {
+  let callLogs = await CALL_LOGS.find(
+    { organizationCalculated: false },
+    "Callernumber organization Callednumber DialedNumber _id Direction",
+    { limit: 5000, sort: { creationDate: -1 } }
+  ).lean();
+
+  try {
+    if (callLogs && callLogs.length) {
+      let groupedCallLogs = _.groupBy(callLogs, "organization");
+      let keys = Object.keys(groupedCallLogs);
+      for (let kI in keys) {
+        callLogs = groupedCallLogs[keys[kI]];
+        let extensions = [];
+        // Get Exensions from the call logs
+        {
+          extensions = _.union(
+            _.pluck(callLogs, "Callernumber"),
+            _.pluck(callLogs, "Callednumber"),
+            _.pluck(callLogs, "DialedNumber")
+          );
+          extensions = _.uniq(
+            _.difference(
+              _.map(extensions, function (se) {
+                se = String(se);
+
+                if (se.length <= 6 && !isNaN(parseInt(se))) {
+                  return se;
+                } else {
+                  return null;
+                }
+              }),
+              [undefined, null, ""]
+            )
+          );
+        }
+        console.log("checkingg org name" + extensions);
+        // Get User extensions
+        let userDetails = await USER.find(
+          {
+            softDelete: false,
+            extension: { $in: extensions },
+          },
+          "organization extension",
+          { limit: 1, sort: { _id: -1 } }
+        ).lean();
+
+        // Tie org with call log
+        {
+          let updateData;
+          for (let index in callLogs) {
+            updateData = {};
+            let number,
+              foundOrgDetail = {};
+            if (callLogs[index]["Direction"] == "I") {
+              number = String(callLogs[index]["Callednumber"]);
+              let number1 = String(callLogs[index]["Callernumber"]);
+              if (number1.length >= 5) {
+                // foundOrgDetail = _.findWhere(userDetails, {
+                //   extension: parseInt(number),
+                // });
+                foundOrgDetail = await USER.findOne(
+                  {
+                    softDelete: false,
+                    extension: parseInt(number),
+                  },
+                  "organization extension"
+                ).lean();
+                if (foundOrgDetail) {
+                  updateData = {
+                    organization: foundOrgDetail.organization,
+                    organizationCalculated: true,
+                  };
+                }
+              }
+
+              if (number.length <= 6) {
+                // foundOrgDetail = _.findWhere(userDetails, {
+                //   extension: parseInt(number),
+                // });
+                foundOrgDetail = await USER.findOne(
+                  {
+                    softDelete: false,
+                    extension: parseInt(number),
+                  },
+                  "organization extension"
+                ).lean();
+                if (foundOrgDetail) {
+                  updateData = {
+                    organization: foundOrgDetail.organization,
+                    organizationCalculated: true,
+                  };
+                }
+              }
+              if (!updateData["organization"]) {
+                number = String(callLogs[index]["Callednumber"]);
+
+                if (number.length <= 6) {
+                  foundOrgDetail = await USER.findOne(
+                    {
+                      softDelete: false,
+                      extension: parseInt(number),
+                    },
+                    "organization extension"
+                  ).lean();
+
+                  if (foundOrgDetail) {
+                    updateData = {
+                      organization: foundOrgDetail.organization,
+                      organizationCalculated: true,
+                    };
+                  }
+                }
+              }
+            } else if (callLogs[index]["Direction"] == "O") {
+              number = String(callLogs[index]["Callernumber"]);
+              let number1 = String(callLogs[index]["Callednumber"]);
+
+              if (number1.length <= 6) {
+                // console.log("printing con 1", number1);
+                // foundOrgDetail = _.findWhere(userDetails, {
+                //   extension: parseInt(number1),
+                // });
+                foundOrgDetail = await USER.findOne(
+                  {
+                    softDelete: false,
+                    extension: parseInt(number),
+                  },
+                  "organization extension"
+                ).lean();
+
+                if (foundOrgDetail) {
+                  updateData = {
+                    organization: foundOrgDetail.organization,
+                    organizationCalculated: true,
+                  };
+                }
+              }
+              if (number.length <= 6) {
+                console.log("printing con 2", number);
+
+                foundOrgDetail = await USER.findOne(
+                  {
+                    softDelete: false,
+                    extension: parseInt(number),
+                  },
+                  "organization extension"
+                ).lean();
+                console.log("check result", foundOrgDetail);
+                if (foundOrgDetail) {
+                  updateData = {
+                    organization: foundOrgDetail.organization,
+                    organizationCalculated: true,
+                  };
+                }
+              }
+            }
+            //Updating org with the call log
+            if (updateData && Object.keys(updateData).length) {
+              await CALL_LOGS.findByIdAndUpdate(
+                { _id: callLogs[index]["_id"] },
+                { $set: updateData }
+              );
+            }
+            number = foundOrgDetail = null;
+          }
+        }
+      }
+      callLogs = keys = groupedCallLogs = null;
+    }
+  } catch (err) {
+    console.log("Error in figuring organization", err);
+  }
+});
+
+findOrgInfoForCallLog.start();
 
 // Find Branch Name for the Call log
 var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
@@ -550,7 +739,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
         let userDetails = await USER.find(
           {
             extension: { $in: extensions },
-            organization: keys[kI],
+            // organization: keys[kI],
           },
           "branch extension"
         ).lean();
@@ -567,7 +756,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
             if (callLogs[index]["Direction"] == "I") {
               number = String(callLogs[index]["Callednumber"]);
 
-              if (number.length <= 5) {
+              if (number.length <= 6) {
                 foundBranchDetail = _.findWhere(userDetails, {
                   extension: parseInt(number),
                 });
@@ -582,7 +771,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
 
               if (!updateData["branch"]) {
                 number = String(callLogs[index]["Dialednumber"]);
-                if (number.length <= 5) {
+                if (number.length <= 6) {
                   foundBranchDetail = _.findWhere(userDetails, {
                     extension: parseInt(number),
                   });
@@ -598,7 +787,7 @@ var findBranchInfoForCallLog = new CronJob("*/2 * * * *", async function () {
             } else if (callLogs[index]["Direction"] == "O") {
               number = String(callLogs[index]["Callernumber"]);
 
-              if (number.length <= 5) {
+              if (number.length <= 6) {
                 foundBranchDetail = _.findWhere(userDetails, {
                   extension: parseInt(number),
                 });
@@ -669,7 +858,7 @@ var findDepartmentInfoForCallLog = new CronJob(
                 _.map(extensions, function (se) {
                   se = String(se);
 
-                  if (se.length <= 5 && !isNaN(parseInt(se))) {
+                  if (se.length <= 6 && !isNaN(parseInt(se))) {
                     return se;
                   } else {
                     return null;
@@ -685,7 +874,7 @@ var findDepartmentInfoForCallLog = new CronJob(
           let userDetails = await USER.find(
             {
               extension: { $in: extensions },
-              organization: keys[kI],
+              // organization: keys[kI],
             },
             "department extension"
           ).lean();
@@ -701,7 +890,7 @@ var findDepartmentInfoForCallLog = new CronJob(
               if (callLogs[index]["Direction"] == "I") {
                 number = String(callLogs[index]["Callednumber"]);
 
-                if (number.length <= 5) {
+                if (number.length <= 6) {
                   foundDepartmentDetail = _.findWhere(userDetails, {
                     extension: parseInt(number),
                   });
@@ -716,7 +905,7 @@ var findDepartmentInfoForCallLog = new CronJob(
 
                 if (!updateData["department"]) {
                   number = String(callLogs[index]["Dialednumber"]);
-                  if (number.length <= 5) {
+                  if (number.length <= 6) {
                     foundDepartmentDetail = _.findWhere(userDetails, {
                       extension: parseInt(number),
                     });
@@ -732,7 +921,7 @@ var findDepartmentInfoForCallLog = new CronJob(
               } else if (callLogs[index]["Direction"] == "O") {
                 number = String(callLogs[index]["Callernumber"]);
 
-                if (number.length <= 5) {
+                if (number.length <= 6) {
                   foundDepartmentDetail = _.findWhere(userDetails, {
                     extension: parseInt(number),
                   });
@@ -747,7 +936,6 @@ var findDepartmentInfoForCallLog = new CronJob(
               }
 
               //Updating the call log with department
-              console.log("update data", updateData);
               if (updateData && Object.keys(updateData).length) {
                 await CALL_LOGS.findByIdAndUpdate(
                   { _id: callLogs[index]["_id"] },
@@ -901,6 +1089,7 @@ var findCalledNameInfoForCallLog = new CronJob(
         // Get user details from the user and separate branch, department and names for extension
         let userDetails = [];
         if (extensions && extensions.length) {
+          console.log("check user");
           userDetails = await USER.find(
             { organization: keys[kI], extension: { $in: extensions } },
             "extension"
@@ -1218,9 +1407,9 @@ var checkAndSendMail = new CronJob("*/2 * * * *", async function () {
   }
 });
 
-checkAndSendMail.start();
+// checkAndSendMail.start();
 
-function sendEmailToAdmin(recivers) {
+let sendEmailToAdmin = async (recivers) => {
   let transporter = nodemailer.createTransport({
     host: "smtp.office365.com",
     port: 587,
@@ -1233,12 +1422,38 @@ function sendEmailToAdmin(recivers) {
 
   let admiEmail = recivers;
 
-  const options = {
-    from: "sathish@imperiumapp.com", // sender address
-    to: admiEmail, // list of receivers
-    subject: "Call Billing - Notify for Payment", // Subject line
-    html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
-  };
+  let options;
+  let chkTemp = await ExpireTempmodel.findOne(
+    {
+      type: 1,
+      softDelete: false,
+    },
+    "title body signature subject"
+  );
+
+  if (chkTemp) {
+    let htmlContent = "";
+
+    htmlContent += chkTemp["title"] + "<br><br>";
+
+    htmlContent += chkTemp["body"].replaceAll("\n", "<br>") + "<br><br>";
+
+    htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
+
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: chkTemp["subject"], // Subject line
+      html: htmlContent,
+    };
+  } else {
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: "Call Billing - Notify for Payment", // Subject line
+      html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
+    };
+  }
 
   transporter.sendMail(options, function (err, info) {
     if (err) {
@@ -1246,4 +1461,137 @@ function sendEmailToAdmin(recivers) {
       return;
     }
   });
+};
+
+// send mail automatically if amount expired
+var checkPaymentExpiredAndSendMail = new CronJob(
+  "*/2 * * * *",
+  async function () {
+    console.log("sending email if amount = 0 to org admins");
+    let findPayment = await paymentDB
+      .find(
+        {
+          softDelete: false,
+          notifiedPaymentExpiredMail: 0,
+          type: "normal",
+        },
+        "organization availablePackage"
+      )
+      .lean();
+    let paymentId;
+    var payIds;
+    let orgId;
+    let availPackage;
+    if (findPayment) {
+      findPayment.forEach(async (elements) => {
+        paymentId = elements["_id"];
+        payIds = elements["_id"];
+
+        orgId = elements["organization"];
+        console.log(payIds);
+
+        availPackage = elements["availablePackage"];
+
+        if (availPackage <= 0) {
+          // update notification sent, dont resend automatically
+          await paymentDB.findByIdAndUpdate(
+            {
+              _id: payIds,
+              softDelete: false,
+            },
+            {
+              $set: { notifiedPaymentExpiredMail: 1 },
+            }
+          );
+
+          let userDetails = await USER.find(
+            {
+              organization: orgId,
+              softDelete: false,
+            },
+            "email"
+          ).populate("role", "name");
+
+          if (userDetails.email != "" || userDetails.email != null) {
+            userEmail = userDetails["email"];
+          }
+
+          let adminEmails = [];
+          let findArr;
+          // var colData = [];
+          for (let index in userDetails) {
+            findArr = userDetails.filter(function (admin) {
+              return admin.role.name == "admin";
+            })[index];
+            if (findArr !== undefined) {
+              adminEmails.push(findArr.email);
+            }
+          }
+          // send email
+          // sendEmailToAdminForPaymentExpired(adminEmails);
+        }
+      });
+    }
+  }
+);
+
+// checkPaymentExpiredAndSendMail.start();
+
+let sendEmailToAdminForPaymentExpired = async (recivers) => {
+  let transporter = nodemailer.createTransport({
+    host: "smtp.office365.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: "sathish@imperiumapp.com", // username
+      pass: "NewPassword@#april", // password
+    },
+  });
+
+  let admiEmail = recivers;
+
+  let options;
+  let chkTemp = await ExpiredTempmodel.findOne(
+    {
+      type: 1,
+      softDelete: false,
+    },
+    "title body signature subject"
+  );
+
+  if (chkTemp) {
+    let htmlContent = "";
+
+    htmlContent += chkTemp["title"] + "<br><br>";
+
+    htmlContent += chkTemp["body"].replaceAll("\n", "<br>") + "<br><br>";
+
+    htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
+
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: chkTemp["subject"], // Subject line
+      html: htmlContent,
+    };
+  } else {
+    options = {
+      from: "sathish@imperiumapp.com", // sender address
+      to: admiEmail, // list of receivers
+      subject: "Call Billing - Credits Over", // Subject line
+      html: "Dear Admin, <br><brWe noticed that payment credits for your organization expired, please recharge immediately for make calls.<br><br> Thanks,<br>Call Billing Support ",
+    };
+  }
+
+  transporter.sendMail(options, function (err, info) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+  });
+};
+
+function genTransactionId() {
+  const uniqueId = uuidv4();
+  return uniqueId;
 }

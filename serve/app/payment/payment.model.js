@@ -30,6 +30,13 @@ var paymentSchema = new Schema({
     type: Number,
     default: 0,
   },
+
+  notifiedPaymentExpiredMail: {
+    type: Number,
+    default: 0,
+  },
+
+  paymentTransactionId: { type: String },
 });
 
 module.exports = mongoose.model("Payment", paymentSchema);

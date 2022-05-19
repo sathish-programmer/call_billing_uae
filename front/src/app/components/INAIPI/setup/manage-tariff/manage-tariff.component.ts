@@ -13,7 +13,7 @@ declare let $: any;
 @Component({
   selector: 'app-manage-tariff',
   templateUrl: './manage-tariff.component.html',
-  styleUrls: ['./manage-tariff.component.scss']
+  styleUrls: ['./manage-tariff.component.scss'],
 })
 export class ManageTariffComponent implements OnInit, AfterViewInit {
   sharingSubscription: Subscription;
@@ -37,68 +37,76 @@ export class ManageTariffComponent implements OnInit, AfterViewInit {
   tariffDataToEdit: any;
   tariffAction: any;
   tariffRateTimeAction: any;
-  tariffId: "";
+  tariffId: '';
   tariffRateTimeId: any;
 
   ShowTariffRateAndTimeDiv = false;
-  unitMeasurementList = [{ view: "Seconds", value: "1" },
-  { view: "Minutes", value: "60" },
-  { view: "Hours", value: "3600" }];
-
-  tariffTypeList = [{ view: "Custom", value: "Custom" },
-  { view: "Standard", value: "Standard" }];
-
-  calculationTypeList = [{ view: "Pro rata", value: "Pro rata" },
-  { view: "Cycle time", value: "Cycle time" }];
-
-  callTypes: any = [
-    { view: "Local", value: "local" },
-    { view: "Mobile", value: "mobile" },
-    { view: "International", value: "international" },
+  unitMeasurementList = [
+    { view: 'Seconds', value: '1' },
+    { view: 'Minutes', value: '60' },
+    { view: 'Hours', value: '3600' },
   ];
 
-  constructor(private authService: AuthService,
+  tariffTypeList = [
+    { view: 'Custom', value: 'Custom' },
+    { view: 'Standard', value: 'Standard' },
+  ];
+
+  calculationTypeList = [
+    { view: 'Pro rata', value: 'Pro rata' },
+    { view: 'Cycle time', value: 'Cycle time' },
+  ];
+
+  callTypes: any = [
+    { view: 'Local', value: 'local' },
+    { view: 'Mobile', value: 'mobile' },
+    { view: 'International', value: 'international' },
+  ];
+
+  constructor(
+    private authService: AuthService,
     private toastr: ToastrService,
     private fb: FormBuilder,
     private sharingService: OrganizationIdSharingService,
     private router: Router,
-    private _zone: NgZone) {
-
-    $("#org-dropdown-navbar").prop("disabled", true);
+    private _zone: NgZone
+  ) {
+    $('#org-dropdown-navbar').prop('disabled', true);
 
     this.formInit('');
-    this.sharingSubscription = this.sharingService.currentOrgId.subscribe(orgId => {
-      this.orgId = orgId;
-      this.formInit(orgId);
-      this.getLists(orgId);
-      if (this.tariffAction == 'edit') {
-        let tariffId = localStorage.getItem("tariffId");
-        this.getTariffDataToEdit(tariffId);
+    this.sharingSubscription = this.sharingService.currentOrgId.subscribe(
+      (orgId) => {
+        this.orgId = orgId;
+        this.formInit(orgId);
+        this.getLists(orgId);
+        if (this.tariffAction == 'edit') {
+          let tariffId = localStorage.getItem('tariffId');
+          this.getTariffDataToEdit(tariffId);
+        }
       }
-    });
+    );
   }
 
   ngAfterViewInit(): void {
     let that = this;
 
     setTimeout(function () {
-      that.orgId = $("#org-dropdown-navbar").attr('value');
+      that.orgId = $('#org-dropdown-navbar').attr('value');
 
       if (that.orgId) {
         that.formInit(that.orgId);
         that.getLists(that.orgId);
         if (that.tariffAction == 'edit') {
-          let tariffId = localStorage.getItem("tariffId");
+          let tariffId = localStorage.getItem('tariffId');
           that.getTariffDataToEdit(tariffId);
         }
       }
     }, 300);
   }
 
-
   ngOnInit(): void {
-    this.permissions = JSON.parse(localStorage.getItem("permissions"));
-    this.tariffAction = localStorage.getItem("tariffAction");
+    this.permissions = JSON.parse(localStorage.getItem('permissions'));
+    this.tariffAction = localStorage.getItem('tariffAction');
   }
 
   ngOnDestroy(): void {
@@ -128,7 +136,7 @@ export class ManageTariffComponent implements OnInit, AfterViewInit {
       priority: [''],
       externalId: [''],
       trunkId: [''],
-      countryCode: ['']
+      countryCode: [''],
     });
 
     this.tariffRatesAndTimeForm = this.fb.group({
@@ -146,135 +154,178 @@ export class ManageTariffComponent implements OnInit, AfterViewInit {
   }
 
   getLists(orgId) {
-    this.providerListSubscription = this.authService.getProviderList(orgId).subscribe(res => {
-      if (res['success']) {
-        this.providerList = res['data'];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.providerListSubscription = this.authService
+      .getProviderList(orgId)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.providerList = res['data'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
 
-    this.currencyListSubscription = this.authService.getCurrencyList(orgId).subscribe(res => {
-      if (res['success']) {
-        this.currencyList = res['data'];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.currencyListSubscription = this.authService
+      .getCurrencyList(orgId)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.currencyList = res['data'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
 
-    this.timezoneSubscription = this.authService.getTimezones().subscribe(res => {
-      if (res['success']) {
-        this.timeZoneList = res['data'];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
+    this.timezoneSubscription = this.authService.getTimezones().subscribe(
+      (res) => {
+        if (res['success']) {
+          this.timeZoneList = res['data'];
+        } else {
+          this.toastr.error(res['message'], 'Error!');
+        }
+      },
+      () => {
+        this.toastr.error('Something went wrong', 'Error!');
       }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    );
   }
 
   getTariffDataToEdit(tariffId) {
     this.tariffId = tariffId;
-    this.getTariffDataSubscription = this.authService.getTariffDataToEdit(tariffId).subscribe(res => {
-      if (res['success']) {
-        this.tariffForm.patchValue(res['data']);
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.getTariffDataSubscription = this.authService
+      .getTariffDataToEdit(tariffId)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.tariffForm.patchValue(res['data']);
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
     this.getTariffRateAndTimeList(tariffId);
   }
 
   createUpdateTariff(formValue) {
     if (this.tariffAction == 'add') {
-      this.addTariffSubscription = this.authService.addTariff(formValue).subscribe(res => {
-        if (res['success']) {
-          this.tariffId = res['data'];
-          this.toastr.success(res['message'], 'Success!');
-          this.tariffForm.reset();
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      }, () => {
-        this.toastr.error('Something went wrong', 'Error!')
-      });
+      this.addTariffSubscription = this.authService
+        .addTariff(formValue)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              this.tariffId = res['data'];
+              this.toastr.success(res['message'], 'Success!');
+              this.tariffForm.reset();
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
     } else {
-      this.editTariffSubscription = this.authService.editTariff(formValue, this.tariffId).subscribe(res => {
-        if (res['success']) {
-          this.toastr.success(res['message'], 'Success!');
-          this.tariffForm.reset();
-          this.router.navigate(['admin/inaipi/setup']);
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      }, () => {
-        this.tariffForm.reset();
-        this.toastr.error('Something went wrong', 'Error!')
-      });
+      this.editTariffSubscription = this.authService
+        .editTariff(formValue, this.tariffId)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              this.toastr.success(res['message'], 'Success!');
+              this.tariffForm.reset();
+              this.router.navigate(['admin/inaipi/setup']);
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.tariffForm.reset();
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
     }
   }
 
   addRateTime() {
     this.tariffRatesAndTimeForm.getRawValue();
-    this.tariffRatesAndTimeForm.patchValue({ tariffId: this.tariffId })
+    this.tariffRatesAndTimeForm.patchValue({ tariffId: this.tariffId });
     this.tariffRateTimeAction = 'add';
   }
 
   createAndUpdateTariffRateAndTime(formValue) {
     if (this.tariffRateTimeAction == 'add') {
       if (!formValue['tariffId']) {
-        this.toastr.error("Tariff Basic details are not set", "Error!");
+        this.toastr.error('Tariff Basic details are not set', 'Error!');
       } else {
-        this.addTariffRateTimeSubscription = this.authService.addTariffRateAndTime(this.tariffRatesAndTimeForm.value).subscribe(res => {
-          if (res['success']) {
-            this.toastr.success(res['message'], 'Success!');
-            this.tariffRatesAndTimeForm.reset();
-            this.ShowTariffRateAndTimeDiv = false;
-            this.getTariffRateAndTimeList(this.tariffId);
-          } else {
-            this.toastr.error(res['message'], 'Error!')
-          }
-        }, () => {
-          this.toastr.error('Something went wrong', 'Error!')
-        });
+        this.addTariffRateTimeSubscription = this.authService
+          .addTariffRateAndTime(this.tariffRatesAndTimeForm.value)
+          .subscribe(
+            (res) => {
+              if (res['success']) {
+                this.toastr.success(res['message'], 'Success!');
+                this.tariffRatesAndTimeForm.reset();
+                this.ShowTariffRateAndTimeDiv = false;
+                this.getTariffRateAndTimeList(this.tariffId);
+              } else {
+                this.toastr.error(res['message'], 'Error!');
+              }
+            },
+            () => {
+              this.toastr.error('Something went wrong', 'Error!');
+            }
+          );
       }
     } else {
-      this.editTariffRateTimeSubscription = this.authService.editTariffRateTime(formValue, this.tariffRateTimeId).subscribe(res => {
-        if (res['success']) {
-          this.toastr.success(res['message'], 'Success!');
-          this.tariffRatesAndTimeForm.reset();
-          this.ShowTariffRateAndTimeDiv = false;
-          this.getTariffRateAndTimeList(this.tariffId);
-        } else {
-          this.toastr.error(res['message'], 'Error!')
-        }
-      }, () => {
-        this.tariffForm.reset();
-        this.toastr.error('Something went wrong', 'Error!')
-      });
+      this.editTariffRateTimeSubscription = this.authService
+        .editTariffRateTime(formValue, this.tariffRateTimeId)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              this.toastr.success(res['message'], 'Success!');
+              this.tariffRatesAndTimeForm.reset();
+              this.ShowTariffRateAndTimeDiv = false;
+              this.getTariffRateAndTimeList(this.tariffId);
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+            }
+          },
+          () => {
+            this.tariffForm.reset();
+            this.toastr.error('Something went wrong', 'Error!');
+          }
+        );
     }
   }
 
   getTariffRateAndTimeList(id) {
-    this.tariffRateTimeSubscription = this.authService.getTariffRateTime(id).subscribe(res => {
-      if (res['success']) {
-        this.tariffRateTimeList = res['data'];
-      } else {
-        this.toastr.error(res['message'], 'Error!')
-      }
-    }, () => {
-      this.toastr.error('Something went wrong', 'Error!')
-    });
+    this.tariffRateTimeSubscription = this.authService
+      .getTariffRateTime(id)
+      .subscribe(
+        (res) => {
+          if (res['success']) {
+            this.tariffRateTimeList = res['data'];
+          } else {
+            this.toastr.error(res['message'], 'Error!');
+          }
+        },
+        () => {
+          this.toastr.error('Something went wrong', 'Error!');
+        }
+      );
   }
 
   setRateAndTimeFormData(data) {
-    this.tariffRateTimeId = data['_id']
+    this.tariffRateTimeId = data['_id'];
     this.ShowTariffRateAndTimeDiv = true;
     this.tariffRateTimeAction = 'edit';
     this.tariffRatesAndTimeForm.patchValue({
@@ -303,7 +354,9 @@ export class ManageTariffComponent implements OnInit, AfterViewInit {
 
   specialStartDateAndTimeChange(event) {
     var date = moment(event.date._d).utc();
-    this.tariffRatesAndTimeForm.controls['specialRateStartDate'].patchValue(date);
+    this.tariffRatesAndTimeForm.controls['specialRateStartDate'].patchValue(
+      date
+    );
   }
 
   specialEndDateAndTimeChange(event) {
@@ -311,5 +364,9 @@ export class ManageTariffComponent implements OnInit, AfterViewInit {
     this.tariffRatesAndTimeForm.controls['specialRateEndDate'].patchValue(date);
   }
 
-
+  numericOnly(event): boolean {
+    let patt = /^([0-9])$/;
+    let result = patt.test(event.key);
+    return result;
+  }
 }

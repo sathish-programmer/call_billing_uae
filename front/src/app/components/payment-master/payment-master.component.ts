@@ -153,7 +153,7 @@ export class PaymentMasterComponent implements OnInit {
             this.clearPacktForm();
             this.getPackList(this.packPaginator.skip);
           } else {
-            this.clearPacktForm();
+            // this.clearPacktForm();
             this.toastr.error(res['message'], 'Error!');
           }
         },
@@ -174,7 +174,7 @@ export class PaymentMasterComponent implements OnInit {
           this.clearPacktForm();
           this.getPackList(1);
         } else {
-          this.clearPacktForm();
+          // this.clearPacktForm();
           this.toastr.error(res['message'], 'Error!');
         }
       },
@@ -183,5 +183,11 @@ export class PaymentMasterComponent implements OnInit {
         this.toastr.error('Something went wrong', 'Error!');
       }
     );
+  }
+
+  numericOnly(event): boolean {
+    let patt = /^([0-9])$/;
+    let result = patt.test(event.key);
+    return result;
   }
 }
