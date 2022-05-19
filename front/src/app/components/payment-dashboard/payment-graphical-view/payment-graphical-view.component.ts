@@ -8,6 +8,8 @@ import { Component, OnInit } from '@angular/core';
 import { Chart } from 'chart.js';
 import { CursorError } from '@angular/compiler/src/ml_parser/lexer';
 
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-payment-graphical-view',
   templateUrl: './payment-graphical-view.component.html',
@@ -44,6 +46,8 @@ export class PaymentGraphicalViewComponent implements OnInit {
   currentMnthCostInc: Boolean = false;
   currentMnthCostDec: Boolean = false;
 
+  showGraph: Boolean;
+
   currentMnthForcastCostInc: Boolean = false;
   currentMnthForecastCostDec: Boolean = false;
 
@@ -61,6 +65,13 @@ export class PaymentGraphicalViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    var tooltipTriggerList = [].slice.call(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
     this.getLastFiveMonths();
     this.getDatasByDate();
     this.getAllPayHistory();
@@ -159,37 +170,30 @@ export class PaymentGraphicalViewComponent implements OnInit {
           PreviousFifthMonthCost,
         ];
 
-        console.log('yValues', yValues);
-
         let newXvalues = [];
 
         var xValues = this.lastFiveMonths;
 
-        // if (yValues[0] > 0) {
-        //   console.log('may');
         newXvalues.push(xValues[0]);
-        // } else {
-        //   newXvalues.push(0.0);
-        // }
-        // if (yValues[1] > 0) {
-        //   console.log('march');
-        newXvalues.push(xValues[1]);
-        // }
-        // if (yValues[2] > 0) {
-        //   console.log('april');
-        newXvalues.push(xValues[2]);
-        // }
-        // if (yValues[3] > 0) {
-        //   console.log('feb');
-        newXvalues.push(xValues[3]);
-        // }
-        // if (yValues[4] > 0) {
-        //   console.log('jan');
-        newXvalues.push(xValues[4]);
-        // }
 
-        console.log('xValues', newXvalues);
-        // console.log('xvalues', yValues);
+        newXvalues.push(xValues[1]);
+
+        newXvalues.push(xValues[2]);
+
+        newXvalues.push(xValues[3]);
+
+        newXvalues.push(xValues[4]);
+
+        console.log('yValues', yValues);
+
+        let checkIfGraphEMpty = this.twoGreaterThanZero(yValues);
+
+        if (checkIfGraphEMpty) {
+          this.showGraph = false;
+        } else {
+          this.showGraph = true;
+        }
+
         var barColors = ['#b91d47', '#00aba9', '#2b5797', '#e8c3b9', '#1e7145'];
         let ctx = document.getElementById('myChart');
         let chart = new Chart('myChart', {
@@ -238,6 +242,8 @@ export class PaymentGraphicalViewComponent implements OnInit {
           '100'
         );
 
+        this.percenValForPrev = this.percenValForPrev.replace('NaN', '0');
+
         let sumOfPrevCost = (currentMonthCost - previousMonthCost).toFixed(2);
         this.sumOfPrevCost = sumOfPrevCost;
 
@@ -265,6 +271,8 @@ export class PaymentGraphicalViewComponent implements OnInit {
           'Infinity',
           '100'
         );
+
+        this.percenValForForcast = this.percenValForForcast.replace('NaN', '0');
 
         console.log(previousMonthCost, 'previous mnth forecast');
 
@@ -326,5 +334,13 @@ export class PaymentGraphicalViewComponent implements OnInit {
       }
     );
     // console.log(this.availableAmount, 'hiii');
+  }
+
+  twoGreaterThanZero(arr) {
+    let counter = 0;
+    for (let x of arr) {
+      if (x > 0 && ++counter > 0) return true;
+    }
+    return false;
   }
 }

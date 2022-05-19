@@ -58,7 +58,14 @@
                   {{ thisMonthStartDate | date }} -
                   {{ currentDate | date }} (total cost)
                 </p>
-                <a> <i class="fas fa-question-circle ml-3"></i></a>
+                <a>
+                  <i
+                    class="fas fa-question-circle ml-3"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Total credits spent this month from start to current date"
+                  ></i
+                ></a>
               </div>
               <div
                 class="amount-chart d-flex justify-content-between align-items-center"
@@ -97,7 +104,14 @@
                 <p class="font-weight-bold">
                   {{ currentMonth }} (forecasted total cost)
                 </p>
-                <a> <i class="fas fa-question-circle ml-3"></i></a>
+                <a>
+                  <i
+                    class="fas fa-question-circle ml-3"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Total credits spent this month forecasted"
+                  ></i
+                ></a>
               </div>
               <div
                 class="amount-chart d-flex justify-content-between align-items-center"
@@ -133,7 +147,14 @@
             <div class="col-lg-4 col-md-6 Month-date-chart border-left pl-5">
               <div class="d-flex">
                 <p class="font-weight-bold">Available Credits</p>
-                <a> <i class="fas fa-question-circle ml-3"></i></a>
+                <a>
+                  <i
+                    class="fas fa-question-circle ml-3"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Total available credits"
+                  ></i
+                ></a>
               </div>
               <div
                 class="amount-chart d-flex justify-content-between align-items-center"
@@ -164,6 +185,9 @@
             </div> -->
           </div>
           <div class="col-12 chat-main d-flex justify-content-center">
+            <div class="showNodata" *ngIf="showGraph">
+              <img src="../../../../assets/images/no-data.png" />
+            </div>
             <div class="col-12">
               <canvas id="myChart"></canvas>
             </div>

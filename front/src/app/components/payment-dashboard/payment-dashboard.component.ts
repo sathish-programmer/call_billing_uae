@@ -9,6 +9,8 @@ import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-payment-dashboard',
   templateUrl: './payment-dashboard.component.html',
@@ -146,6 +148,13 @@ export class PaymentDashboardComponent implements OnInit {
 
   baseUrl = environment.urlForFileDownload;
   ngOnInit(): void {
+    var tooltipTriggerList = [].slice.call(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
     this.formInit();
     this.getAllPayHistory();
     this.getDatasByDate();
@@ -271,13 +280,6 @@ export class PaymentDashboardComponent implements OnInit {
   pdfGenerateByDate(formValue) {
     this.ngxLoader.start();
     formValue.orgId = localStorage.getItem('organization');
-    // let startDateForm = formValue.startDate;
-    // let startDate = new Date(startDateForm);
-    // let endDateForm = formValue.endDate;
-    // let endDate = new Date(endDateForm);
-    // let orgID = localStorage.getItem('organization');
-
-    // let data = { orgId: orgID, startDate: startDate, endDate: endDate };
 
     this.downloadCostReport = this.authService
       .downloadCostReport(formValue)
@@ -292,7 +294,8 @@ export class PaymentDashboardComponent implements OnInit {
             }, 5000);
             // this.toastr.success('Pdf Genarated', 'Success!');
           } else {
-            this.toastr.error('Try after some times', 'Error!');
+            this.ngxLoader.stop();
+            this.toastr.info('No transaction found for this dates', 'info!');
           }
           console.log('pdf downloaded ');
         },

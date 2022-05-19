@@ -11,7 +11,7 @@ ul {
 
 .nav-tabs .nav-item.show .nav-link,
 .nav-tabs .nav-link.active {
-  color: blue !important;
+  color: #007bff !important;
 }
 
 canvas {
@@ -24,4 +24,14 @@ canvas {
 }
 .availableCredit {
   color: #28a745;
+}
+
+.showNodata {
+  text-align: center;
+  position: absolute;
+}
+
+.showNodata img {
+  width: 32%;
+  // height: 100%;
 }

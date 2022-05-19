@@ -224,6 +224,7 @@ exports.lastMonthRecord = async (req, res) => {
   let getLastMonthCost = await paymentHistory.find(
     {
       organization: params.orgId.trim(),
+      softDelete: false,
       creationDate: {
         $gte: firstDay,
         $lt: currentDate,
@@ -236,6 +237,7 @@ exports.lastMonthRecord = async (req, res) => {
   let getPrevousMonthCost = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: lastMonthFirstDay,
         $lt: lastMonthLastDay,
@@ -248,6 +250,7 @@ exports.lastMonthRecord = async (req, res) => {
   let getPrevousMonthCostOne = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: lastMonthFirstDayOne,
         $lt: lastMonthLastDayOne,
@@ -260,6 +263,7 @@ exports.lastMonthRecord = async (req, res) => {
   let getPrevousMonthCostTwo = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: lastMonthFirstDayTwo,
         $lt: lastMonthLastDayTwo,
@@ -272,6 +276,7 @@ exports.lastMonthRecord = async (req, res) => {
   let getPrevousMonthCostThree = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: lastMonthFirstDayThree,
         $lt: lastMonthLastDayThree,
@@ -430,6 +435,7 @@ exports.monthRecord = async (req, res) => {
   let getLastMonthCost = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: firstDay,
         $lt: currentDate,
@@ -442,6 +448,7 @@ exports.monthRecord = async (req, res) => {
   let getPrevousMonthCost = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: lastMonthFirstDay,
         $lt: lastMonthLastDay,
@@ -454,6 +461,7 @@ exports.monthRecord = async (req, res) => {
   let getPrevousMonthCostOne = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: lastMonthFirstDayOne,
         $lt: lastMonthLastDayOne,
@@ -466,6 +474,7 @@ exports.monthRecord = async (req, res) => {
   let getPrevousMonthCostTwo = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: lastMonthFirstDayTwo,
         $lt: lastMonthLastDayTwo,
@@ -478,6 +487,7 @@ exports.monthRecord = async (req, res) => {
   let getPrevousMonthCostThree = await paymentHistory.find(
     {
       organization: params.orgId,
+      softDelete: false,
       creationDate: {
         $gte: lastMonthFirstDayThree,
         $lt: lastMonthLastDayThree,
@@ -970,3 +980,29 @@ function secondsToDHMS(seconds) {
   }
   return msg;
 }
+
+// delete api
+exports.deletePaymentHis = async (req, res) => {
+  let params = req.params;
+
+  if (params.paymentId) {
+    let delTable = await paymentHistory.updateMany(
+      { softDelete: false },
+      { $set: { softDelete: true } }
+    );
+
+    if (delTable) {
+      return res.json({
+        success: true,
+        data: params.paymentId,
+        message: "Payment linked with the organization Deleted",
+      });
+    } else {
+      return res.json({
+        success: false,
+        data: params.paymentId,
+        message: "Something went wrong",
+      });
+    }
+  }
+};

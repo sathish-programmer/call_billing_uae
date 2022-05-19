@@ -488,7 +488,9 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
               };
 
               let dataToSave = new paymentHistory(updatePaymentHis);
-              await dataToSave.save();
+              if (callCostForLog > 0) {
+                await dataToSave.save();
+              }
 
               if (dataToSave) {
                 let updatePayIsCalc = await CALL_LOGS.findByIdAndUpdate(

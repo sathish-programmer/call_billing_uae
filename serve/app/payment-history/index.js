@@ -16,5 +16,6 @@ router.post("/download/getPdf", checkAuth, controller.generatePdfByMonth);
 router.get("/lastMonthRecord/:orgId", checkAuth, controller.lastMonthRecord);
 
 router.get("/monthRecord/:orgId", checkAuth, controller.monthRecord);
+router.patch("/:paymentId", checkAuth, controller.deletePaymentHis);
 
 module.exports = router;

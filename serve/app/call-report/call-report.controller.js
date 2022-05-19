@@ -537,7 +537,7 @@ async function toGetReportData(body, params, filterRequired) {
   for (var index in retDoc) {
     let retMsg = secondsToDHMS(retDoc[index]["CallDuration"]);
 
-    if (retMsg) {
+    if (retMsg != "00:00:00") {
       totalDuration += retDoc[index]["CallDuration"];
       totalAmount += retDoc[index]["CalculatedCost"] || 0;
       answeredCalls++;
@@ -545,7 +545,7 @@ async function toGetReportData(body, params, filterRequired) {
       retDoc[index]["CallAnswered"] = "Yes";
     } else {
       missedCalls++;
-      retDoc[index]["CallDuration"] = 0;
+      retDoc[index]["CallDuration"] = "00:00:00";
       retDoc[index]["CallAnswered"] = "No";
     }
 

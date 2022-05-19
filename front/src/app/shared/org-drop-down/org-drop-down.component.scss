@@ -29,7 +29,9 @@
   padding: 7px 20px 10px 45px;
   border: none;
   border-bottom: 1px solid #ddd;
-  width: 198px;
+  width: auto;
+  background-color: transparent;
+  outline: none;
 }
 
 .dropdown {

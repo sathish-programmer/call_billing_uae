@@ -95,7 +95,14 @@
                   <div class="col-lg-6 col-md-12 Month-to-date">
                     <div class="d-flex">
                       <p class="font-weight-bold">Month-to-date total cost</p>
-                      <a> <i class="fas fa-question-circle ml-3"></i></a>
+                      <a>
+                        <i
+                          class="fas fa-question-circle ml-3"
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="top"
+                          title="Total credits spent this month from start to current date"
+                        ></i
+                      ></a>
                     </div>
                     <div class="amount">
                       <p class="font-weight-bold">
@@ -110,7 +117,14 @@
                       <p class="font-weight-bold">
                         End-of-month total cost (forecasted)
                       </p>
-                      <a> <i class="fas fa-question-circle ml-3"></i></a>
+                      <a>
+                        <i
+                          class="fas fa-question-circle ml-3"
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="top"
+                          title="Total credits spent this month forecasted"
+                        ></i
+                      ></a>
                     </div>
                     <div class="amount">
                       <p class="font-weight-bold">
@@ -163,10 +177,15 @@
                     </p>
                   </div> -->
                   <div class="mr-3">
-                    <p class="text-capitalize">
+                    <p class="text-capitalize" *ngIf="!showTransactionNotFound">
                       <i class="fas fa-calendar-alt mr-3"></i>Your last payment
                       was on {{ (lastPaidDate | date) || "-" }} for
                       {{ currencySymbol }} {{ lastPaidAmount || "0" }}
+                    </p>
+
+                    <p class="text-capitalize" *ngIf="showTransactionNotFound">
+                      <i class="fas fa-calendar-alt mr-3"></i>No Transactions
+                      found in Last month
                     </p>
                   </div>
                 </div>
