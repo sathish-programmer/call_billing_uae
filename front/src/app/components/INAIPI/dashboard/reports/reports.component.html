@@ -345,6 +345,29 @@
           <div class="col-md-12 form-group form-group-sm">
             <div class="row">
               <div class="col-sm-4">
+                <label>Report Type</label>
+              </div>
+              <div class="col-sm-8">
+                <select
+                  class="dropdown h-40"
+                  (change)="reportChanges($event)"
+                  formControlName="reportType"
+                >
+                  <option value="" disabled selected>Select Report Type</option>
+                  <option
+                    *ngFor="let answer of optionAnswers"
+                    [value]="answer.value"
+                  >
+                    {{ answer.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 form-group form-group-sm">
+            <div class="row">
+              <div class="col-sm-4">
                 <label>Save As:</label>
               </div>
               <div class="col-sm-8">
@@ -421,11 +444,34 @@
             <a
               class="nav-link active"
               data-toggle="tab"
+              *ngIf="checkReport && !checkReportBasedOnExt"
               aria-controls="FileReportTab"
               href="#FileReportTab"
               role="tab"
               (click)="tabValue = 1"
-              >Report Output ({{ callReportPaginator.total }})</a
+              >Detailed Report Output ({{ callReportPaginator.total }})</a
+            >
+
+            <a
+              class="nav-link active"
+              data-toggle="tab"
+              *ngIf="checkReport && checkReportBasedOnExt"
+              aria-controls="FileReportTab"
+              href="#FileReportTab"
+              role="tab"
+              (click)="tabValue = 1"
+              >Extension Based Report ({{ callReportPaginator.total }})</a
+            >
+
+            <a
+              class="nav-link active"
+              data-toggle="tab"
+              *ngIf="!checkReport"
+              aria-controls="FileReportTab"
+              href="#FileReportTab"
+              role="tab"
+              (click)="tabValue = 1"
+              >Summary Report Output</a
             >
           </li>
         </ul>
@@ -445,6 +491,7 @@
             <div class="col-md-3">
               <input
                 type="text"
+                *ngIf="checkReport && !checkReportBasedOnExt"
                 class="form-control input-sm"
                 (keydown)="keyDownFunction($event)"
                 [(ngModel)]="searchData"
@@ -453,6 +500,7 @@
             </div>
             <div class="col-md-1 p-0">
               <button
+                *ngIf="checkReport && !checkReportBasedOnExt"
                 class="btn btn-primary btn-sm report-btn"
                 (click)="getReport(saveFormValue, 1)"
               >
@@ -462,6 +510,7 @@
             <div class="col-md-8">
               <button
                 class="btn btn-sm btn-primary f-right margin-left-5 report-btn"
+                *ngIf="checkReport && !checkReportBasedOnExt"
                 (click)="downloadReportCSV()"
               >
                 Download CSV
@@ -475,7 +524,12 @@
             </div>
             <div class="col-md-12">
               <br />
-              <table class="table table-bordered">
+              <table
+                class="table table-bordered"
+                *ngIf="
+                  showReportBasedOnType == 'detail' && !checkReportBasedOnExt
+                "
+              >
                 <thead>
                   <tr>
                     <th>Branch</th>
@@ -519,16 +573,105 @@
                   </tr>
                 </tbody>
               </table>
-              <pagination-controls
+
+              <!-- summary table -->
+              <table
+                class="table table-bordered"
+                *ngIf="
+                  showReportBasedOnType == 'summary' && !checkReportBasedOnExt
+                "
+              >
+                <thead>
+                  <tr>
+                    <th>Total Calls</th>
+                    <th>Total Duration</th>
+                    <th>Total Seconds</th>
+                    <th>Total Amount</th>
+                    <th>Answered Calls</th>
+                    <th>Missed Calls</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ TotalCalls || "0" }}</td>
+                    <td>{{ TotalSeconds || "0" }}</td>
+                    <td>{{ TotalDuration || "0" }}</td>
+                    <td>{{ TotalAmount || "0" }}</td>
+                    <td>{{ AnsweredCalls || "0" }}</td>
+                    <td>{{ MissedCalls || "0" }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- <pagination-controls
                 (pageChange)="getReport(saveFormValue, $event)"
-              ></pagination-controls>
+              ></pagination-controls> -->
+
+              <!-- show ext based record -->
+              <table
+                class="table table-bordered"
+                *ngIf="
+                  showReportBasedOnType == 'detail' && checkReportBasedOnExt
+                "
+              >
+                <thead>
+                  <tr>
+                    <th>Extension</th>
+                    <th>User Name</th>
+                    <th>Duration</th>
+                    <!-- <th></th> -->
+                    <th>Incoming Calls</th>
+                    <th>OutGoing Calls</th>
+                    <th>Missed Calls</th>
+                    <th>Total Calls</th>
+                    <th>Total Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let data of callReports
+                        | paginate
+                          : {
+                              itemsPerPage: callReportPaginator.limit,
+                              currentPage: callReportPaginator.skip,
+                              totalItems: callReportPaginator.total
+                            }
+                    "
+                  >
+                    <td>{{ data.extension || "-" }}</td>
+                    <td>{{ data.username || "-" }}</td>
+
+                    <td>{{ data.totalDuration || "0" }}</td>
+                    <!-- <td></td> -->
+                    <td>{{ data.incomingCount || "0" }}</td>
+                    <td>{{ data.outgoingCount || "0" }}</td>
+
+                    <td>{{ data.missedCalls || "0" }}</td>
+                    <td>{{ data.totalCallsMade || "0" }}</td>
+
+                    <td>{{ data.totalCost || "0" | number: "1.2-2" }}</td>
+                  </tr>
+                  <tr class="footer">
+                    <td></td>
+                    <td></td>
+                    <!-- <td></td> -->
+                    <td>Total</td>
+                    <!-- <td>0</td> -->
+                    <td>{{ totalIncomingCalls || "0" }}</td>
+                    <td>{{ totalOutgoingCalls || "0" }}</td>
+                    <td>{{ totalMissedCalls || "0" }}</td>
+                    <td>{{ totalCallsForExt || "0" }}</td>
+                    <td>{{ totalAmountForExt || "0" | number: "1.2-2" }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <!-- <div class="row" *ngIf="reportTabMessage && reportTabMessage.length">
-                        <div class="col-md-12">
-                            <p class="text-center">{{reportTabMessage}}</p>
-                        </div>
-                    </div> -->
+          <div class="row" *ngIf="reportTabMessage && reportTabMessage.length">
+            <div class="col-md-12">
+              <p class="text-center">{{ reportTabMessage }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

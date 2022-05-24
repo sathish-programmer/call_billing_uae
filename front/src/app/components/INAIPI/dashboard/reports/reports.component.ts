@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { of, Subscription } from 'rxjs';
 import { OrganizationIdSharingService } from 'src/app/service/data.service';
 import { NgForm } from '@angular/forms';
 import * as moment from 'moment';
@@ -30,6 +30,26 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   downloadCSVSubscription: Subscription;
   downloadPDFSubscription: Subscription;
 
+  checkReport: boolean = true;
+
+  checkReportBasedOnExt: boolean;
+  checkReportBasedOnNotExt: boolean;
+
+  showReportBasedOnType: any;
+
+  totalIncomingCalls: any;
+  totalOutgoingCalls: any;
+  totalMissedCalls: any;
+  totalCallsForExt: any;
+  totalAmountForExt: any;
+
+  optionAnswers = [
+    { value: 'detail_report', name: 'Detail' },
+    { value: 'summary_report', name: 'Summary' },
+  ];
+
+  report_type_val: any;
+
   getUserEmail: any;
   roleAccess: boolean;
 
@@ -58,6 +78,13 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   departmentList = [];
   extensionList: any = [];
   callReports = [];
+
+  TotalCalls: any;
+  TotalSeconds: any;
+  TotalDuration: any;
+  TotalAmount: any;
+  AnsweredCalls: any;
+  MissedCalls: any;
 
   allBranch: [''];
   allDepartment: [''];
@@ -231,6 +258,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
       groupBy: [''],
       costEnabled: [],
       searchByNumber: [''],
+      reportType: [''],
       fileName: [''],
     });
   }
@@ -326,6 +354,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     ) {
       this.saveFormValue['fileName'] = fileName;
     }
+    this.saveFormValue['reportType'] = this.report_type_val;
     if (fileName) {
       this.downloadCSVSubscription = this.authService
         .downloadReportCSV(this.orgId, this.saveFormValue)
@@ -361,22 +390,43 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     ) {
       this.saveFormValue['fileName'] = fileName;
     }
+    this.saveFormValue['reportType'] = this.report_type_val;
+    console.log(this.saveFormValue);
+    // return;
     if (fileName) {
-      this.downloadPDFSubscription = this.authService
-        .downloadReportPDF(this.orgId, this.saveFormValue)
-        .subscribe(
-          (res) => {
-            if (res['success']) {
-              let fileUrl = this.baseUrl + res['data']['url'];
-              window.open(fileUrl);
-            } else {
-              this.toastr.error(res['message'], 'Error!');
+      if (fileName != 'Extension Summary') {
+        this.downloadPDFSubscription = this.authService
+          .downloadReportPDF(this.orgId, this.saveFormValue)
+          .subscribe(
+            (res) => {
+              if (res['success']) {
+                let fileUrl = this.baseUrl + res['data']['url'];
+                window.open(fileUrl);
+              } else {
+                this.toastr.error(res['message'], 'Error!');
+              }
+            },
+            () => {
+              this.toastr.error('Something went wrong', 'Error!');
             }
-          },
-          () => {
-            this.toastr.error('Something went wrong', 'Error!');
-          }
-        );
+          );
+      } else {
+        this.downloadPDFSubscription = this.authService
+          .downloadReportPDFForExtension(this.orgId, this.saveFormValue)
+          .subscribe(
+            (res) => {
+              if (res['success']) {
+                let fileUrl = this.baseUrl + res['data']['url'];
+                window.open(fileUrl);
+              } else {
+                this.toastr.error(res['message'], 'Error!');
+              }
+            },
+            () => {
+              this.toastr.error('Something went wrong', 'Error!');
+            }
+          );
+      }
     } else {
       this.toastr.error(
         "Please add name under 'Save As' to give download file a name",
@@ -399,7 +449,19 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   getReport(formValue, event) {
-    console.log(formValue);
+    let reportType = formValue['reportType'];
+
+    if (reportType == 'summary_report') {
+      this.showReportBasedOnType = 'summary';
+      this.checkReport = false;
+    } else if (
+      reportType == 'detail_report' ||
+      reportType == '' ||
+      reportType == undefined
+    ) {
+      this.checkReport = true;
+      this.showReportBasedOnType = 'detail';
+    }
     this.callReportPaginator.skip = event;
     this.ngxLoader.start();
     formValue['skip'] =
@@ -414,24 +476,66 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     formValue['endDate'] = moment(formValue['endDate']).utc(true).endOf('day');
     this.saveFormValue = formValue;
 
-    this.callReportsListSubscription = this.authService
-      .getCallReportsList(this.orgId, formValue)
-      .subscribe(
-        (res) => {
-          if (res['success']) {
-            this.callReports = res['query'];
-            this.callReportPaginator.total = res['total'];
-            this.ngxLoader.stop();
-          } else {
-            this.toastr.error(res['message'], 'Error!');
+    console.log(formValue, 'form val');
+
+    if (formValue['fileName'] !== 'Extension Summary') {
+      this.callReportsListSubscription = this.authService
+        .getCallReportsList(this.orgId, formValue)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              this.checkReportBasedOnExt = false;
+              this.checkReportBasedOnNotExt = true;
+              this.callReports = res['query'];
+              this.TotalCalls = res['TotalCalls'];
+              this.TotalSeconds = res['TotalSeconds'];
+              this.TotalDuration = res['TotalDuration'];
+              this.TotalAmount = res['TotalAmount'];
+              this.AnsweredCalls = res['AnsweredCalls'];
+              this.MissedCalls = res['MissedCalls'];
+
+              this.callReportPaginator.total = res['total'];
+              this.ngxLoader.stop();
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+              this.ngxLoader.stop();
+            }
+          },
+          () => {
+            this.toastr.error('Something went wrong', 'Error!');
             this.ngxLoader.stop();
           }
-        },
-        () => {
-          this.toastr.error('Something went wrong', 'Error!');
-          this.ngxLoader.stop();
-        }
-      );
+        );
+    } else {
+      this.callReportsListSubscription = this.authService
+        .getCallReportsListBasedOnExtension(this.orgId, formValue)
+        .subscribe(
+          (res) => {
+            if (res['success']) {
+              this.callReports = res['query'];
+              this.checkReportBasedOnExt = true;
+              this.checkReportBasedOnNotExt = false;
+              this.callReportPaginator.total = res['total'];
+
+              this.totalIncomingCalls = res['totalIncomingCalls'];
+              this.totalOutgoingCalls = res['totalOutgoingCalls'];
+              this.totalMissedCalls = res['totalMissedCalls'];
+              this.totalCallsForExt = res['totalCalls'];
+              this.totalAmountForExt = res['totalAmount'];
+
+              this.ngxLoader.stop();
+            } else {
+              this.toastr.error(res['message'], 'Error!');
+              this.ngxLoader.stop();
+            }
+          },
+          () => {
+            this.toastr.error('Something went wrong', 'Error!');
+            this.ngxLoader.stop();
+          }
+        );
+    }
+
     this.searchData = '';
   }
 
@@ -466,6 +570,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         groupBy: savedFilterData['groupBy'] || '',
         costEnabled: savedFilterData['costEnabled'],
         searchByNumber: savedFilterData['searchByNumber'] || '',
+        reportType: savedFilterData['reportType'] || '',
         dRTOption: savedFilterData['dRTOption'] || '',
       });
 
@@ -651,5 +756,18 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         }
       );
     this.ngxLoader.stop();
+  }
+
+  reportChanges(event: any) {
+    let selectedLaw: any = event.target.value;
+    let report_type = selectedLaw;
+    this.report_type_val = report_type;
+
+    if (report_type == 'detail_report') {
+      this.checkReport = true;
+    } else {
+      this.checkReport = false;
+    }
+    //  this.change.emit(selectedLaw.value);
   }
 }

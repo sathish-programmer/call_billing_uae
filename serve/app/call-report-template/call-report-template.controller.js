@@ -12,11 +12,6 @@ exports.saveCallReportsTemplate = async (req, res) => {
     }
 
     if (body.organization && body.startDate && body.endDate && body.fileName) {
-      // let findFileName = CALL_REPORT_TEMPLATE.findOne({
-      //   softDelete: false,
-      //   fileName: body.fileName,
-      // });
-
       let dataToSave = new CALL_REPORT_TEMPLATE({
         organization: body.organization,
         user: req.user._id,
@@ -28,6 +23,7 @@ exports.saveCallReportsTemplate = async (req, res) => {
         branch: body.branch,
         department: body.department,
         callType: body.callType,
+        reportType: body.reportType,
         direction: body.direction,
         groupBy: body.groupBy,
         orderBy: body.orderBy,
@@ -95,6 +91,7 @@ exports.updateCallReportTemplate = async (req, res) => {
             branch: body.branch,
             department: body.department,
             callType: body.callType,
+            reportType: body.reportType,
             direction: body.direction,
             groupBy: body.groupBy,
             orderBy: body.orderBy,
@@ -115,6 +112,72 @@ exports.updateCallReportTemplate = async (req, res) => {
   }
 };
 
+// save the Call Report Template for extension summary
+exports.saveExtensionCallReportsTemplate = async (req, res) => {
+  try {
+    let body = req.body;
+    let addedByName;
+    if (req.user.type == "root") {
+      addedByName = "superAdmin";
+    } else {
+      addedByName = "orgAdmin";
+    }
+
+    if (
+      req.user.organization &&
+      body.startDate &&
+      body.endDate &&
+      body.fileName
+    ) {
+      let dataToSave = new CALL_REPORT_TEMPLATE({
+        organization: req.user.organization,
+        user: req.user._id,
+        startDate: body.startDate,
+        endDate: body.endDate,
+        extension: body.extension,
+        fileName: body.fileName,
+        dRTOption: body.dRTOption,
+        branch: body.branch,
+        department: body.department,
+        callType: body.callType,
+        direction: body.direction,
+        groupBy: body.groupBy,
+        orderBy: body.orderBy,
+        searchByNumber: body.searchByNumber,
+        costEnabled: body.costEnabled,
+        softDelete: false,
+        showType: 1,
+        addedBy: addedByName,
+      });
+      if (
+        await CALL_REPORT_TEMPLATE.findOne({
+          fileName: body.fileName,
+          softDelete: false,
+        })
+      ) {
+        return res.json({
+          success: false,
+          data: "",
+          message: "File name already exists",
+        });
+      } else {
+        let retDoc = await dataToSave.save();
+
+        return res.json({
+          success: true,
+          data: retDoc["_id"],
+          message: "Saved",
+        });
+      }
+    } else {
+      return res.json({ success: false, data: "", message: "Missing data" });
+    }
+  } catch (err) {
+    console.log("Error while saving reports filter", err);
+    return res.json({ succes: false, data: "", message: err });
+  }
+};
+
 // Get the list of the Call Report Template
 exports.getCallReportsTemplate = async (req, res) => {
   try {
@@ -125,7 +188,7 @@ exports.getCallReportsTemplate = async (req, res) => {
       // organization: params.orgId,
       addedBy: "superAdmin",
       softDelete: false,
-    });
+    }).sort({ showType: -1 });
 
     //get record based on org
     let orgRec = await CALL_REPORT_TEMPLATE.find({

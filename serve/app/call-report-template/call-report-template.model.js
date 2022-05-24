@@ -22,7 +22,9 @@ var callReportTemplateSchema = new Schema({
   orderBy: { type: String },
   searchByNumber: { type: String },
   costEnabled: { type: Boolean },
+  showType: { type: Number, default: 0 },
   softDelete: { type: Boolean, default: false, required: true },
+  reportType: { type: String },
   addedBy: { type: String, default: "admin", required: true },
 });
 

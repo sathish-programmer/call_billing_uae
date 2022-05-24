@@ -756,6 +756,17 @@ export class AuthService {
       .pipe((res) => res);
   }
 
+  getCallReportsListBasedOnExtension(orgId, data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .post(
+        this.baseUrl + 'call-report/extensionRecord/' + orgId,
+        data,
+        headers
+      )
+      .pipe((res) => res);
+  }
+
   downloadReportCSV(orgId, data) {
     let headers = { headers: { token: localStorage.getItem('token') } };
     return this.http
@@ -767,6 +778,17 @@ export class AuthService {
     let headers = { headers: { token: localStorage.getItem('token') } };
     return this.http
       .post(this.baseUrl + 'call-report/download/pdf/' + orgId, data, headers)
+      .pipe((res) => res);
+  }
+
+  downloadReportPDFForExtension(orgId, data) {
+    let headers = { headers: { token: localStorage.getItem('token') } };
+    return this.http
+      .post(
+        this.baseUrl + 'call-report/download/pdfByExtension/' + orgId,
+        data,
+        headers
+      )
       .pipe((res) => res);
   }
 
