@@ -139,7 +139,7 @@ export class PaymentDashboardComponent implements OnInit {
 
   endDateChange(event) {
     this._zone.run(() => {
-      this.endDate = moment(event._d);
+      this.endDate = moment.utc(event._d).add(1, 'd');
       // console.log(event._d);
       console.log('end date', this.endDate);
       this.pdfGenerateForm.patchValue({ endDate: this.endDate });

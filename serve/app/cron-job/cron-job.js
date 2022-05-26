@@ -348,11 +348,14 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
         // Removing 00 from international number as INAIPI
         // people dont add tariff for numbers starting with 00
         if (number.indexOf("00") == 0) {
+          // code = number.substring(0, 2);
           number = number.substring(2, CallednumberLength);
           CallednumberLength = number.length;
-        }
+          console.log("entered international condition new", number);
 
-        console.log("Called Number", number);
+          costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: "00" });
+          console.log("total cycle inter", costCycleJson);
+        }
 
         // if (CallednumberLength == 11) {
         //   number = number.substring(1, CallednumberLength);
@@ -368,7 +371,7 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
             code = number.substring(0, number.length % 10);
             // console.log("COde >10", code);
             costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
-            console.log("total cycle", costCycleJson);
+            // console.log("total cycle", costCycleJson);
           }
         } else if (CallednumberLength <= 10 && CallednumberLength >= 8) {
           // NATIONAL , LOCAL FOR DUBAI
@@ -1043,7 +1046,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCallerNameInfoForCallLog.start();
+findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -1151,7 +1154,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCalledNameInfoForCallLog.start();
+findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {

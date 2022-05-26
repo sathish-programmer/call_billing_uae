@@ -844,30 +844,34 @@ exports.generatePdfByMonth = async (req, res) => {
         direction = "Incoming";
       }
 
-      html +=
-        "<tr style='background:#fff;'><td style='padding:10px 5px;'>" +
-        branchName +
-        "</td><td style='padding:10px 5px;'>" +
-        deptName +
-        "</td><td style='padding:10px 5px;'>" +
-        index["Callernumber"] +
-        "</td><td style='padding:10px 5px;'>" +
-        index["Callednumber"] +
-        "</td><td style='padding:10px 5px;'>" +
-        CallDuration +
-        "</td><td style='padding:10px 5px;'>" +
-        callTimeShow +
-        "</td><td style='padding:10px 5px;'>" +
-        direction +
-        "</td><td style='padding:10px 5px;'>" +
-        index["TotalCycles"] +
-        "</td><td style='padding:10px 5px;'>" +
-        index["CostPerCycle"] +
-        "</td><td style='padding:10px 5px;'>" +
-        currencySymbol +
-        " " +
-        index["CalculatedCost"] +
-        "</td></tr>";
+      let totalCostCal = index["CalculatedCost"].toFixed(2);
+
+      if (index["CalculatedCost"] > 0) {
+        html +=
+          "<tr style='background:#fff;'><td style='padding:10px 5px;'>" +
+          branchName +
+          "</td><td style='padding:10px 5px;'>" +
+          deptName +
+          "</td><td style='padding:10px 5px;'>" +
+          index["Callernumber"] +
+          "</td><td style='padding:10px 5px;'>" +
+          index["Callednumber"] +
+          "</td><td style='padding:10px 5px;'>" +
+          CallDuration +
+          "</td><td style='padding:10px 5px;'>" +
+          callTimeShow +
+          "</td><td style='padding:10px 5px;'>" +
+          direction +
+          "</td><td style='padding:10px 5px;'>" +
+          index["TotalCycles"] +
+          "</td><td style='padding:10px 5px;'>" +
+          index["CostPerCycle"] +
+          "</td><td style='padding:10px 5px;'>" +
+          currencySymbol +
+          " " +
+          totalCostCal +
+          "</td></tr>";
+      }
     }
 
     html += `<tr style="background:#fff;"><td colspan="10" style="padding:10px 20px;border-top: 1px solid #666;border-collapse: collapse; text-align:right;">
@@ -877,26 +881,26 @@ exports.generatePdfByMonth = async (req, res) => {
 
     html += "</tbody></table>";
 
-    html += `<br/>
-  <table width="1100" border="0" cellspacing="0" cellpadding="0" align="center" style="background:#fff;font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-style: normal;font-weight: normal;line-height: 10px;word-break: break-word;color: #333;text-align: left;   ">
-    <tbody>
-       <tr>
-          <td style="padding: 25px 0 10px;font-size: 16px;font-weight: bold;">
-            
-             <span style="font-weight: normal;padding-left: 5px;">
-             ** Balance Credit = ( Available Credit - Total Paid Credit )
-             </span>
-          </td>
-          <td style="padding: 25px 0px 0 400px;font-size: 16px;font-weight: bold;">
-          Balance Credit : 
-           <span style="font-weight: normal;padding-left: 5px;">
-           ${currencySymbol} ${(pendingPay - lastMonthCost).toFixed(2)}
-           </span>
-        </td>
-       </tr>
-       
-    </tbody>
- </table> `;
+    //     html += `<br/>
+    //   <table width="1100" border="0" cellspacing="0" cellpadding="0" align="center" style="background:#fff;font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-style: normal;font-weight: normal;line-height: 10px;word-break: break-word;color: #333;text-align: left;   ">
+    //     <tbody>
+    //        <tr>
+    //           <td style="padding: 25px 0 10px;font-size: 16px;font-weight: bold;">
+
+    //              <span style="font-weight: normal;padding-left: 5px;">
+    //              ** Balance Credit = ( Available Credit - Total Paid Credit )
+    //              </span>
+    //           </td>
+    //           <td style="padding: 25px 0px 0 400px;font-size: 16px;font-weight: bold;">
+    //           Balance Credit :
+    //            <span style="font-weight: normal;padding-left: 5px;">
+    //            ${currencySymbol} ${(pendingPay - lastMonthCost).toFixed(2)}
+    //            </span>
+    //         </td>
+    //        </tr>
+
+    //     </tbody>
+    //  </table> `;
 
     html += "</body></html>";
 

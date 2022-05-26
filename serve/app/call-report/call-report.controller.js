@@ -758,6 +758,17 @@ async function toGetReportData(body, params, filterRequired) {
     ];
   }
 
+  if (body["costEnabled"] == "true") {
+    console.log("data came costenabled");
+    dataToFind["$and"] = [
+      { CalculatedCost: { $gte: 1 } },
+      { CallDuration: { $gte: 1 } },
+      { Direction: "O" },
+    ];
+  } else if (body["costEnabled"] == "false") {
+    dataToFind["$and"] = [{ CalculatedCost: { $lte: 0 } }];
+  }
+
   console.log("filter data: " + filterData);
   let retDoc, total;
   retDoc = await CALL_LOG.find(dataToFind, populateFields, filterData)
