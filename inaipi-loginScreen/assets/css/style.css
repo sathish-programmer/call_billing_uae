@@ -1,0 +1,222 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap");
+* {
+  box-sizing: border-box;
+}
+
+section {
+  font-family: "Poppins", sans-serif;
+  overflow: hidden;
+}
+
+/* Custom css Style Start  */
+
+.banner {
+  position: relative;
+}
+
+.set-bg {
+  background-image: url("../../assets/images/BG.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: top center;
+  height: 100vh;
+}
+
+.login-welcome {
+  position: relative;
+}
+
+.hero__caption {
+  width: 355px;
+  height: auto;
+  margin-left: 93px;
+  margin-top: 93px;
+  background: #ffffff;
+  box-shadow: 0px 10px 100px 35px rgb(0 0 0 / 15%);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 10px;
+}
+
+.welcome-main {
+  padding: 40px;
+}
+
+.logo {
+  padding-bottom: 30px;
+}
+
+.hero__caption p {
+  margin-bottom: 0;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 27px;
+  line-height: 36px;
+  color: #000;
+}
+
+.hero__caption h1 {
+  margin-bottom: 0;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 27px;
+  line-height: 36px;
+  color: #000;
+}
+
+.welcome {
+  margin-bottom: 48px;
+}
+
+.form .form-control {
+  background: rgba(229, 229, 229, 0.3);
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  width: 300px;
+  height: 45px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  color: #626263;
+}
+
+.input-pass {
+  margin-bottom: 48px;
+}
+
+.forgot {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  color: #006fff;
+  margin-bottom: 19px;
+  display: block;
+}
+
+.btn-blue-primary {
+  width: 300px;
+  height: 45px;
+  background: #006fff;
+  border-radius: 10px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 21px;
+  color: #ffffff;
+}
+
+.btn-blue-primary:hover {
+  background: #295cd2;
+  color: #fff;
+}
+
+.form {
+  margin-bottom: 20px;
+}
+
+.made small {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 36px;
+  color: #626263;
+  margin-right: 4px;
+  display: none;
+}
+
+.made img {
+  margin-top: 5px;
+  width: 26px;
+  height: 22px;
+  display: none;
+}
+
+.ul-list li {
+  font-style: normal;
+  font-weight: 300;
+  font-size: 35px;
+  line-height: 36px;
+  color: #ffffff;
+  margin-right: 94px;
+}
+
+.ul-list {
+  position: absolute;
+  bottom: 52px;
+  z-index: 999999;
+  right: 171px;
+}
+
+.ul-list li:nth-last-child() {
+  margin-right: 0;
+}
+
+.img-banner-main {
+  height: 100vh;
+}
+
+.banner-sub::before {
+  content: "";
+  position: absolute;
+  left: 34px;
+  top: 2px;
+  right: 0;
+  bottom: 0;
+  background-image: url("../../assets/images/girl_on_smartphone.png");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  z-index: 9999;
+}
+
+.logo img {
+  width: 20%;
+}
+
+.ul-list {
+  position: absolute;
+  bottom: 15px;
+  z-index: 999999;
+  right: 159px;
+}
+
+/* Media query  */
+
+@media only screen and (max-width: 1500px) {
+  .hero__caption {
+    margin-top: 44px;
+    padding: 25px;
+    // height: auto;
+  }
+  .ul-list li {
+    margin-right: 50px;
+  }
+  .round-sub::before {
+    width: 435px;
+    height: 435px;
+    right: 145px;
+    top: 187px;
+  }
+  .ul-list {
+    right: 17px;
+    margin-right: 2px;
+  }
+  .welcome {
+    margin-bottom: 30px;
+  }
+  .form {
+    margin-bottom: 16px;
+  }
+  .input-pass {
+    margin: 25px 0 50px 0;
+  }
+  .logo {
+    padding-bottom: 25px;
+  }
+}
