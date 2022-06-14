@@ -422,6 +422,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
           this.toastr.success('OTP resent success', 'Success!');
           this.ngxLoader.stop();
         } else {
+          this.ngxLoader.stop();
           this.toastr.error(res['message'], 'Error!');
         }
       },
@@ -454,6 +455,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
           this.toastr.success(res['message'], 'Success!');
           this.ngxLoader.stop();
         } else {
+          this.ngxLoader.stop();
           this.toastr.error(res['message'], 'Error!');
         }
       },
@@ -488,6 +490,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
           this.toastr.success(res['message'], 'Success!');
           this.ngxLoader.stop();
         } else {
+          this.ngxLoader.stop();
           this.toastr.error(res['message'], 'Error!');
         }
       },

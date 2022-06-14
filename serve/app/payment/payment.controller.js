@@ -29,8 +29,8 @@ exports.sendOtp = async (req, res) => {
       port: 587,
       secure: false, // true for 465, false for other ports
       auth: {
-        user: "sathish@imperiumapp.com", // username
-        pass: "NewPassword@#april", // password
+        user: "Notifications@imperiumapp.com", // username
+        pass: "IpiNtfy3223$", // password
       },
     });
 
@@ -64,14 +64,14 @@ exports.sendOtp = async (req, res) => {
       htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
 
       options = {
-        from: "sathish@imperiumapp.com", // sender address
+        from: "Notifications@imperiumapp.com", // sender address
         to: chkTemp["to"], // list of receivers
         subject: chkTemp["subject"], // Subject line
         html: htmlContent,
       };
     } else {
       options = {
-        from: "sathish@imperiumapp.com", // sender address
+        from: "Notifications@imperiumapp.com", // sender address
         to: "sathishkumarksk007@gmail.com", // list of receivers
         subject: "Call Billing - Payment Verification OTP", // Subject line
         html:
@@ -550,8 +550,8 @@ let sendEmailToAdmin = async (recivers) => {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: "sathish@imperiumapp.com", // username
-      pass: "NewPassword@#april", // password
+      user: "Notifications@imperiumapp.com", // username
+      pass: "IpiNtfy3223$", // password
     },
   });
 
@@ -575,14 +575,14 @@ let sendEmailToAdmin = async (recivers) => {
     htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
 
     options = {
-      from: "sathish@imperiumapp.com", // sender address
+      from: "Notifications@imperiumapp.com", // sender address
       to: admiEmail, // list of receivers
       subject: chkTemp["subject"], // Subject line
       html: htmlContent,
     };
   } else {
     options = {
-      from: "sathish@imperiumapp.com", // sender address
+      from: "Notifications@imperiumapp.com", // sender address
       to: admiEmail, // list of receivers
       subject: "Call Billing - Notify for Payment", // Subject line
       html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
@@ -603,15 +603,15 @@ function sendEmailToAdminForSuccess(recivers, package, orgName, transactionId) {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: "sathish@imperiumapp.com", // username
-      pass: "NewPassword@#april", // password
+      user: "Notifications@imperiumapp.com", // username
+      pass: "IpiNtfy3223$", // password
     },
   });
 
   let admiEmail = recivers;
 
   const options = {
-    from: "sathish@imperiumapp.com", // sender address
+    from: "Notifications@imperiumapp.com", // sender address
     to: admiEmail, // list of receivers
     subject: "Call Billing - Notify for Payment", // Subject line
     html:

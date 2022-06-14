@@ -1046,7 +1046,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-findCallerNameInfoForCallLog.start();
+// findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -1154,7 +1154,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-findCalledNameInfoForCallLog.start();
+// findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
@@ -1405,12 +1405,12 @@ var checkAndSendMail = new CronJob("*/2 * * * *", async function () {
         }
       }
       // send email
-      // sendEmailToAdmin(adminEmails);
+      sendEmailToAdmin(adminEmails);
     });
   }
 });
 
-// checkAndSendMail.start();
+checkAndSendMail.start();
 
 let sendEmailToAdmin = async (recivers) => {
   let transporter = nodemailer.createTransport({
@@ -1418,8 +1418,8 @@ let sendEmailToAdmin = async (recivers) => {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: "sathish@imperiumapp.com", // username
-      pass: "NewPassword@#april", // password
+      user: "Notifications@imperiumapp.com", // username
+      pass: "IpiNtfy3223$", // password
     },
   });
 
@@ -1444,14 +1444,14 @@ let sendEmailToAdmin = async (recivers) => {
     htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
 
     options = {
-      from: "sathish@imperiumapp.com", // sender address
+      from: "Notifications@imperiumapp.com", // sender address
       to: admiEmail, // list of receivers
       subject: chkTemp["subject"], // Subject line
       html: htmlContent,
     };
   } else {
     options = {
-      from: "sathish@imperiumapp.com", // sender address
+      from: "Notifications@imperiumapp.com", // sender address
       to: admiEmail, // list of receivers
       subject: "Call Billing - Notify for Payment", // Subject line
       html: "Dear Admin, <br><br>We noticed that payment credits for your organization going to expire, please recharge immediately.<br><br> Thanks,<br>Call Billing Support ",
@@ -1531,14 +1531,14 @@ var checkPaymentExpiredAndSendMail = new CronJob(
             }
           }
           // send email
-          // sendEmailToAdminForPaymentExpired(adminEmails);
+          sendEmailToAdminForPaymentExpired(adminEmails);
         }
       });
     }
   }
 );
 
-// checkPaymentExpiredAndSendMail.start();
+checkPaymentExpiredAndSendMail.start();
 
 let sendEmailToAdminForPaymentExpired = async (recivers) => {
   let transporter = nodemailer.createTransport({
@@ -1546,8 +1546,8 @@ let sendEmailToAdminForPaymentExpired = async (recivers) => {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: "sathish@imperiumapp.com", // username
-      pass: "NewPassword@#april", // password
+      user: "Notifications@imperiumapp.com", // username
+      pass: "IpiNtfy3223$", // password
     },
   });
 
@@ -1572,14 +1572,14 @@ let sendEmailToAdminForPaymentExpired = async (recivers) => {
     htmlContent += chkTemp["signature"].replaceAll("\n", "<br>");
 
     options = {
-      from: "sathish@imperiumapp.com", // sender address
+      from: "Notifications@imperiumapp.com", // sender address
       to: admiEmail, // list of receivers
       subject: chkTemp["subject"], // Subject line
       html: htmlContent,
     };
   } else {
     options = {
-      from: "sathish@imperiumapp.com", // sender address
+      from: "Notifications@imperiumapp.com", // sender address
       to: admiEmail, // list of receivers
       subject: "Call Billing - Credits Over", // Subject line
       html: "Dear Admin, <br><brWe noticed that payment credits for your organization expired, please recharge immediately for make calls.<br><br> Thanks,<br>Call Billing Support ",
@@ -1588,7 +1588,7 @@ let sendEmailToAdminForPaymentExpired = async (recivers) => {
 
   transporter.sendMail(options, function (err, info) {
     if (err) {
-      console.log(err);
+      console.log("mail not sending, captured erroe", err);
       return;
     }
   });
