@@ -377,13 +377,16 @@ var calculateCallCostJob = new CronJob("*/2 * * * *", async function () {
           // NATIONAL , LOCAL FOR DUBAI
           code = number.substring(0, 3);
           if (
-            code == "500" ||
-            code == "600" ||
+            // code == "500" ||
+            // code == "600" ||
             code == "700" ||
-            code == "800" ||
+            // code == "800" ||
             code == "181"
           ) {
             costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: code });
+          }
+          if (code == "500" || code == "600" || code == "400") {
+            costCycleJson = _.findWhere(tariffsPerOrg, { countryCode: "05" });
           }
           // console.log("Code <=10 and >=8   -- 1", code);
           // console.log("Cost json", costCycleJson);
@@ -1046,7 +1049,7 @@ var findCallerNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCallerNameInfoForCallLog.start();
+findCallerNameInfoForCallLog.start();
 
 // Find Called Name for the Call log
 var findCalledNameInfoForCallLog = new CronJob(
@@ -1154,7 +1157,7 @@ var findCalledNameInfoForCallLog = new CronJob(
   }
 );
 
-// findCalledNameInfoForCallLog.start();
+findCalledNameInfoForCallLog.start();
 
 // Calculate Transfer Call for the Call log
 var checkForTransferCallLog = new CronJob("*/2 * * * *", async function () {
